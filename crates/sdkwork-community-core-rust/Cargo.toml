@@ -1,0 +1,8 @@
+[package]
+name = "sdkwork-community-core-rust"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "sdkwork_community_core"
+path = "src/lib.rs"

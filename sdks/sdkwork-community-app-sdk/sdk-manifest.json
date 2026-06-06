@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "sdkName": "sdkwork-community-app-sdk",
+  "sdkOwner": "sdkwork-community",
+  "apiAuthority": "sdkwork-community.app",
+  "sdkFamily": "sdkwork-community-app-sdk",
+  "sdkType": "app",
+  "apiPrefix": "/app/v3/api",
+  "generationInputSpec": "../../generated/openapi/community-app-api.openapi.json",
+  "sdkDependencies": [],
+  "generatedPackages": {
+    "typescript": {
+      "language": "typescript",
+      "packageName": "sdkwork-community-app-sdk-generated-typescript",
+      "generatedOutput": "sdkwork-community-app-sdk-typescript/generated/server-openapi"
+    }
+  },
+  "generatorName": "@sdkwork/sdk-generator",
+  "generatorPath": "D:\\javasource\\spring-ai-plus\\sdk\\sdkwork-sdk-generator\\bin\\sdkgen.js",
+  "baseUrl": "http://127.0.0.1:18080",
+  "standardProfile": "sdkwork-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 9,
+  "operations": [
+    {
+      "method": "GET",
+      "operationId": "categories.list",
+      "path": "/app/v3/api/community/categories"
+    },
+    {
+      "method": "POST",
+      "operationId": "comments.create",
+      "path": "/app/v3/api/community/entries/{entryId}/comments"
+    },
+    {
+      "method": "GET",
+      "operationId": "comments.list",
+      "path": "/app/v3/api/community/entries/{entryId}/comments"
+    },
+    {
+      "method": "POST",
+      "operationId": "entries.create",
+      "path": "/app/v3/api/community/entries"
+    },
+    {
+      "method": "GET",
+      "operationId": "entries.publicationReadiness.retrieve",
+      "path": "/app/v3/api/community/entries/{entryId}/publication_readiness"
+    },
+    {
+      "method": "GET",
+      "operationId": "entries.recommendations.list",
+      "path": "/app/v3/api/community/entries/{entryId}/recommendations"
+    },
+    {
+      "method": "GET",
+      "operationId": "entries.retrieve",
+      "path": "/app/v3/api/community/entries/{entryId}"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "entries.update",
+      "path": "/app/v3/api/community/entries/{entryId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "feed.list",
+      "path": "/app/v3/api/community/feed"
+    }
+  ],
+  "managedBy": "tools/community_sdk_generator_runner.mjs"
+}

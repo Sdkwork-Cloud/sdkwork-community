@@ -1,0 +1,14 @@
+[package]
+name = "sdkwork-community-storage-sqlx-rust"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "sdkwork_community_storage_sqlx"
+path = "src/lib.rs"
+
+[dependencies]
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite"] }
+
+[dev-dependencies]
+tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }

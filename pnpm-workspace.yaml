@@ -1,0 +1,20 @@
+packages:
+  - "sdks/*"
+  - "sdks/sdkwork-community-sdk/*/generated/server-openapi"
+  - "sdks/sdkwork-community-app-sdk/*/generated/server-openapi"
+  - "sdks/sdkwork-community-backend-sdk/*/generated/server-openapi"
+  - "packages/common/community/*"
+  - "apps/sdkwork-community-pc/packages/community/*"
+  - "../../javasource/spring-ai-plus/spring-ai-plus-business/apps/sdkwork-ui/sdkwork-ui-pc-react"
+  - "../../javasource/spring-ai-plus/sdk/sdkwork-sdk-commons/sdkwork-sdk-common-typescript"
+
+catalog:
+  "@types/react": ^19.2.14
+  "@types/react-dom": ^19.2.3
+  "@vitejs/plugin-react": ^6.0.1
+  jsdom: ^29.0.1
+  react: ^19.2.4
+  react-dom: ^19.2.4
+  typescript: ~6.0.2
+  vite: ^8.0.3
+  vitest: ^4.1.2

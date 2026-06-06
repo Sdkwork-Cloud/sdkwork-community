@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "crates/sdkwork-community-core-rust",
+    "crates/sdkwork-community-storage-sqlx-rust",
+    "crates/sdkwork-community-http-rust",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"

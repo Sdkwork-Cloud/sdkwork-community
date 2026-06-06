@@ -1,0 +1,10 @@
+node_modules/
+target/
+dist/
+build/
+coverage/
+.turbo/
+.vite/
+.sdkwork/
+*.log
+*.tmp

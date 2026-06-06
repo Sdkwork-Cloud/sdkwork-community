@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "sdkName": "sdkwork-community-backend-sdk",
+  "sdkOwner": "sdkwork-community",
+  "apiAuthority": "sdkwork-community.backend",
+  "sdkFamily": "sdkwork-community-backend-sdk",
+  "sdkType": "backend",
+  "apiPrefix": "/backend/v3/api",
+  "generationInputSpec": "../../generated/openapi/community-backend-api.openapi.json",
+  "sdkDependencies": [],
+  "generatedPackages": {
+    "typescript": {
+      "language": "typescript",
+      "packageName": "sdkwork-community-backend-sdk-generated-typescript",
+      "generatedOutput": "sdkwork-community-backend-sdk-typescript/generated/server-openapi"
+    }
+  },
+  "generatorName": "@sdkwork/sdk-generator",
+  "generatorPath": "D:\\javasource\\spring-ai-plus\\sdk\\sdkwork-sdk-generator\\bin\\sdkgen.js",
+  "baseUrl": "http://127.0.0.1:18080",
+  "standardProfile": "sdkwork-v3",
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 11,
+  "operations": [
+    {
+      "method": "POST",
+      "operationId": "categories.create",
+      "path": "/backend/v3/api/community/categories"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "categories.delete",
+      "path": "/backend/v3/api/community/categories/{categoryId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "categories.management.list",
+      "path": "/backend/v3/api/community/categories"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "categories.update",
+      "path": "/backend/v3/api/community/categories/{categoryId}"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "entries.delete",
+      "path": "/backend/v3/api/community/entries/{entryId}"
+    },
+    {
+      "method": "POST",
+      "operationId": "entries.feature",
+      "path": "/backend/v3/api/community/entries/{entryId}/feature"
+    },
+    {
+      "method": "GET",
+      "operationId": "entries.management.list",
+      "path": "/backend/v3/api/community/entries"
+    },
+    {
+      "method": "POST",
+      "operationId": "entries.moderation.update",
+      "path": "/backend/v3/api/community/entries/{entryId}/moderation"
+    },
+    {
+      "method": "POST",
+      "operationId": "entries.pin",
+      "path": "/backend/v3/api/community/entries/{entryId}/pin"
+    },
+    {
+      "method": "GET",
+      "operationId": "moderation.queue.list",
+      "path": "/backend/v3/api/community/moderation/queue"
+    },
+    {
+      "method": "POST",
+      "operationId": "recommendations.rebuild",
+      "path": "/backend/v3/api/community/recommendations/rebuild"
+    }
+  ],
+  "managedBy": "tools/community_sdk_generator_runner.mjs"
+}

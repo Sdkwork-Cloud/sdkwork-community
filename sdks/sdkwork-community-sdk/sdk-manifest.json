@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "sdkName": "sdkwork-community-sdk",
+  "sdkOwner": "sdkwork-community",
+  "apiAuthority": "sdkwork-community.open",
+  "sdkFamily": "sdkwork-community-sdk",
+  "sdkType": "custom",
+  "apiPrefix": "/community/v3/api",
+  "generationInputSpec": "../../generated/openapi/community-open-api.openapi.json",
+  "sdkDependencies": [],
+  "generatedPackages": {
+    "typescript": {
+      "language": "typescript",
+      "packageName": "sdkwork-community-sdk-generated-typescript",
+      "generatedOutput": "sdkwork-community-sdk-typescript/generated/server-openapi"
+    }
+  },
+  "generatorName": "@sdkwork/sdk-generator",
+  "generatorPath": "D:\\javasource\\spring-ai-plus\\sdk\\sdkwork-sdk-generator\\bin\\sdkgen.js",
+  "baseUrl": "http://127.0.0.1:18082",
+  "standardProfile": null,
+  "fixedSdkVersion": "0.1.0",
+  "ownerOnlyOperationCount": 4,
+  "operations": [
+    {
+      "method": "GET",
+      "operationId": "categories.public.list",
+      "path": "/community/v3/api/categories"
+    },
+    {
+      "method": "GET",
+      "operationId": "entries.public.retrieve",
+      "path": "/community/v3/api/entries/{entryId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "entries.publicBySlug.retrieve",
+      "path": "/community/v3/api/entries/by_slug/{slug}"
+    },
+    {
+      "method": "GET",
+      "operationId": "feed.public.list",
+      "path": "/community/v3/api/feed"
+    }
+  ],
+  "managedBy": "tools/community_sdk_generator_runner.mjs"
+}

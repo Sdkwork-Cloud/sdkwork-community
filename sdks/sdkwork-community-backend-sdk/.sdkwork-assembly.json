@@ -1,0 +1,19 @@
+{
+  "workspace": "sdkwork-community-backend-sdk",
+  "sdkOwner": "sdkwork-community",
+  "apiAuthority": "sdkwork-community.backend",
+  "authoritySpec": "../../generated/openapi/community-backend-api.openapi.json",
+  "generationInputSpec": "../../generated/openapi/community-backend-api.openapi.json",
+  "sdkDependencies": [],
+  "derivedSpecs": {
+    "default": "../../generated/openapi/community-backend-api.openapi.json"
+  },
+  "discoverySurface": {
+    "sdkTarget": "backend",
+    "apiPrefix": "/backend/v3/api",
+    "generatedProtocols": [
+      "http-openapi"
+    ],
+    "manualTransports": []
+  }
+}

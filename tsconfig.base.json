@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "allowJs": false,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@sdkwork/community-contracts": [
+        "packages/common/community/sdkwork-community-contracts/src/index.ts"
+      ],
+      "@sdkwork/community-sdk-ports": [
+        "packages/common/community/sdkwork-community-sdk-ports/src/index.ts"
+      ],
+      "@sdkwork/community-service": [
+        "packages/common/community/sdkwork-community-service/src/index.ts"
+      ],
+      "@sdkwork/community-runtime": [
+        "packages/common/community/sdkwork-community-runtime/src/index.ts"
+      ],
+      "@sdkwork/community-pc-react": [
+        "apps/sdkwork-community-pc/packages/community/sdkwork-community-pc-react/src/index.ts"
+      ],
+      "@sdkwork/community-sdk": [
+        "sdks/sdkwork-community-sdk/sdkwork-community-sdk-typescript/generated/server-openapi/src/index.ts"
+      ],
+      "@sdkwork/community-app-sdk": [
+        "sdks/sdkwork-community-app-sdk/sdkwork-community-app-sdk-typescript/generated/server-openapi/src/index.ts"
+      ],
+      "@sdkwork/community-backend-sdk": [
+        "sdks/sdkwork-community-backend-sdk/sdkwork-community-backend-sdk-typescript/generated/server-openapi/src/index.ts"
+      ]
+    }
+  }
+}
