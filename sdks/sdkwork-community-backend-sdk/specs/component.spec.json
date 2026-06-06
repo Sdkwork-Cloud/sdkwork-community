@@ -7,7 +7,7 @@
     "version": "0.1.0",
     "type": "sdk-family",
     "root": "sdkwork-community/sdks/sdkwork-community-backend-sdk",
-    "domain": "community",
+    "domain": "communication",
     "capability": "community",
     "status": "standardized",
     "languages": [
@@ -23,18 +23,48 @@
   "canonicalSpecs": [
     {
       "file": "API_SPEC.md",
-      "path": "../../../../../javasource/spring-ai-plus/spring-ai-plus-business/specs/API_SPEC.md",
+      "path": "../../../sdkwork-specs/API_SPEC.md",
       "purpose": "HTTP/OpenAPI and generated SDK contract rules."
     },
     {
       "file": "SDK_SPEC.md",
-      "path": "../../../../../javasource/spring-ai-plus/spring-ai-plus-business/specs/SDK_SPEC.md",
+      "path": "../../../sdkwork-specs/SDK_SPEC.md",
       "purpose": "SDK generation, SDK dependency, and SDK integration rules."
     },
     {
       "file": "SDK_WORKSPACE_GENERATION_SPEC.md",
-      "path": "../../../../../javasource/spring-ai-plus/spring-ai-plus-business/specs/SDK_WORKSPACE_GENERATION_SPEC.md",
+      "path": "../../../sdkwork-specs/SDK_WORKSPACE_GENERATION_SPEC.md",
       "purpose": "SDK workspace and authority naming rules."
+    },
+    {
+      "file": "COMPONENT_SPEC.md",
+      "path": "../../../sdkwork-specs/COMPONENT_SPEC.md",
+      "purpose": "Component-local contract and discovery rules."
+    },
+    {
+      "file": "CODE_STYLE_SPEC.md",
+      "path": "../../../sdkwork-specs/CODE_STYLE_SPEC.md",
+      "purpose": "Authored source structure and generated code boundaries."
+    },
+    {
+      "file": "NAMING_SPEC.md",
+      "path": "../../../sdkwork-specs/NAMING_SPEC.md",
+      "purpose": "Canonical SDKWork naming rules."
+    },
+    {
+      "file": "MODULE_SPEC.md",
+      "path": "../../../sdkwork-specs/MODULE_SPEC.md",
+      "purpose": "Reusable module and package boundary rules."
+    },
+    {
+      "file": "TEST_SPEC.md",
+      "path": "../../../sdkwork-specs/TEST_SPEC.md",
+      "purpose": "Verification and contract testing expectations."
+    },
+    {
+      "file": "TYPESCRIPT_CODE_SPEC.md",
+      "path": "../../../sdkwork-specs/TYPESCRIPT_CODE_SPEC.md",
+      "purpose": "TypeScript and Node package rules."
     }
   ],
   "contracts": {
@@ -44,7 +74,15 @@
       "authorityOpenApi": "../../generated/openapi/community-backend-api.openapi.json",
       "owner": "sdkwork-community"
     },
-    "sdkDependencies": []
+    "sdkDependencies": [],
+    "publicExports": [
+      "."
+    ],
+    "runtimeEntrypoints": [],
+    "routeManifest": null,
+    "sdkClients": [],
+    "events": [],
+    "configKeys": []
   },
   "verification": {
     "commands": [

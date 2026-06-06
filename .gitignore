@@ -5,6 +5,19 @@ build/
 coverage/
 .turbo/
 .vite/
-.sdkwork/
+.sdkwork/local/
+.sdkwork/tmp/
+.sdkwork/cache/
+.sdkwork/secrets/
 *.log
 *.tmp
+
+# SDKWork local environment and runtime config overrides
+.env.local
+.env.development.local
+.env.test.local
+.env.staging.local
+.env.production.local
+.env.postgres
+.env.release.local
+config/*.local.toml
