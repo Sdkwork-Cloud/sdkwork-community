@@ -21,11 +21,11 @@ const OFFICIAL_LANGUAGE_ORDER = [
 const DEFAULT_LANGUAGE = "typescript";
 const FIXED_SDK_VERSION = "0.1.0";
 const STANDARD_PROFILE = "sdkwork-v3";
-const STANDARD_SDK_GENERATOR_ROOT = "D:\\javasource\\spring-ai-plus\\sdk\\sdkwork-sdk-generator";
-const STANDARD_SDK_GENERATOR_BIN = path.join(STANDARD_SDK_GENERATOR_ROOT, "bin", "sdkgen.js");
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(scriptDir, "..");
+const STANDARD_SDK_GENERATOR_ROOT = path.resolve(workspaceRoot, "../sdkwork-sdk-generator");
+const STANDARD_SDK_GENERATOR_BIN = path.join(STANDARD_SDK_GENERATOR_ROOT, "bin", "sdkgen.js");
 
 function fail(sdkName, message) {
   process.stderr.write(`[${sdkName}] ${message}\n`);

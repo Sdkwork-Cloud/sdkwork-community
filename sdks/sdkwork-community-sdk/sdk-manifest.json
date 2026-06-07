@@ -16,7 +16,7 @@
     }
   },
   "generatorName": "@sdkwork/sdk-generator",
-  "generatorPath": "D:\\javasource\\spring-ai-plus\\sdk\\sdkwork-sdk-generator\\bin\\sdkgen.js",
+  "generatorPath": "../sdkwork-sdk-generator/bin/sdkgen.js",
   "baseUrl": "http://127.0.0.1:18082",
   "standardProfile": null,
   "fixedSdkVersion": "0.1.0",

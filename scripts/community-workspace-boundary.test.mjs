@@ -98,8 +98,8 @@ test("community workspace active files do not depend on sdkwork-appbase ownershi
     const relativePath = path.relative(root, fullPath).replaceAll("\\", "/");
     const content = readFileSync(fullPath, "utf8");
     return [
-      /spring-ai-plus-business\/apps\/sdkwork-appbase/u,
-      /spring-ai-plus-business\\apps\\sdkwork-appbase/u,
+      /legacy-java-plus-workspace\/apps\/sdkwork-appbase/u,
+      /legacy-java-plus-workspace\\apps\\sdkwork-appbase/u,
       /@sdkwork\/appbase-pc-react/u,
       /packages\/pc-react\/communication\/sdkwork-community-pc-react/u,
       /"workspace":\s*"sdkwork-appbase"/u,

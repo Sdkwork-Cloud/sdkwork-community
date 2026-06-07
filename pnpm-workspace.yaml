@@ -5,8 +5,8 @@ packages:
   - "sdks/sdkwork-community-backend-sdk/*/generated/server-openapi"
   - "packages/common/community/*"
   - "apps/sdkwork-community-pc/packages/community/*"
-  - "../../javasource/spring-ai-plus/spring-ai-plus-business/apps/sdkwork-ui/sdkwork-ui-pc-react"
-  - "../../javasource/spring-ai-plus/sdk/sdkwork-sdk-commons/sdkwork-sdk-common-typescript"
+  - "../sdkwork-ui/sdkwork-ui-pc-react"
+  - "../sdkwork-sdk-commons/sdkwork-sdk-common-typescript"
 
 catalog:
   "@types/react": ^19.2.14

@@ -16,7 +16,7 @@
 - Create: `sdks/test/community-openapi-boundary.test.mjs`
 - Create: `sdks/test/community-schema-quality-gate.test.mjs`
 - Create: `scripts/community-workspace-boundary.test.mjs`
-- Create: `D:/javasource/spring-ai-plus/spring-ai-plus-business/apps/sdkwork-appbase/scripts/appbase-community-extraction-boundary.test.mjs`
+- Create: `<workspace-root>/sdkwork-appbase/scripts/appbase-community-extraction-boundary.test.mjs`
 
 - [ ] Write failing tests for community OpenAPI, schema quality, workspace shape, and appbase cleanup.
 - [ ] Run the tests and verify they fail because implementation is missing.
@@ -77,5 +77,5 @@
 - [ ] Run `pnpm install` in `sdkwork-community` if needed.
 - [ ] Run `pnpm verify`.
 - [ ] Run `cargo test --workspace`.
-- [ ] Run `pnpm --dir D:/javasource/spring-ai-plus/spring-ai-plus-business/apps/sdkwork-appbase test:governance-node`.
+- [ ] Run `pnpm --dir <workspace-root>/sdkwork-appbase test:governance-node`.
 - [ ] Re-run searches for community leftovers in appbase and missing generated community artifacts.
