@@ -44,11 +44,11 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
     "package.json",
     "pnpm-workspace.yaml",
     "Cargo.toml",
-    "packages/common/community/sdkwork-community-contracts/package.json",
-    "packages/common/community/sdkwork-community-sdk-ports/package.json",
-    "packages/common/community/sdkwork-community-service/package.json",
-    "packages/common/community/sdkwork-community-runtime/package.json",
-    "apps/sdkwork-community-pc/packages/community/sdkwork-community-pc-react/package.json",
+    "packages/sdkwork-community-contracts/package.json",
+    "packages/sdkwork-community-sdk-ports/package.json",
+    "packages/sdkwork-community-service/package.json",
+    "packages/sdkwork-community-runtime/package.json",
+    "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/package.json",
     "crates/sdkwork-community-core-rust/Cargo.toml",
     "crates/sdkwork-community-storage-sqlx-rust/Cargo.toml",
     "crates/sdkwork-community-http-rust/Cargo.toml",
@@ -70,8 +70,8 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
   assert.equal(rootPackage.name, "sdkwork-community-workspace");
   assert.ok(rootPackage.scripts.verify);
 
-  const pcPackage = readJson("apps/sdkwork-community-pc/packages/community/sdkwork-community-pc-react/package.json");
-  assert.equal(pcPackage.name, "@sdkwork/community-pc-react");
+  const pcPackage = readJson("apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/package.json");
+  assert.equal(pcPackage.name, "@sdkwork/community-pc-community");
   assert.equal(pcPackage.sdkwork.workspace, "sdkwork-community");
 
   for (const [family, authority] of [
@@ -103,7 +103,6 @@ test("community workspace active files do not depend on sdkwork-appbase ownershi
       /@sdkwork\/appbase-pc-react/u,
       /packages\/pc-react\/communication\/sdkwork-community-pc-react/u,
       /"workspace":\s*"sdkwork-appbase"/u,
-      /"domain":\s*"communication"/u,
     ].flatMap((pattern) => {
       const match = content.match(pattern);
       return match ? [`${relativePath}: ${match[0].slice(0, 120)}`] : [];

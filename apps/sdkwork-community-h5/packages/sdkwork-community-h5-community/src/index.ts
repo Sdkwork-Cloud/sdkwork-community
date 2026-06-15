@@ -1,0 +1,1 @@
+export { CommunityH5Routes } from './routes/community-routes';

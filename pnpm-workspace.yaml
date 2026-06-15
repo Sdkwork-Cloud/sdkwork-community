@@ -3,8 +3,9 @@ packages:
   - "sdks/sdkwork-community-sdk/*/generated/server-openapi"
   - "sdks/sdkwork-community-app-sdk/*/generated/server-openapi"
   - "sdks/sdkwork-community-backend-sdk/*/generated/server-openapi"
-  - "packages/common/community/*"
-  - "apps/sdkwork-community-pc/packages/community/*"
+  - "packages/*"
+  - "apps/sdkwork-community-pc/packages/*"
+  - "apps/sdkwork-community-h5/packages/*"
   - "../sdkwork-ui/sdkwork-ui-pc-react"
   - "../sdkwork-sdk-commons/sdkwork-sdk-common-typescript"
 

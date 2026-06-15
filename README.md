@@ -90,7 +90,7 @@ Generated TypeScript SDK output lives under each SDK family's `*-typescript/gene
 | `@sdkwork/community-sdk-ports` | Typed app SDK port interfaces plus an in-memory community app SDK port for local tests and lightweight runtime wiring. |
 | `@sdkwork/community-service` | Service facade over the community app SDK port for feed listing and entry retrieval. |
 | `@sdkwork/community-runtime` | Runtime composition for app client, runtime configuration, and service facade. |
-| `@sdkwork/community-pc-react` | PC React community package metadata, workspace manifest helpers, standard theme preset, and post route intent helpers. |
+| `@sdkwork/community-pc-community` | PC React community package metadata, workspace manifest helpers, standard theme preset, and post route intent helpers. |
 
 ### Rust Crates
 
@@ -119,23 +119,36 @@ It can create:
 
 ## Repository Layout
 
+This repository uses the standard SDKWork project-root directory dictionary. The `packages/` directory at the root level is a shared package repository governed by the TypeScript/Node architecture standard, containing domain-neutral shared packages used across multiple application surfaces.
+
 ```text
+apis/
+  open-api/community/       # Open API contracts
+  app-api/community/        # App API contracts
+  backend-api/community/    # Backend API contracts
 apps/
-  sdkwork-community-pc/packages/community/sdkwork-community-pc-react/
+  sdkwork-community-pc/
+    packages/sdkwork-community-pc-community/
+  sdkwork-community-h5/
+    packages/sdkwork-community-h5-community/
+  sdkwork-community-flutter-mobile/
+    packages/sdkwork_community_flutter_mobile_community/
 crates/
   sdkwork-community-core-rust/
   sdkwork-community-http-rust/
   sdkwork-community-storage-sqlx-rust/
-generated/openapi/
-packages/common/community/
+docs/
+packages/                    # Shared TypeScript packages (architecture-local)
   sdkwork-community-contracts/
   sdkwork-community-sdk-ports/
   sdkwork-community-service/
   sdkwork-community-runtime/
+scripts/
 sdks/
   sdkwork-community-sdk/
   sdkwork-community-app-sdk/
   sdkwork-community-backend-sdk/
+tests/
 tools/
   community_openapi_export.mjs
   community_schema_quality_gate.mjs
@@ -199,6 +212,45 @@ Run Rust tests:
 
 ```powershell
 cargo test --workspace
+```
+
+Run H5 application:
+
+```powershell
+pnpm h5:dev
+```
+
+Build H5 application:
+
+```powershell
+pnpm h5:build
+```
+
+Run PC application:
+
+```powershell
+pnpm pc:dev
+```
+
+Build PC application:
+
+```powershell
+pnpm pc:build
+```
+
+Run Flutter application:
+
+```powershell
+pnpm flutter:pub-get
+pnpm flutter:analyze
+pnpm flutter:test
+```
+
+Build Flutter application:
+
+```powershell
+pnpm flutter:build:android
+pnpm flutter:build:ios
 ```
 
 Run the full verification gate:

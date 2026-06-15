@@ -23,19 +23,22 @@
     "baseUrl": ".",
     "paths": {
       "@sdkwork/community-contracts": [
-        "packages/common/community/sdkwork-community-contracts/src/index.ts"
+        "packages/sdkwork-community-contracts/src/index.ts"
       ],
       "@sdkwork/community-sdk-ports": [
-        "packages/common/community/sdkwork-community-sdk-ports/src/index.ts"
+        "packages/sdkwork-community-sdk-ports/src/index.ts"
       ],
       "@sdkwork/community-service": [
-        "packages/common/community/sdkwork-community-service/src/index.ts"
+        "packages/sdkwork-community-service/src/index.ts"
       ],
       "@sdkwork/community-runtime": [
-        "packages/common/community/sdkwork-community-runtime/src/index.ts"
+        "packages/sdkwork-community-runtime/src/index.ts"
       ],
       "@sdkwork/community-pc-react": [
-        "apps/sdkwork-community-pc/packages/community/sdkwork-community-pc-react/src/index.ts"
+        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts"
+      ],
+      "@sdkwork/community-pc-community": [
+        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts"
       ],
       "@sdkwork/community-sdk": [
         "sdks/sdkwork-community-sdk/sdkwork-community-sdk-typescript/generated/server-openapi/src/index.ts"

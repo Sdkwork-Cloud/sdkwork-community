@@ -33,7 +33,7 @@ No `sdkwork.app.config.json` is present at this root. If the task changes applic
 - `specs/`: not present here; use when local contracts need to narrow root standards.
 - `sdks/`: SDK families, OpenAPI authorities, route manifests, and generated SDK artifacts.
 - `package.json`, `pnpm-workspace.yaml`, `Cargo.toml`: language/build manifests.
-- Local directories to inspect first when relevant: `apps/`, `crates/`, `docs/`, `generated/`, `packages/`, `scripts/`, `sdks/`, `tools/`.
+- Local directories to inspect first when relevant: `apis/`, `apps/`, `crates/`, `docs/`, `packages/`, `scripts/`, `sdks/`, `tools/`.
 
 ## Spec Resolution Order
 

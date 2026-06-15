@@ -1,0 +1,8 @@
+{
+  "sdkBaseUrl": "http://localhost:8080",
+  "appApiBaseUrl": "http://localhost:8080/app/v3/api",
+  "openApiBaseUrl": "http://localhost:8080/community/v3/api",
+  "featureFlags": {
+    "community": true
+  }
+}

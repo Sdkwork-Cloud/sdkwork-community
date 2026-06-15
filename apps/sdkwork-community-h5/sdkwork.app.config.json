@@ -1,0 +1,24 @@
+{
+  "name": "sdkwork-community-h5",
+  "version": "0.1.0",
+  "description": "SDKWork Community H5 Application",
+  "runtime": {
+    "family": "mobile",
+    "framework": "react-h5",
+    "runtimes": ["WEB", "CAPACITOR_IOS", "CAPACITOR_ANDROID"]
+  },
+  "publish": {
+    "platforms": ["H5", "H5_WEIXIN", "APP_IOS", "APP_ANDROID"]
+  },
+  "app": {
+    "identifiers": {
+      "bundleId": "com.sdkwork.community.h5",
+      "packageName": "com.sdkwork.community.h5"
+    }
+  },
+  "artifacts": {
+    "installConfig": {
+      "packages": []
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork_community_flutter_mobile_community",
+    "displayName": "SDKWork Community Flutter Mobile",
+    "version": "0.1.0",
+    "type": "flutter-package",
+    "root": "sdkwork-community/apps/sdkwork-community-flutter-mobile/packages/sdkwork_community_flutter_mobile_community",
+    "domain": "community",
+    "declaredDomain": "community",
+    "capability": "community",
+    "status": "ready",
+    "languages": [
+      "dart",
+      "flutter"
+    ],
+    "generated": false,
+    "private": true,
+    "manifests": [
+      "pubspec.yaml"
+    ]
+  },
+  "contracts": {
+    "publicExports": [
+      "lib/sdkwork_community_flutter_mobile_community.dart"
+    ],
+    "runtimeEntrypoints": [],
+    "sdkClients": [],
+    "events": [],
+    "configKeys": [],
+    "sdkDependencies": [],
+    "routeManifest": null
+  },
+  "integration": {
+    "authority": "SDKWork community standards remain authoritative. Community manifest composition is owned locally in sdkwork-community.",
+    "dependencyPolicy": "Consumers integrate through public package exports, declared runtime entrypoints, generated SDK clients, or documented adapters only.",
+    "sdkPolicy": "Generated SDK clients are injected through service/runtime boundaries; reusable UI must not create raw HTTP clients or manual auth headers."
+  },
+  "verification": {
+    "commands": [
+      "flutter analyze"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "COMPONENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/COMPONENT_SPEC.md",
+      "purpose": "Component-local contract and discovery rules."
+    },
+    {
+      "file": "FLUTTER_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/FLUTTER_APP_MOBILE_ARCHITECTURE_SPEC.md",
+      "purpose": "Flutter mobile application root architecture rules."
+    },
+    {
+      "file": "APP_FLUTTER_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_FLUTTER_UI_SPEC.md",
+      "purpose": "Flutter UI package rules."
+    }
+  ]
+}

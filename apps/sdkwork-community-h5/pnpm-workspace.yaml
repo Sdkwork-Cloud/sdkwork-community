@@ -1,0 +1,7 @@
+packages:
+  - "packages/*"
+  - "../../sdks/*"
+  - "../../sdks/sdkwork-community-sdk/*/generated/server-openapi"
+  - "../../sdks/sdkwork-community-app-sdk/*/generated/server-openapi"
+  - "../../sdks/sdkwork-community-backend-sdk/*/generated/server-openapi"
+  - "../../packages/common/community/*"

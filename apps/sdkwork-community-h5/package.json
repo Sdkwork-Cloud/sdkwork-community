@@ -1,0 +1,38 @@
+{
+  "name": "sdkwork-community-h5-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SDKWork Community H5 Application",
+  "scripts": {
+    "install": "pnpm install",
+    "dev": "vite",
+    "h5:dev": "vite",
+    "h5:build": "vite build",
+    "h5:build:staging": "vite build --mode staging",
+    "h5:build:prod": "vite build --mode production",
+    "h5:preview": "vite preview",
+    "build": "vite build",
+    "build:staging": "vite build --mode staging",
+    "build:prod": "vite build --mode production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:config": "node scripts/test-config.mjs"
+  },
+  "dependencies": {
+    "@sdkwork/community-contracts": "workspace:*",
+    "@sdkwork/community-service": "workspace:*",
+    "@sdkwork/community-runtime": "workspace:*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
+  }
+}

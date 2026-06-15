@@ -1,0 +1,35 @@
+{
+  "name": "sdkwork-community-pc-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SDKWork Community PC Application",
+  "scripts": {
+    "install": "pnpm install",
+    "dev": "vite",
+    "dev:server": "echo 'No server configured'",
+    "build": "vite build",
+    "build:staging": "vite build --mode staging",
+    "build:prod": "vite build --mode production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:config": "node scripts/test-config.mjs"
+  },
+  "dependencies": {
+    "@sdkwork/community-contracts": "workspace:*",
+    "@sdkwork/community-service": "workspace:*",
+    "@sdkwork/community-runtime": "workspace:*",
+    "@sdkwork/community-pc-community": "workspace:*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
+  }
+}

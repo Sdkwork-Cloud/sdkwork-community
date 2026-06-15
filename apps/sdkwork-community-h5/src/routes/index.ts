@@ -1,0 +1,1 @@
+export { communityRoutes } from './community-routes';

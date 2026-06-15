@@ -5,20 +5,26 @@ export default defineConfig({
   resolve: {
     alias: {
       "@sdkwork/community-contracts": fileURLToPath(
-        new URL("./packages/common/community/sdkwork-community-contracts/src/index.ts", import.meta.url),
+        new URL("./packages/sdkwork-community-contracts/src/index.ts", import.meta.url),
       ),
       "@sdkwork/community-sdk-ports": fileURLToPath(
-        new URL("./packages/common/community/sdkwork-community-sdk-ports/src/index.ts", import.meta.url),
+        new URL("./packages/sdkwork-community-sdk-ports/src/index.ts", import.meta.url),
       ),
       "@sdkwork/community-service": fileURLToPath(
-        new URL("./packages/common/community/sdkwork-community-service/src/index.ts", import.meta.url),
+        new URL("./packages/sdkwork-community-service/src/index.ts", import.meta.url),
       ),
       "@sdkwork/community-runtime": fileURLToPath(
-        new URL("./packages/common/community/sdkwork-community-runtime/src/index.ts", import.meta.url),
+        new URL("./packages/sdkwork-community-runtime/src/index.ts", import.meta.url),
       ),
       "@sdkwork/community-pc-react": fileURLToPath(
         new URL(
-          "./apps/sdkwork-community-pc/packages/community/sdkwork-community-pc-react/src/index.ts",
+          "./apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts",
+          import.meta.url,
+        ),
+      ),
+      "@sdkwork/community-pc-community": fileURLToPath(
+        new URL(
+          "./apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts",
           import.meta.url,
         ),
       ),

@@ -1,0 +1,23 @@
+{
+  "name": "sdkwork-community-pc",
+  "version": "0.1.0",
+  "description": "SDKWork Community PC Application",
+  "runtime": {
+    "family": "pc",
+    "framework": "react-pc"
+  },
+  "publish": {
+    "platforms": ["WEB", "DESKTOP_WINDOWS", "DESKTOP_MACOS", "DESKTOP_LINUX"]
+  },
+  "app": {
+    "identifiers": {
+      "bundleId": "com.sdkwork.community.pc",
+      "packageName": "com.sdkwork.community.pc"
+    }
+  },
+  "artifacts": {
+    "installConfig": {
+      "packages": []
+    }
+  }
+}

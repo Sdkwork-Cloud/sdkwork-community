@@ -12,7 +12,18 @@
     "test:vitest": "vitest run --config vitest.config.ts --configLoader native --pool vmThreads",
     "typecheck": "tsc --noEmit",
     "test": "pnpm test:node && pnpm test:vitest && cargo test --workspace",
-    "verify": "pnpm sdk:check && pnpm test:node && pnpm test:vitest && cargo test --workspace"
+    "verify": "pnpm sdk:check && pnpm test:node && pnpm test:vitest && cargo test --workspace",
+    "h5:dev": "pnpm --filter sdkwork-community-h5-workspace dev",
+    "h5:build": "pnpm --filter sdkwork-community-h5-workspace build",
+    "h5:test": "pnpm --filter sdkwork-community-h5-workspace test",
+    "pc:dev": "pnpm --filter sdkwork-community-pc-workspace dev",
+    "pc:build": "pnpm --filter sdkwork-community-pc-workspace build",
+    "pc:test": "pnpm --filter sdkwork-community-pc-workspace test",
+    "flutter:pub-get": "cd apps/sdkwork-community-flutter-mobile && flutter pub get",
+    "flutter:analyze": "cd apps/sdkwork-community-flutter-mobile && flutter analyze",
+    "flutter:test": "cd apps/sdkwork-community-flutter-mobile && flutter test",
+    "flutter:build:android": "cd apps/sdkwork-community-flutter-mobile && flutter build apk",
+    "flutter:build:ios": "cd apps/sdkwork-community-flutter-mobile && flutter build ios"
   },
   "devDependencies": {
     "@sdkwork/ui-pc-react": "workspace:*",
