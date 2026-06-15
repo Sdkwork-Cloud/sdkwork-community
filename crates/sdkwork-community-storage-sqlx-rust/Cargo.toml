@@ -8,6 +8,7 @@ name = "sdkwork_community_storage_sqlx"
 path = "src/lib.rs"
 
 [dependencies]
+sdkwork-pool-config = { path = "../../../sdkwork-pool/crates/sdkwork-pool-config" }
 sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite"] }
 
 [dev-dependencies]
