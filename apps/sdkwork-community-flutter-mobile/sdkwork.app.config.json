@@ -4,10 +4,17 @@
   "description": "SDKWork Community Flutter Mobile Application",
   "runtime": {
     "family": "mobile",
-    "framework": "flutter"
+    "framework": "flutter",
+    "supportedDeploymentProfiles": [
+      "standalone"
+    ],
+    "defaultDeploymentProfile": "standalone"
   },
   "publish": {
-    "platforms": ["APP_IOS", "APP_ANDROID"]
+    "platforms": [
+      "APP_IOS",
+      "APP_ANDROID"
+    ]
   },
   "app": {
     "identifiers": {

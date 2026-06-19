@@ -4,10 +4,20 @@
   "description": "SDKWork Community PC Application",
   "runtime": {
     "family": "pc",
-    "framework": "react-pc"
+    "framework": "react-pc",
+    "supportedDeploymentProfiles": [
+      "cloud",
+      "standalone"
+    ],
+    "defaultDeploymentProfile": "cloud"
   },
   "publish": {
-    "platforms": ["WEB", "DESKTOP_WINDOWS", "DESKTOP_MACOS", "DESKTOP_LINUX"]
+    "platforms": [
+      "WEB",
+      "DESKTOP_WINDOWS",
+      "DESKTOP_MACOS",
+      "DESKTOP_LINUX"
+    ]
   },
   "app": {
     "identifiers": {

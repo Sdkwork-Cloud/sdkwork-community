@@ -5,10 +5,24 @@
   "runtime": {
     "family": "mobile",
     "framework": "react-h5",
-    "runtimes": ["WEB", "CAPACITOR_IOS", "CAPACITOR_ANDROID"]
+    "runtimes": [
+      "WEB",
+      "CAPACITOR_IOS",
+      "CAPACITOR_ANDROID"
+    ],
+    "supportedDeploymentProfiles": [
+      "cloud",
+      "standalone"
+    ],
+    "defaultDeploymentProfile": "cloud"
   },
   "publish": {
-    "platforms": ["H5", "H5_WEIXIN", "APP_IOS", "APP_ANDROID"]
+    "platforms": [
+      "H5",
+      "H5_WEIXIN",
+      "APP_IOS",
+      "APP_ANDROID"
+    ]
   },
   "app": {
     "identifiers": {
