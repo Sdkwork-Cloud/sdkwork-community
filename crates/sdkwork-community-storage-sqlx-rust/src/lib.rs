@@ -1,3 +1,11 @@
+mod bootstrap;
+
+pub use bootstrap::{
+    bootstrap_community_database, bootstrap_community_database_from_env,
+    connect_and_bootstrap_community_database_from_env, connect_community_database_pool_from_env,
+    CommunityDatabaseHost, CommunityDatabasePool,
+};
+
 use sqlx::{Row, SqlitePool};
 
 #[derive(Clone, Debug, Eq, PartialEq)]

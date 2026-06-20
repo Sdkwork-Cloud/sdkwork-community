@@ -1,0 +1,43 @@
+schema_version: 1
+kind: sdkwork.database.schema
+module_id: community
+contract_version: 1.0.0
+owner_team: community-platform
+compliance_level: L2
+engines:
+  - postgres
+table_prefix: community_
+tables:
+  - name: community_category
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_entry
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_entry_body
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_tag
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_entry_tag
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_comment
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_reaction
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_moderation_event
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_recommendation_snapshot
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_schema_version
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_migration_lock
+    lifecycle_status: active
+    owner: community-platform

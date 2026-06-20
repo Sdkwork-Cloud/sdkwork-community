@@ -1,0 +1,169 @@
+-- Consolidated legacy baseline for sdkwork-community database module.
+-- source: crates/sdkwork-community-storage-sqlx-rust/migrations/0001_community_foundation.sql
+
+CREATE TABLE IF NOT EXISTS community_category (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    priority INTEGER NOT NULL DEFAULT 0,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (tenant_id, slug)
+);
+
+CREATE TABLE IF NOT EXISTS community_entry (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    category_id TEXT NOT NULL,
+    author_id TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    title TEXT NOT NULL,
+    excerpt TEXT NOT NULL,
+    review_state TEXT NOT NULL DEFAULT 'draft',
+    is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+    is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    has_accepted_answer BOOLEAN NOT NULL DEFAULT FALSE,
+    comment_count INTEGER NOT NULL DEFAULT 0,
+    reaction_count INTEGER NOT NULL DEFAULT 0,
+    share_count INTEGER NOT NULL DEFAULT 0,
+    view_count INTEGER NOT NULL DEFAULT 0,
+    published_at TEXT,
+    last_activity_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (tenant_id, slug),
+    FOREIGN KEY (category_id) REFERENCES community_category(id)
+);
+
+CREATE TABLE IF NOT EXISTS community_entry_body (
+    entry_id TEXT PRIMARY KEY,
+    body_markdown TEXT NOT NULL,
+    body_format TEXT NOT NULL DEFAULT 'markdown',
+    content_checksum TEXT,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES community_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_tag (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE (tenant_id, slug)
+);
+
+CREATE TABLE IF NOT EXISTS community_entry_tag (
+    entry_id TEXT NOT NULL,
+    tag_id TEXT NOT NULL,
+    PRIMARY KEY (entry_id, tag_id),
+    FOREIGN KEY (entry_id) REFERENCES community_entry(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES community_tag(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_comment (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    entry_id TEXT NOT NULL,
+    author_id TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    body_markdown TEXT NOT NULL,
+    review_state TEXT NOT NULL DEFAULT 'approved',
+    is_accepted_answer BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES community_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_reaction (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    entry_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    reaction_type TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE (tenant_id, entry_id, user_id, reaction_type),
+    FOREIGN KEY (entry_id) REFERENCES community_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_moderation_event (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    entry_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    actor_user_id TEXT NOT NULL,
+    reason TEXT,
+    before_state TEXT,
+    after_state TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES community_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_recommendation_snapshot (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    source_entry_id TEXT NOT NULL,
+    recommended_entry_id TEXT NOT NULL,
+    score INTEGER NOT NULL,
+    reasons_json TEXT NOT NULL,
+    generated_at TEXT NOT NULL,
+    UNIQUE (tenant_id, source_entry_id, recommended_entry_id),
+    FOREIGN KEY (source_entry_id) REFERENCES community_entry(id) ON DELETE CASCADE,
+    FOREIGN KEY (recommended_entry_id) REFERENCES community_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_schema_version (
+    id TEXT PRIMARY KEY,
+    version TEXT NOT NULL,
+    applied_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS community_migration_lock (
+    id TEXT PRIMARY KEY,
+    locked_by TEXT NOT NULL,
+    locked_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_community_category_tenant_priority
+    ON community_category (tenant_id, enabled, priority, slug);
+
+CREATE INDEX IF NOT EXISTS idx_community_entry_tenant_state_activity
+    ON community_entry (tenant_id, review_state, last_activity_at, published_at);
+
+CREATE INDEX IF NOT EXISTS idx_community_entry_tenant_slug
+    ON community_entry (tenant_id, slug);
+
+CREATE INDEX IF NOT EXISTS idx_community_entry_tenant_category_state
+    ON community_entry (tenant_id, category_id, review_state);
+
+CREATE INDEX IF NOT EXISTS idx_community_entry_tenant_kind_state
+    ON community_entry (tenant_id, kind, review_state);
+
+CREATE INDEX IF NOT EXISTS idx_community_entry_tenant_featured_pinned
+    ON community_entry (tenant_id, is_featured, is_pinned, last_activity_at);
+
+CREATE INDEX IF NOT EXISTS idx_community_tag_tenant_slug
+    ON community_tag (tenant_id, slug);
+
+CREATE INDEX IF NOT EXISTS idx_community_entry_tag_tag
+    ON community_entry_tag (tag_id, entry_id);
+
+CREATE INDEX IF NOT EXISTS idx_community_comment_entry
+    ON community_comment (entry_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_community_reaction_entry
+    ON community_reaction (entry_id, reaction_type);
+
+CREATE INDEX IF NOT EXISTS idx_community_moderation_event_entry
+    ON community_moderation_event (entry_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_community_recommendation_source
+    ON community_recommendation_snapshot (tenant_id, source_entry_id, score);
+
+INSERT OR IGNORE INTO community_schema_version (id, version, applied_at)
+VALUES ('community.storage', 'community.storage.v1', '2026-06-06T00:00:00Z');

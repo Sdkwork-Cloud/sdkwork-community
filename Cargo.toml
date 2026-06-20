@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/sdkwork-community-core-rust",
+    "crates/sdkwork-community-database-host",
     "crates/sdkwork-community-storage-sqlx-rust",
     "crates/sdkwork-community-http-rust",
 ]
@@ -9,3 +10,14 @@ resolver = "2"
 [workspace.package]
 edition = "2021"
 version = "0.1.0"
+
+[workspace.dependencies]
+sdkwork-community-database-host = { path = "crates/sdkwork-community-database-host" }
+sdkwork-database-config = { path = "../sdkwork-database/crates/sdkwork-database-config", package = "sdkwork-database-config" }
+sdkwork-database-lifecycle = { path = "../sdkwork-database/crates/sdkwork-database-lifecycle", package = "sdkwork-database-lifecycle" }
+sdkwork-database-spi = { path = "../sdkwork-database/crates/sdkwork-database-spi", package = "sdkwork-database-spi" }
+sdkwork-database-sqlx = { path = "../sdkwork-database/crates/sdkwork-database-sqlx", package = "sdkwork-database-sqlx" }
+sdkwork_database_config = { path = "../sdkwork-database/crates/sdkwork-database-config", package = "sdkwork-database-config" }
+sdkwork_database_lifecycle = { path = "../sdkwork-database/crates/sdkwork-database-lifecycle", package = "sdkwork-database-lifecycle" }
+sdkwork_database_spi = { path = "../sdkwork-database/crates/sdkwork-database-spi", package = "sdkwork-database-spi" }
+sdkwork_database_sqlx = { path = "../sdkwork-database/crates/sdkwork-database-sqlx", package = "sdkwork-database-sqlx" }

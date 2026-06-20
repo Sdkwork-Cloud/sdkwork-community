@@ -23,7 +23,18 @@
     "flutter:analyze": "cd apps/sdkwork-community-flutter-mobile && flutter analyze",
     "flutter:test": "cd apps/sdkwork-community-flutter-mobile && flutter test",
     "flutter:build:android": "cd apps/sdkwork-community-flutter-mobile && flutter build apk",
-    "flutter:build:ios": "cd apps/sdkwork-community-flutter-mobile && flutter build ios"
+    "flutter:build:ios": "cd apps/sdkwork-community-flutter-mobile && flutter build ios",
+    "db:materialize:contract": "node tools/materialize_community_database_contract.mjs",
+    "db:validate": "node ../sdkwork-specs/tools/check-database-framework-standard.mjs --root .",
+    "db:plan": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . plan",
+    "db:init": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . init",
+    "db:migrate": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . migrate",
+    "db:seed": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . seed",
+    "db:status": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . status",
+    "db:drift": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . drift",
+    "db:drift:check": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . drift-check",
+    "db:bootstrap": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . bootstrap",
+    "test:contract:database": "node ../sdkwork-specs/tools/check-database-framework-standard.mjs --root ."
   },
   "devDependencies": {
     "@sdkwork/ui-pc-react": "workspace:*",
