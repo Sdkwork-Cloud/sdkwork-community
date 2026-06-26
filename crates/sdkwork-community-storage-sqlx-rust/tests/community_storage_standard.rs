@@ -70,7 +70,7 @@ async fn sqlite_community_store_migrates_creates_publishes_and_reads_feed() {
     store
         .create_category(NewCommunityCategory {
             id: "category_product".to_owned(),
-            tenant_id: "tenant_1".to_owned(),
+            tenant_id: "100001".to_owned(),
             slug: "product".to_owned(),
             title: "Product".to_owned(),
             description: Some("Product discussions".to_owned()),
@@ -84,7 +84,7 @@ async fn sqlite_community_store_migrates_creates_publishes_and_reads_feed() {
     store
         .create_entry(NewCommunityEntry {
             id: "entry_sdk".to_owned(),
-            tenant_id: "tenant_1".to_owned(),
+            tenant_id: "100001".to_owned(),
             category_id: "category_product".to_owned(),
             author_id: "user_1".to_owned(),
             author_name: "Sdkwork Team".to_owned(),
@@ -100,18 +100,18 @@ async fn sqlite_community_store_migrates_creates_publishes_and_reads_feed() {
         .expect("create entry");
 
     assert!(store
-        .list_feed("tenant_1", None, None)
+        .list_feed("100001", None, None)
         .await
         .expect("draft feed")
         .is_empty());
 
     store
-        .approve_entry("tenant_1", "entry_sdk", "moderator_1", "2026-06-06T00:02:00Z")
+        .approve_entry("100001", "entry_sdk", "moderator_1", "2026-06-06T00:02:00Z")
         .await
         .expect("approve entry");
 
     let feed = store
-        .list_feed("tenant_1", Some("category_product"), Some("sdk"))
+        .list_feed("100001", Some("category_product"), Some("sdk"))
         .await
         .expect("feed list");
     assert_eq!(feed.len(), 1);
@@ -119,7 +119,7 @@ async fn sqlite_community_store_migrates_creates_publishes_and_reads_feed() {
     assert_eq!(feed[0].tags, vec!["release", "sdk"]);
     assert_eq!(
         store
-            .retrieve_entry_by_slug("tenant_1", "community-sdk-release")
+            .retrieve_entry_by_slug("100001", "community-sdk-release")
             .await
             .expect("retrieve by slug")
             .expect("approved entry")

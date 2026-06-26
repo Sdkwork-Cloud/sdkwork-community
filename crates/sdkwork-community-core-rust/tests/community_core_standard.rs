@@ -21,7 +21,7 @@ fn community_core_manifest_owns_community_domain_contracts() {
 fn community_core_evaluates_publication_readiness() {
     let entry = CommunityEntry {
         id: "entry_1",
-        tenant_id: "tenant_1",
+        tenant_id: "100001",
         category_id: "category_product",
         author_id: "user_1",
         kind: CommunityEntryKind::Question,
