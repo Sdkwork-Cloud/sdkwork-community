@@ -24,7 +24,7 @@
     "flutter:test": "cd apps/sdkwork-community-flutter-mobile && flutter test",
     "flutter:build:android": "cd apps/sdkwork-community-flutter-mobile && flutter build apk",
     "flutter:build:ios": "cd apps/sdkwork-community-flutter-mobile && flutter build ios",
-    "db:materialize:contract": "node tools/materialize_community_database_contract.mjs",
+    "db:materialize:contract": "node ../sdkwork-specs/tools/materialize-database-contract-from-baseline.mjs --root . --baseline database/ddl/baseline/postgres/0001_community_legacy_baseline.sql --module-id community --owner community-platform --prefixes community_ --engines postgres",
     "db:validate": "node ../sdkwork-specs/tools/check-database-framework-standard.mjs --root .",
     "db:plan": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . plan",
     "db:init": "cargo run --manifest-path ../sdkwork-database/Cargo.toml -p sdkwork-database-cli -- --app-root . init",
