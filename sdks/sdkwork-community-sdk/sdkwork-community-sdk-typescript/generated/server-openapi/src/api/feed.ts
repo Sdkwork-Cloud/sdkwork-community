@@ -1,7 +1,7 @@
 import { customApiPath } from './paths';
 import type { HttpClient } from '../http/client';
 
-import type { FeedPublicListResponse } from '../types';
+import type { SdkWorkListResponse } from '../types';
 
 
 export interface FeedPublicListParams {
@@ -14,14 +14,14 @@ export interface FeedPublicListParams {
 
 export class FeedPublicApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community feed.public.list */
-  async list(params?: FeedPublicListParams): Promise<FeedPublicListResponse> {
+  async list(params?: FeedPublicListParams): Promise<SdkWorkListResponse> {
     const query = buildQueryString([
       { name: 'categoryId', value: params?.categoryId, style: 'form', explode: true, allowReserved: false },
       { name: 'kind', value: params?.kind, style: 'form', explode: true, allowReserved: false },
@@ -29,17 +29,17 @@ export class FeedPublicApi {
       { name: 'reviewState', value: params?.reviewState, style: 'form', explode: true, allowReserved: false },
       { name: 'tag', value: params?.tag, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<FeedPublicListResponse>(appendQueryString(customApiPath(`/feed`), query));
+    return this.client.get<SdkWorkListResponse>(appendQueryString(customApiPath(`/feed`), query));
   }
 }
 
 export class FeedApi {
   private client: HttpClient;
   public readonly public: FeedPublicApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
-    this.public = new FeedPublicApi(client); 
+    this.public = new FeedPublicApi(client);
   }
 
 }

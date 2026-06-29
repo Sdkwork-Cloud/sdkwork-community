@@ -1,34 +1,34 @@
 import { customApiPath } from './paths';
 import type { HttpClient } from '../http/client';
 
-import type { CommunityEntry } from '../types';
+import type { SdkWorkResourceResponse } from '../types';
 
 
 export class EntryPublicBySlugApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community entries.publicBySlug.retrieve */
-  async retrieve(slug: string): Promise<CommunityEntry> {
-    return this.client.get<CommunityEntry>(customApiPath(`/entries/by_slug/${serializePathParameter(slug, { name: 'slug', style: 'simple', explode: false })}`));
+  async retrieve(slug: string): Promise<SdkWorkResourceResponse> {
+    return this.client.get<SdkWorkResourceResponse>(customApiPath(`/entries/by_slug/${serializePathParameter(slug, { name: 'slug', style: 'simple', explode: false })}`));
   }
 }
 
 export class EntryPublicApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community entries.public.retrieve */
-  async retrieve(entryId: string): Promise<CommunityEntry> {
-    return this.client.get<CommunityEntry>(customApiPath(`/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
+  async retrieve(entryId: string): Promise<SdkWorkResourceResponse> {
+    return this.client.get<SdkWorkResourceResponse>(customApiPath(`/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
   }
 }
 
@@ -36,11 +36,11 @@ export class EntryApi {
   private client: HttpClient;
   public readonly public: EntryPublicApi;
   public readonly publicBySlug: EntryPublicBySlugApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
     this.public = new EntryPublicApi(client);
-    this.publicBySlug = new EntryPublicBySlugApi(client); 
+    this.publicBySlug = new EntryPublicBySlugApi(client);
   }
 
 }

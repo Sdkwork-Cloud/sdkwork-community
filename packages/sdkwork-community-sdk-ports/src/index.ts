@@ -9,13 +9,6 @@ import {
   evaluateCommunityPublicationReadiness,
 } from "@sdkwork/community-contracts";
 
-export interface SdkworkCommunityApiResult<T> {
-  code: string;
-  data: T;
-  message: string;
-  requestId: string;
-}
-
 export interface SdkworkCommunityListParams
   extends Pick<FilterCommunityEntriesOptions, "categories" | "featuredOnly" | "kinds" | "mode" | "query" | "reviewStates" | "tags"> {
   categoryId?: string;
@@ -36,17 +29,17 @@ export interface SdkworkCommunityEntryCommand {
 export interface SdkworkCommunityAppSdkPort {
   community: {
     feed: {
-      list(params?: SdkworkCommunityListParams): Promise<SdkworkCommunityApiResult<SdkworkCommunityEntry[]>>;
+      list(params?: SdkworkCommunityListParams): Promise<SdkworkCommunityEntry[]>;
     };
     entries: {
-      create(command: SdkworkCommunityEntryCommand): Promise<SdkworkCommunityApiResult<SdkworkCommunityEntry>>;
-      retrieve(entryId: string): Promise<SdkworkCommunityApiResult<SdkworkCommunityEntry>>;
-      update(entryId: string, command: Partial<SdkworkCommunityEntryCommand>): Promise<SdkworkCommunityApiResult<SdkworkCommunityEntry>>;
+      create(command: SdkworkCommunityEntryCommand): Promise<SdkworkCommunityEntry>;
+      retrieve(entryId: string): Promise<SdkworkCommunityEntry>;
+      update(entryId: string, command: Partial<SdkworkCommunityEntryCommand>): Promise<SdkworkCommunityEntry>;
       publicationReadiness: {
-        retrieve(entryId: string): Promise<SdkworkCommunityApiResult<SdkworkCommunityPublicationReadiness>>;
+        retrieve(entryId: string): Promise<SdkworkCommunityPublicationReadiness>;
       };
       recommendations: {
-        list(entryId: string): Promise<SdkworkCommunityApiResult<SdkworkCommunityEntry[]>>;
+        list(entryId: string): Promise<SdkworkCommunityEntry[]>;
       };
     };
   };
@@ -54,23 +47,12 @@ export interface SdkworkCommunityAppSdkPort {
 
 export interface CreateInMemoryCommunityAppSdkPortOptions {
   entries?: readonly SdkworkCommunityEntry[];
-  requestId?: string;
 }
 
 export function createInMemoryCommunityAppSdkPort(
   options: CreateInMemoryCommunityAppSdkPortOptions = {},
 ): SdkworkCommunityAppSdkPort {
   const entries = [...(options.entries ?? [])];
-  const requestId = options.requestId ?? "00000000-0000-4000-8000-000000000000";
-
-  function result<T>(data: T): SdkworkCommunityApiResult<T> {
-    return {
-      code: "ok",
-      data,
-      message: "OK",
-      requestId,
-    };
-  }
 
   function findEntry(entryId: string): SdkworkCommunityEntry {
     const entry = entries.find((candidate) => candidate.id === entryId);
@@ -96,7 +78,7 @@ export function createInMemoryCommunityAppSdkPort(
     community: {
       feed: {
         async list(params = {}) {
-          return result(filterCommunityEntries(entries, toFilterOptions(params)));
+          return filterCommunityEntries(entries, toFilterOptions(params));
         },
       },
       entries: {
@@ -113,25 +95,25 @@ export function createInMemoryCommunityAppSdkPort(
             title: command.title,
           };
           entries.push(entry);
-          return result(entry);
+          return entry;
         },
         async retrieve(entryId) {
-          return result(findEntry(entryId));
+          return findEntry(entryId);
         },
         async update(entryId, command) {
           const entry = findEntry(entryId);
           Object.assign(entry, command);
-          return result(entry);
+          return entry;
         },
         publicationReadiness: {
           async retrieve(entryId) {
-            return result(evaluateCommunityPublicationReadiness(findEntry(entryId)));
+            return evaluateCommunityPublicationReadiness(findEntry(entryId));
           },
         },
         recommendations: {
           async list(entryId) {
             const current = findEntry(entryId);
-            return result(buildCommunityRecommendations(current, entries).map((item) => item.entry));
+            return buildCommunityRecommendations(current, entries).map((item) => item.entry);
           },
         },
       },

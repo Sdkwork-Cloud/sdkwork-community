@@ -1,30 +1,30 @@
 import { customApiPath } from './paths';
 import type { HttpClient } from '../http/client';
 
-import type { CategoriesPublicListResponse } from '../types';
+import type { SdkWorkListResponse } from '../types';
 
 
 export class CategoryPublicApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community categories.public.list */
-  async list(): Promise<CategoriesPublicListResponse> {
-    return this.client.get<CategoriesPublicListResponse>(customApiPath(`/categories`));
+  async list(): Promise<SdkWorkListResponse> {
+    return this.client.get<SdkWorkListResponse>(customApiPath(`/categories`));
   }
 }
 
 export class CategoryApi {
   private client: HttpClient;
   public readonly public: CategoryPublicApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
-    this.public = new CategoryPublicApi(client); 
+    this.public = new CategoryPublicApi(client);
   }
 
 }

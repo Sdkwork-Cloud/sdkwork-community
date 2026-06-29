@@ -2,25 +2,23 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  sdkWorkEnvelopeComponentSchemas,
+  successResponseSchemaRef,
+} from "../../sdkwork-specs/tools/lib/openapi-envelope-schemas.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(scriptDir, "..");
 const outputDir = path.join(workspaceRoot, "generated", "openapi");
+const apiAuthorityTargets = [
+  ["community-app-api.openapi.json", "apis/app-api/community/openapi.json"],
+  ["community-backend-api.openapi.json", "apis/backend-api/community/openapi.json"],
+  ["community-open-api.openapi.json", "apis/open-api/community/openapi.json"],
+];
 const OWNER = "sdkwork-community";
 const DOMAIN = "community";
 
-const schemas = {
-  CommunityApiResult: {
-    type: "object",
-    additionalProperties: false,
-    required: ["code", "message", "requestId", "data"],
-    properties: {
-      code: { type: "string" },
-      message: { type: "string" },
-      requestId: { type: "string", format: "uuid" },
-      data: {},
-    },
-  },
+const domainSchemas = {
   CommunityCategory: {
     type: "object",
     additionalProperties: false,
@@ -167,59 +165,55 @@ const schemas = {
       issues: { type: "array", items: { type: "string" } },
     },
   },
-  ProblemDetail: {
-    type: "object",
-    additionalProperties: true,
-    required: ["type", "title", "status"],
-    properties: {
-      type: { type: "string", format: "uri-reference" },
-      title: { type: "string" },
-      status: { type: "integer", minimum: 100, maximum: 599 },
-      detail: { type: "string" },
-      requestId: { type: "string", format: "uuid" },
-    },
-  },
+};
+
+const schemas = {
+  ...sdkWorkEnvelopeComponentSchemas,
+  ...domainSchemas,
 };
 
 const appRoutes = [
-  route("get", "/app/v3/api/community/categories", "categories.list", { schema: arrayOf("CommunityCategory") }, false),
-  route("get", "/app/v3/api/community/feed", "feed.list", { schema: arrayOf("CommunityEntry") }, false, listParams()),
-  route("get", "/app/v3/api/community/entries/{entryId}", "entries.retrieve", { schema: ref("CommunityEntry") }, false, [pathParam("entryId")]),
-  route("get", "/app/v3/api/community/entries/{entryId}/recommendations", "entries.recommendations.list", { schema: arrayOf("CommunityEntry") }, false, [pathParam("entryId")]),
-  route("post", "/app/v3/api/community/entries", "entries.create", { schema: ref("CommunityEntry") }, false, [], "CommunityEntryCommand"),
-  route("patch", "/app/v3/api/community/entries/{entryId}", "entries.update", { schema: ref("CommunityEntry") }, false, [pathParam("entryId")], "CommunityEntryCommand"),
-  route("get", "/app/v3/api/community/entries/{entryId}/publication_readiness", "entries.publicationReadiness.retrieve", { schema: ref("CommunityPublicationReadiness") }, false, [pathParam("entryId")]),
-  route("get", "/app/v3/api/community/entries/{entryId}/comments", "comments.list", { schema: arrayOf("CommunityComment") }, false, [pathParam("entryId")]),
-  route("post", "/app/v3/api/community/entries/{entryId}/comments", "comments.create", { schema: ref("CommunityComment") }, false, [pathParam("entryId")], "CommunityCommentCommand"),
+  route("get", "/app/v3/api/community/categories", "categories.list", false),
+  route("get", "/app/v3/api/community/feed", "feed.list", false, listParams()),
+  route("get", "/app/v3/api/community/entries/{entryId}", "entries.retrieve", false, [pathParam("entryId")]),
+  route("get", "/app/v3/api/community/entries/{entryId}/recommendations", "entries.recommendations.list", false, [pathParam("entryId")]),
+  route("post", "/app/v3/api/community/entries", "entries.create", false, [], "CommunityEntryCommand"),
+  route("patch", "/app/v3/api/community/entries/{entryId}", "entries.update", false, [pathParam("entryId")], "CommunityEntryCommand"),
+  route("get", "/app/v3/api/community/entries/{entryId}/publication_readiness", "entries.publicationReadiness.retrieve", false, [pathParam("entryId")]),
+  route("get", "/app/v3/api/community/entries/{entryId}/comments", "comments.list", false, [pathParam("entryId")]),
+  route("post", "/app/v3/api/community/entries/{entryId}/comments", "comments.create", false, [pathParam("entryId")], "CommunityCommentCommand"),
 ];
 
 const backendRoutes = [
-  route("get", "/backend/v3/api/community/categories", "categories.management.list", { schema: arrayOf("CommunityCategory") }, false),
-  route("post", "/backend/v3/api/community/categories", "categories.create", { schema: ref("CommunityCategory") }, false, [], "CommunityCategoryCommand"),
-  route("patch", "/backend/v3/api/community/categories/{categoryId}", "categories.update", { schema: ref("CommunityCategory") }, false, [pathParam("categoryId")], "CommunityCategoryCommand"),
-  route("delete", "/backend/v3/api/community/categories/{categoryId}", "categories.delete", { schema: ref("CommunityApiResult") }, false, [pathParam("categoryId")]),
-  route("get", "/backend/v3/api/community/entries", "entries.management.list", { schema: arrayOf("CommunityEntry") }, false, listParams()),
-  route("post", "/backend/v3/api/community/entries/{entryId}/moderation", "entries.moderation.update", { schema: ref("CommunityEntry") }, false, [pathParam("entryId")], "CommunityModerationCommand"),
-  route("post", "/backend/v3/api/community/entries/{entryId}/feature", "entries.feature", { schema: ref("CommunityEntry") }, false, [pathParam("entryId")]),
-  route("post", "/backend/v3/api/community/entries/{entryId}/pin", "entries.pin", { schema: ref("CommunityEntry") }, false, [pathParam("entryId")]),
-  route("delete", "/backend/v3/api/community/entries/{entryId}", "entries.delete", { schema: ref("CommunityApiResult") }, false, [pathParam("entryId")]),
-  route("get", "/backend/v3/api/community/moderation/queue", "moderation.queue.list", { schema: arrayOf("CommunityEntry") }, false),
-  route("post", "/backend/v3/api/community/recommendations/rebuild", "recommendations.rebuild", { schema: ref("CommunityApiResult") }, false),
+  route("get", "/backend/v3/api/community/categories", "categories.management.list", false),
+  route("post", "/backend/v3/api/community/categories", "categories.create", false, [], "CommunityCategoryCommand"),
+  route("patch", "/backend/v3/api/community/categories/{categoryId}", "categories.update", false, [pathParam("categoryId")], "CommunityCategoryCommand"),
+  route("delete", "/backend/v3/api/community/categories/{categoryId}", "categories.delete", false, [pathParam("categoryId")]),
+  route("get", "/backend/v3/api/community/entries", "entries.management.list", false, listParams()),
+  route("post", "/backend/v3/api/community/entries/{entryId}/moderation", "entries.moderation.update", false, [pathParam("entryId")], "CommunityModerationCommand"),
+  route("post", "/backend/v3/api/community/entries/{entryId}/feature", "entries.feature", false, [pathParam("entryId")]),
+  route("post", "/backend/v3/api/community/entries/{entryId}/pin", "entries.pin", false, [pathParam("entryId")]),
+  route("delete", "/backend/v3/api/community/entries/{entryId}", "entries.delete", false, [pathParam("entryId")]),
+  route("get", "/backend/v3/api/community/moderation/queue", "moderation.queue.list", false),
+  route("post", "/backend/v3/api/community/recommendations/rebuild", "recommendations.rebuild", false),
 ];
 
 const openRoutes = [
-  route("get", "/community/v3/api/categories", "categories.public.list", { schema: arrayOf("CommunityCategory") }, true),
-  route("get", "/community/v3/api/feed", "feed.public.list", { schema: arrayOf("CommunityEntry") }, true, listParams()),
-  route("get", "/community/v3/api/entries/{entryId}", "entries.public.retrieve", { schema: ref("CommunityEntry") }, true, [pathParam("entryId")]),
-  route("get", "/community/v3/api/entries/by_slug/{slug}", "entries.publicBySlug.retrieve", { schema: ref("CommunityEntry") }, true, [pathParam("slug")]),
+  route("get", "/community/v3/api/categories", "categories.public.list", true),
+  route("get", "/community/v3/api/feed", "feed.public.list", true, listParams()),
+  route("get", "/community/v3/api/entries/{entryId}", "entries.public.retrieve", true, [pathParam("entryId")]),
+  route("get", "/community/v3/api/entries/by_slug/{slug}", "entries.publicBySlug.retrieve", true, [pathParam("slug")]),
 ];
 
 function ref(name) {
   return { $ref: `#/components/schemas/${name}` };
 }
 
-function arrayOf(name) {
-  return { type: "array", items: ref(name) };
+function envelopeSchemaRef(method, operationId) {
+  if (method === "delete") {
+    return "#/components/schemas/SdkWorkCommandResponse";
+  }
+  return successResponseSchemaRef({ method, operationId });
 }
 
 function pathParam(name) {
@@ -244,7 +238,7 @@ function listParams() {
   return [queryParam("categoryId"), queryParam("kind"), queryParam("q"), queryParam("reviewState"), queryParam("tag")];
 }
 
-function route(method, pathKey, operationId, response, usesApiKey, parameters = [], bodySchemaName = null) {
+function route(method, pathKey, operationId, usesApiKey, parameters = [], bodySchemaName = null) {
   return {
     method,
     path: pathKey,
@@ -267,7 +261,9 @@ function route(method, pathKey, operationId, response, usesApiKey, parameters = 
         200: {
           description: "OK",
           content: {
-            "application/json": response,
+            "application/json": {
+              schema: { $ref: envelopeSchemaRef(method, operationId) },
+            },
           },
         },
         400: problemResponse(),
@@ -355,7 +351,14 @@ const docs = [
 if (!args.check) {
   mkdirSync(outputDir, { recursive: true });
   for (const [fileName, document] of docs) {
-    writeFileSync(path.join(outputDir, fileName), `${JSON.stringify(document, null, 2)}\n`, "utf8");
+    const payload = `${JSON.stringify(document, null, 2)}\n`;
+    writeFileSync(path.join(outputDir, fileName), payload, "utf8");
+    const authorityTarget = apiAuthorityTargets.find(([source]) => source === fileName);
+    if (authorityTarget) {
+      const authorityPath = path.join(workspaceRoot, authorityTarget[1]);
+      mkdirSync(path.dirname(authorityPath), { recursive: true });
+      writeFileSync(authorityPath, payload, "utf8");
+    }
   }
 }
 

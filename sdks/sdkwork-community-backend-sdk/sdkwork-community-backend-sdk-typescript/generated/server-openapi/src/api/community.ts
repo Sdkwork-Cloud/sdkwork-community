@@ -1,59 +1,59 @@
 import { backendApiPath } from './paths';
 import type { HttpClient } from '../http/client';
 
-import type { CategoriesManagementListResponse, CommunityApiResult, CommunityCategory, CommunityCategoryCommand, CommunityEntry, CommunityModerationCommand, EntriesManagementListResponse, ModerationQueueListResponse } from '../types';
+import type { CommunityCategoryCommand, CommunityModerationCommand, SdkWorkCommandResponse, SdkWorkListResponse, SdkWorkResourceResponse } from '../types';
 
 
 export class CommunityRecommendationsApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community recommendations.rebuild */
-  async rebuild(): Promise<CommunityApiResult> {
-    return this.client.post<CommunityApiResult>(backendApiPath(`/community/recommendations/rebuild`));
+  async rebuild(): Promise<SdkWorkResourceResponse> {
+    return this.client.post<SdkWorkResourceResponse>(backendApiPath(`/community/recommendations/rebuild`));
   }
 }
 
 export class CommunityModerationQueueApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community moderation.queue.list */
-  async list(): Promise<ModerationQueueListResponse> {
-    return this.client.get<ModerationQueueListResponse>(backendApiPath(`/community/moderation/queue`));
+  async list(): Promise<SdkWorkListResponse> {
+    return this.client.get<SdkWorkListResponse>(backendApiPath(`/community/moderation/queue`));
   }
 }
 
 export class CommunityModerationApi {
   private client: HttpClient;
   public readonly queue: CommunityModerationQueueApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
-    this.queue = new CommunityModerationQueueApi(client); 
+    this.queue = new CommunityModerationQueueApi(client);
   }
 
 }
 
 export class CommunityEntriesModerationApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community entries.moderation.update */
-  async update(entryId: string, body: CommunityModerationCommand): Promise<CommunityEntry> {
-    return this.client.post<CommunityEntry>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/moderation`), body, undefined, undefined, 'application/json');
+  async update(entryId: string, body: CommunityModerationCommand): Promise<SdkWorkResourceResponse> {
+    return this.client.post<SdkWorkResourceResponse>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/moderation`), body, undefined, undefined, 'application/json');
   }
 }
 
@@ -67,14 +67,14 @@ export interface CommunityEntriesManagementListParams {
 
 export class CommunityEntriesManagementApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community entries.management.list */
-  async list(params?: CommunityEntriesManagementListParams): Promise<EntriesManagementListResponse> {
+  async list(params?: CommunityEntriesManagementListParams): Promise<SdkWorkListResponse> {
     const query = buildQueryString([
       { name: 'categoryId', value: params?.categoryId, style: 'form', explode: true, allowReserved: false },
       { name: 'kind', value: params?.kind, style: 'form', explode: true, allowReserved: false },
@@ -82,7 +82,7 @@ export class CommunityEntriesManagementApi {
       { name: 'reviewState', value: params?.reviewState, style: 'form', explode: true, allowReserved: false },
       { name: 'tag', value: params?.tag, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<EntriesManagementListResponse>(appendQueryString(backendApiPath(`/community/entries`), query));
+    return this.client.get<SdkWorkListResponse>(appendQueryString(backendApiPath(`/community/entries`), query));
   }
 }
 
@@ -90,67 +90,67 @@ export class CommunityEntriesApi {
   private client: HttpClient;
   public readonly management: CommunityEntriesManagementApi;
   public readonly moderation: CommunityEntriesModerationApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
     this.management = new CommunityEntriesManagementApi(client);
-    this.moderation = new CommunityEntriesModerationApi(client); 
+    this.moderation = new CommunityEntriesModerationApi(client);
   }
 
 
 /** Community entries.feature */
-  async feature(entryId: string): Promise<CommunityEntry> {
-    return this.client.post<CommunityEntry>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/feature`));
+  async feature(entryId: string): Promise<SdkWorkResourceResponse> {
+    return this.client.post<SdkWorkResourceResponse>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/feature`));
   }
 
 /** Community entries.pin */
-  async pin(entryId: string): Promise<CommunityEntry> {
-    return this.client.post<CommunityEntry>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/pin`));
+  async pin(entryId: string): Promise<SdkWorkResourceResponse> {
+    return this.client.post<SdkWorkResourceResponse>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/pin`));
   }
 
 /** Community entries.delete */
-  async delete(entryId: string): Promise<CommunityApiResult> {
-    return this.client.delete<CommunityApiResult>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
+  async delete(entryId: string): Promise<SdkWorkCommandResponse> {
+    return this.client.delete<SdkWorkCommandResponse>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
   }
 }
 
 export class CommunityCategoriesManagementApi {
   private client: HttpClient;
-  
-  constructor(client: HttpClient) { 
-    this.client = client; 
+
+  constructor(client: HttpClient) {
+    this.client = client;
   }
 
 
 /** Community categories.management.list */
-  async list(): Promise<CategoriesManagementListResponse> {
-    return this.client.get<CategoriesManagementListResponse>(backendApiPath(`/community/categories`));
+  async list(): Promise<SdkWorkListResponse> {
+    return this.client.get<SdkWorkListResponse>(backendApiPath(`/community/categories`));
   }
 }
 
 export class CommunityCategoriesApi {
   private client: HttpClient;
   public readonly management: CommunityCategoriesManagementApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
-    this.management = new CommunityCategoriesManagementApi(client); 
+    this.management = new CommunityCategoriesManagementApi(client);
   }
 
 
 /** Community categories.create */
-  async create(body: CommunityCategoryCommand): Promise<CommunityCategory> {
-    return this.client.post<CommunityCategory>(backendApiPath(`/community/categories`), body, undefined, undefined, 'application/json');
+  async create(body: CommunityCategoryCommand): Promise<SdkWorkResourceResponse> {
+    return this.client.post<SdkWorkResourceResponse>(backendApiPath(`/community/categories`), body, undefined, undefined, 'application/json');
   }
 
 /** Community categories.update */
-  async update(categoryId: string, body: CommunityCategoryCommand): Promise<CommunityCategory> {
-    return this.client.patch<CommunityCategory>(backendApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(categoryId: string, body: CommunityCategoryCommand): Promise<SdkWorkResourceResponse> {
+    return this.client.patch<SdkWorkResourceResponse>(backendApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
   }
 
 /** Community categories.delete */
-  async delete(categoryId: string): Promise<CommunityApiResult> {
-    return this.client.delete<CommunityApiResult>(backendApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`));
+  async delete(categoryId: string): Promise<SdkWorkCommandResponse> {
+    return this.client.delete<SdkWorkCommandResponse>(backendApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`));
   }
 }
 
@@ -160,13 +160,13 @@ export class CommunityApi {
   public readonly entries: CommunityEntriesApi;
   public readonly moderation: CommunityModerationApi;
   public readonly recommendations: CommunityRecommendationsApi;
-  
-  constructor(client: HttpClient) { 
+
+  constructor(client: HttpClient) {
     this.client = client;
     this.categories = new CommunityCategoriesApi(client);
     this.entries = new CommunityEntriesApi(client);
     this.moderation = new CommunityModerationApi(client);
-    this.recommendations = new CommunityRecommendationsApi(client); 
+    this.recommendations = new CommunityRecommendationsApi(client);
   }
 
 }
