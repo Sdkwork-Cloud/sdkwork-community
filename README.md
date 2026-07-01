@@ -1,4 +1,5 @@
 # SDKWork Community
+repository-kind: application
 
 `sdkwork-community` is the owner workspace for SDKWork community capabilities. It contains the community domain contracts, OpenAPI authority documents, generated SDK families, TypeScript runtime layers, PC React integration helpers, Rust domain/http/storage crates, and SQLx-backed database schema.
 
