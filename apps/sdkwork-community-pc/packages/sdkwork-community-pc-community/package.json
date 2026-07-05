@@ -3,12 +3,18 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Community posts, public discussions, and recommendations.",
+  "description": "Community posts, public discussions, and recommendations for PC surfaces.",
   "dependencies": {
-    "@sdkwork/community-contracts": "workspace:*"
+    "@sdkwork/community-contracts": "workspace:*",
+    "@sdkwork/community-sdk-ports": "workspace:*",
+    "@sdkwork/utils": "workspace:*",
+    "lucide-react": "catalog:",
+    "motion": "catalog:",
+    "react-i18next": "catalog:",
+    "i18next": "catalog:"
   },
   "peerDependencies": {
-    "@sdkwork/ui-pc-react": "*",
+    "@sdkwork/ui-pc-react": "workspace:*",
     "react": ">=18.2.0 <20.0.0",
     "react-dom": ">=18.2.0 <20.0.0"
   },

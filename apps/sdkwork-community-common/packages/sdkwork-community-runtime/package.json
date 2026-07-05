@@ -4,8 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "dependencies": {
+    "@sdkwork/community-app-sdk": "workspace:*",
+    "@sdkwork/community-contracts": "workspace:*",
     "@sdkwork/community-sdk-ports": "workspace:*",
-    "@sdkwork/community-service": "workspace:*"
+    "@sdkwork/community-service": "workspace:*",
+    "@sdkwork/sdk-common": "workspace:*"
   },
   "exports": {
     ".": {

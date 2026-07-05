@@ -20,5 +20,7 @@ export type { CommunityComment } from './community-comment';
 export type { CommunityEntryCommand } from './community-entry-command';
 export type { CommunityCategoryCommand } from './community-category-command';
 export type { CommunityCommentCommand } from './community-comment-command';
+export type { CommunityReactionCommand } from './community-reaction-command';
+export type { CommunityReactionSetAccepted } from './community-reaction-set-accepted';
 export type { CommunityModerationCommand } from './community-moderation-command';
 export type { CommunityPublicationReadiness } from './community-publication-readiness';

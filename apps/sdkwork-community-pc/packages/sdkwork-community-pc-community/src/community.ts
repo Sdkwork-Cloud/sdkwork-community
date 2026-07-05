@@ -66,9 +66,7 @@ export interface CreateCommunityPostRouteIntentOptions {
   focusWindow?: boolean;
 }
 
-function toUniquePackages(packageNames: readonly string[]): string[] {
-  return Array.from(new Set(packageNames.map((packageName) => packageName.trim()).filter(Boolean)));
-}
+import { unique } from "@sdkwork/utils";
 
 export function createCommunityAppCapabilityManifest({
   description,
@@ -83,7 +81,7 @@ export function createCommunityAppCapabilityManifest({
     description,
     host,
     id,
-    packageNames: toUniquePackages(packageNames),
+    packageNames: unique(packageNames.map((packageName) => packageName.trim()).filter(Boolean)),
     theme: {
       ...SDKWORK_COMMUNITY_STANDARD_THEME_PRESET,
       ...theme,
@@ -108,7 +106,7 @@ export function createCommunityWorkspaceManifest({
       description,
       host,
       id,
-      packageNames: toUniquePackages(packageNames),
+      packageNames: unique(packageNames.map((packageName) => packageName.trim()).filter(Boolean)),
       theme,
       title,
     }),

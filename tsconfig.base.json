@@ -23,31 +23,49 @@
     "baseUrl": ".",
     "paths": {
       "@sdkwork/community-contracts": [
-        "packages/sdkwork-community-contracts/src/index.ts"
+        "apps/sdkwork-community-common/packages/sdkwork-community-contracts/src/index.ts"
       ],
       "@sdkwork/community-sdk-ports": [
-        "packages/sdkwork-community-sdk-ports/src/index.ts"
+        "apps/sdkwork-community-common/packages/sdkwork-community-sdk-ports/src/index.ts"
       ],
       "@sdkwork/community-service": [
-        "packages/sdkwork-community-service/src/index.ts"
+        "apps/sdkwork-community-common/packages/sdkwork-community-service/src/index.ts"
       ],
       "@sdkwork/community-runtime": [
-        "packages/sdkwork-community-runtime/src/index.ts"
+        "apps/sdkwork-community-common/packages/sdkwork-community-runtime/src/index.ts"
       ],
-      "@sdkwork/community-pc-react": [
-        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts"
+      "@sdkwork/community-pc-core": [
+        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-core/src/index.ts"
+      ],
+      "@sdkwork/community-pc-core/sdk": [
+        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-core/src/sdk/index.ts"
+      ],
+      "@sdkwork/community-h5-core": [
+        "apps/sdkwork-community-h5/packages/sdkwork-community-h5-core/src/index.ts"
+      ],
+      "@sdkwork/community-h5-core/sdk": [
+        "apps/sdkwork-community-h5/packages/sdkwork-community-h5-core/src/sdk/index.ts"
       ],
       "@sdkwork/community-pc-community": [
         "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts"
       ],
+      "@sdkwork/community-h5-community": [
+        "apps/sdkwork-community-h5/packages/sdkwork-community-h5-community/src/index.ts"
+      ],
+      "@sdkwork/sdk-common": [
+        "../sdkwork-sdk-commons/sdkwork-sdk-common-typescript/src/index.ts"
+      ],
       "@sdkwork/community-sdk": [
-        "sdks/sdkwork-community-sdk/sdkwork-community-sdk-typescript/generated/server-openapi/src/index.ts"
+        "sdks/sdkwork-community-sdk/sdkwork-community-sdk-typescript/src/index.ts"
       ],
       "@sdkwork/community-app-sdk": [
-        "sdks/sdkwork-community-app-sdk/sdkwork-community-app-sdk-typescript/generated/server-openapi/src/index.ts"
+        "sdks/sdkwork-community-app-sdk/sdkwork-community-app-sdk-typescript/src/index.ts"
       ],
       "@sdkwork/community-backend-sdk": [
-        "sdks/sdkwork-community-backend-sdk/sdkwork-community-backend-sdk-typescript/generated/server-openapi/src/index.ts"
+        "sdks/sdkwork-community-backend-sdk/sdkwork-community-backend-sdk-typescript/src/index.ts"
+      ],
+      "@sdkwork/utils": [
+        "../sdkwork-utils/packages/sdkwork-utils-typescript/src/index.ts"
       ]
     }
   }

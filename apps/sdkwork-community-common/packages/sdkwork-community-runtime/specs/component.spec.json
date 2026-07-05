@@ -6,7 +6,7 @@
     "displayName": "Community Runtime",
     "version": "0.1.0",
     "type": "node-package",
-    "root": "sdkwork-community/packages/sdkwork-community-runtime",
+    "root": "apps/sdkwork-community-common/packages/sdkwork-community-runtime",
     "domain": "communication",
     "capability": "community-runtime",
     "languages": [

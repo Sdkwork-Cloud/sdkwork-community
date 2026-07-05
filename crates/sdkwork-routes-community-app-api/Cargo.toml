@@ -1,0 +1,26 @@
+[package]
+name = "sdkwork-routes-community-app-api"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+axum.workspace = true
+serde.workspace = true
+sdkwork-community-service-host.workspace = true
+sdkwork-community-service.workspace = true
+sdkwork-community-storage-sqlx-rust.workspace = true
+sdkwork-routes-community-common.workspace = true
+sdkwork_iam_context_service.workspace = true
+sdkwork-web-core.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tower = { workspace = true }
+sdkwork-community-service.workspace = true
+sdkwork-community-service-host.workspace = true

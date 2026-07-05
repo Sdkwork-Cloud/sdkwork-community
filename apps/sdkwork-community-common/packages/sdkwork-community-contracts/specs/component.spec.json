@@ -6,7 +6,7 @@
     "displayName": "Community Contracts",
     "version": "0.1.0",
     "type": "node-package",
-    "root": "sdkwork-community/packages/sdkwork-community-contracts",
+    "root": "apps/sdkwork-community-common/packages/sdkwork-community-contracts",
     "domain": "communication",
     "capability": "community-contracts",
     "languages": [

@@ -69,7 +69,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       },
       "post": {
         "tags": [
@@ -130,7 +133,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/categories/{categoryId}": {
@@ -202,7 +208,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       },
       "delete": {
         "tags": [
@@ -262,7 +271,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/entries": {
@@ -356,7 +368,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/entries/{entryId}/moderation": {
@@ -428,7 +443,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/entries/{entryId}/feature": {
@@ -490,7 +508,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/entries/{entryId}/pin": {
@@ -552,7 +573,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/entries/{entryId}": {
@@ -614,7 +638,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/moderation/queue": {
@@ -667,7 +694,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "moderation",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/backend/v3/api/community/recommendations/rebuild": {
@@ -720,7 +750,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.backend",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "recommendations",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "backend-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     }
   },
@@ -1278,6 +1311,44 @@
         "properties": {
           "body": {
             "type": "string"
+          }
+        }
+      },
+      "CommunityReactionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reactionType",
+          "active"
+        ],
+        "properties": {
+          "reactionType": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityReactionSetAccepted": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accepted",
+          "reactionCount"
+        ],
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "reactionCount": {
+            "type": "integer"
           }
         }
       },

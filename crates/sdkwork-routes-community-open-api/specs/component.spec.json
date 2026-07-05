@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-routes-community-open-api",
+    "displayName": "Sdkwork Community Open API Routes",
+    "version": "0.1.0",
+    "type": "web-backend-service",
+    "root": "sdkwork-community/crates/sdkwork-routes-community-open-api",
+    "domain": "communication",
+    "capability": "community-open-api-routes",
+    "languages": ["rust"],
+    "generated": false,
+    "manifests": ["Cargo.toml"]
+  },
+  "canonicalSpecs": [
+    { "file": "COMPONENT_SPEC.md", "path": "../../../sdkwork-specs/COMPONENT_SPEC.md", "purpose": "Component-local contract and discovery rules." },
+    { "file": "RUST_CODE_SPEC.md", "path": "../../../sdkwork-specs/RUST_CODE_SPEC.md", "purpose": "Rust crate and module rules." },
+    { "file": "WEB_BACKEND_SPEC.md", "path": "../../../sdkwork-specs/WEB_BACKEND_SPEC.md", "purpose": "HTTP backend route and response mapping rules." },
+    { "file": "API_SPEC.md", "path": "../../../sdkwork-specs/API_SPEC.md", "purpose": "HTTP API contract authority rules." }
+  ],
+  "contracts": { "publicExports": ["."], "runtimeEntrypoints": [], "routeManifest": "apis/open-api/community/openapi.json", "sdkClients": [], "events": [], "configKeys": [] },
+  "verification": { "commands": ["cargo test"] }
+}

@@ -44,15 +44,21 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
     "package.json",
     "pnpm-workspace.yaml",
     "Cargo.toml",
-    "packages/sdkwork-community-contracts/package.json",
-    "packages/sdkwork-community-sdk-ports/package.json",
-    "packages/sdkwork-community-service/package.json",
-    "packages/sdkwork-community-runtime/package.json",
+    "specs/topology.spec.json",
+    "apps/sdkwork-community-common/packages/sdkwork-community-contracts/package.json",
+    "apps/sdkwork-community-common/packages/sdkwork-community-sdk-ports/package.json",
+    "apps/sdkwork-community-common/packages/sdkwork-community-service/package.json",
+    "apps/sdkwork-community-common/packages/sdkwork-community-runtime/package.json",
     "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/package.json",
     "crates/sdkwork-community-core-rust/Cargo.toml",
     "crates/sdkwork-community-storage-sqlx-rust/Cargo.toml",
     "crates/sdkwork-community-http-rust/Cargo.toml",
-    "crates/sdkwork-community-storage-sqlx-rust/migrations/0001_community_foundation.sql",
+    "crates/sdkwork-community-service/Cargo.toml",
+    "crates/sdkwork-routes-community-app-api/Cargo.toml",
+    "crates/sdkwork-community-service-host/Cargo.toml",
+    "crates/sdkwork-community-standalone-gateway/Cargo.toml",
+    "database/database.manifest.json",
+    "database/ddl/baseline/postgres/0001_community_baseline.sql",
     "generated/openapi/community-open-api.openapi.json",
     "generated/openapi/community-app-api.openapi.json",
     "generated/openapi/community-backend-api.openapi.json",
@@ -60,8 +66,10 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
     "sdks/sdkwork-community-sdk/sdk-manifest.json",
     "sdks/sdkwork-community-app-sdk/specs/component.spec.json",
     "sdks/sdkwork-community-app-sdk/sdk-manifest.json",
+    "sdks/sdkwork-community-app-sdk/sdkwork-community-app-sdk-typescript/package.json",
     "sdks/sdkwork-community-backend-sdk/specs/component.spec.json",
     "sdks/sdkwork-community-backend-sdk/sdk-manifest.json",
+    "deployments/docker/README.md",
   ]) {
     assert.ok(existsSync(file(requiredPath)), `missing ${requiredPath}`);
   }
@@ -69,6 +77,8 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
   const rootPackage = readJson("package.json");
   assert.equal(rootPackage.name, "sdkwork-community-workspace");
   assert.ok(rootPackage.scripts.verify);
+  assert.ok(rootPackage.scripts["gateway:run"]);
+  assert.ok(rootPackage.scripts["check:api-envelope"]);
 
   const pcPackage = readJson("apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/package.json");
   assert.equal(pcPackage.name, "@sdkwork/community-pc-community");

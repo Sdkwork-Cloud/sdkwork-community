@@ -40,7 +40,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "2656efea87a785ff273382a7728a30a6ea2260653d81dfde07a166b6a35e5af7"
+      "sha256": "ef3c96b68170f5bc57410c635a1fc01132bf82408c1626bf2e301c2e2c88cd33"
     },
     {
       "path": "README.md",
@@ -48,7 +48,7 @@
     },
     {
       "path": "sdkwork-sdk.json",
-      "sha256": "882ecf0b5520ce5c3f63e628d9a71a5f8167254d3d9aa99d358d8c618577b282"
+      "sha256": "40bd79013aca75a5cd64eac426862a822f39498300ec83cc71fe4b05acd0cffc"
     },
     {
       "path": "src/api/base.ts",
@@ -56,7 +56,7 @@
     },
     {
       "path": "src/api/community.ts",
-      "sha256": "1a13b284cebb56bdc9ce10c4dd63d6be41cdb6b763fbd5825239b8d556bb2d5c"
+      "sha256": "b6dabd6fba50fadb0f0f83d916cab5b0f190bff5e19c0bfc930ce640920bd45b"
     },
     {
       "path": "src/api/index.ts",
@@ -72,7 +72,7 @@
     },
     {
       "path": "src/http/client.ts",
-      "sha256": "1d339275acee6ec54660a32eb9effcc718ebf0992c5e9bfdb80a3452e0702137"
+      "sha256": "6e389d5c14fb5845365972b6776af185d8af8eb8da7bb398e59be6c29e394ddf"
     },
     {
       "path": "src/http/index.ts",
@@ -131,6 +131,14 @@
       "sha256": "b8cf195aa6e7c23eea604cbea8cc6cfd47afb534bb3a80e12b2d64cc7d8de6c2"
     },
     {
+      "path": "src/types/community-reaction-command.ts",
+      "sha256": "9118f1ad528c3cc19de621ecfa67265231aef47b36aec0053376fad2e42435d4"
+    },
+    {
+      "path": "src/types/community-reaction-set-accepted.ts",
+      "sha256": "59996420e9eaf6dc206d143eb036832e72bd7f7cb4a12350bb118ee76aca404d"
+    },
+    {
       "path": "src/types/community-review-state.ts",
       "sha256": "ec715fc6ee5fcb72097a26ad4626a8704fe52ddb6e596b2dac97d5e66c414c84"
     },
@@ -144,7 +152,7 @@
     },
     {
       "path": "src/types/index.ts",
-      "sha256": "fa47759a5ef2a79c53ca05cdc315ad5b6cdc108669abd082914be1c7cd0e3396"
+      "sha256": "18f5a6d0bdff0f28b05ff16f708654e6bf3170e8e5cadf15696f888091e2350e"
     },
     {
       "path": "src/types/page-info.ts",

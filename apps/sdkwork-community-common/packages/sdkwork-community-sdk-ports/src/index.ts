@@ -2,6 +2,8 @@ import {
   buildCommunityRecommendations,
   filterCommunityEntries,
   type FilterCommunityEntriesOptions,
+  type SdkworkCommunityCategory,
+  type SdkworkCommunityComment,
   type SdkworkCommunityEntry,
   type SdkworkCommunityEntryKind,
   type SdkworkCommunityPublicationReadiness,
@@ -19,6 +21,7 @@ export interface SdkworkCommunityListParams
 }
 
 export interface SdkworkCommunityEntryCommand {
+  body?: string;
   categoryId: string;
   excerpt?: string;
   kind: SdkworkCommunityEntry["kind"];
@@ -26,13 +29,40 @@ export interface SdkworkCommunityEntryCommand {
   title: string;
 }
 
+export interface SdkworkCommunityCommentCommand {
+  body: string;
+}
+
+export interface SdkworkCommunityReactionCommand {
+  active: boolean;
+  reactionType: string;
+}
+
+export interface SdkworkCommunityReactionSetResult {
+  accepted: boolean;
+  reactionCount: number;
+  resourceId?: string;
+  status?: string;
+}
+
 export interface SdkworkCommunityAppSdkPort {
   community: {
+    categories: {
+      list(): Promise<readonly SdkworkCommunityCategory[]>;
+    };
+    comments: {
+      create(entryId: string, command: SdkworkCommunityCommentCommand): Promise<SdkworkCommunityComment>;
+      list(entryId: string): Promise<readonly SdkworkCommunityComment[]>;
+    };
     feed: {
       list(params?: SdkworkCommunityListParams): Promise<SdkworkCommunityEntry[]>;
     };
+    reactions: {
+      set(entryId: string, command: SdkworkCommunityReactionCommand): Promise<SdkworkCommunityReactionSetResult>;
+    };
     entries: {
       create(command: SdkworkCommunityEntryCommand): Promise<SdkworkCommunityEntry>;
+      delete(entryId: string): Promise<void>;
       retrieve(entryId: string): Promise<SdkworkCommunityEntry>;
       update(entryId: string, command: Partial<SdkworkCommunityEntryCommand>): Promise<SdkworkCommunityEntry>;
       publicationReadiness: {
@@ -53,6 +83,8 @@ export function createInMemoryCommunityAppSdkPort(
   options: CreateInMemoryCommunityAppSdkPortOptions = {},
 ): SdkworkCommunityAppSdkPort {
   const entries = [...(options.entries ?? [])];
+  const comments: SdkworkCommunityComment[] = [];
+  const reactions = new Map<string, Set<string>>();
 
   function findEntry(entryId: string): SdkworkCommunityEntry {
     const entry = entries.find((candidate) => candidate.id === entryId);
@@ -76,9 +108,56 @@ export function createInMemoryCommunityAppSdkPort(
 
   return {
     community: {
+      categories: {
+        async list() {
+          return [];
+        },
+      },
+      comments: {
+        async list(entryId) {
+          return comments.filter((comment) => comment.entryId === entryId);
+        },
+        async create(entryId, command) {
+          findEntry(entryId);
+          const comment: SdkworkCommunityComment = {
+            author: { id: "local-user", name: "Local User" },
+            body: command.body,
+            createdAt: new Date().toISOString(),
+            entryId,
+            id: `comment-${comments.length + 1}`,
+            reviewState: "approved",
+            tenantId: "local",
+          };
+          comments.push(comment);
+          return comment;
+        },
+      },
       feed: {
         async list(params = {}) {
           return filterCommunityEntries(entries, toFilterOptions(params));
+        },
+      },
+      reactions: {
+        async set(entryId, command) {
+          const entry = findEntry(entryId);
+          const key = `${entryId}:${command.reactionType}`;
+          const activeUsers = reactions.get(key) ?? new Set<string>();
+          if (command.active) {
+            activeUsers.add("local-user");
+          } else {
+            activeUsers.delete("local-user");
+          }
+          reactions.set(key, activeUsers);
+          entry.stats = {
+            ...entry.stats,
+            reactionCount: activeUsers.size,
+          };
+          return {
+            accepted: true,
+            reactionCount: activeUsers.size,
+            resourceId: entryId,
+            status: command.active ? "active" : "inactive",
+          };
         },
       },
       entries: {
@@ -99,6 +178,13 @@ export function createInMemoryCommunityAppSdkPort(
         },
         async retrieve(entryId) {
           return findEntry(entryId);
+        },
+        async delete(entryId) {
+          const index = entries.findIndex((candidate) => candidate.id === entryId);
+          if (index < 0) {
+            throw new Error(`community entry not found: ${entryId}`);
+          }
+          entries.splice(index, 1);
         },
         async update(entryId, command) {
           const entry = findEntry(entryId);

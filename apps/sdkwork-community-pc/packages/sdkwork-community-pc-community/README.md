@@ -1,6 +1,6 @@
 # @sdkwork/community-pc-community
 
-PC React community package for discussions, questions, recommendations, and community workspace route intents.
+PC React community package for category browsing, feed posts, comments, and workspace route intents.
 
 ## Ownership
 
@@ -8,43 +8,24 @@ PC React community package for discussions, questions, recommendations, and comm
 - Domain: `community`
 - Capability: `community`
 
-Pure domain contracts live in `@sdkwork/community-contracts`. This package owns PC React composition metadata and local community manifest integration.
+Domain contracts live in `@sdkwork/community-contracts`. SDK consumption flows through `@sdkwork/community-sdk-ports` and `@sdkwork/community-runtime` via the host adapter (`configureCommunityPcHost`).
 
-## SDKWork Documentation Contract
+## Shipped UI Surface
 
-Domain: communication
-Capability: community
-Package type: react-package
-Status: ready
+| Component | Responsibility |
+| --- | --- |
+| `CommunityView` | Category list and navigation |
+| `CommunityDetail` | Feed posts and comments |
+| `CommunitySettings` | Read-only category information |
+| `CommunityService` | App API subset (categories, feed, entries, comments) |
 
-### Public API
+Host applications must call `configureCommunityPcHost()` before rendering community UI.
 
-Public exports are declared in `specs/component.spec.json` under `contracts.publicExports`.
+## Verification
 
-### Required SDK Surface
+```powershell
+pnpm --filter @sdkwork/community-pc-community typecheck
+pnpm --filter @sdkwork/community-pc-community test
+```
 
-- `@sdkwork/community-app-sdk`
-
-### Configuration
-
-Configuration keys and runtime entrypoints are declared in `specs/component.spec.json`.
-
-### SaaS/Private/Local Behavior
-
-This module follows the canonical standards linked from `specs/component.spec.json`, including deployment and runtime configuration rules where applicable.
-
-### Security
-
-Do not add secrets, live tokens, manual auth headers, or app-local credential handling to this module.
-
-### Extension Points
-
-Extension points are limited to declared public exports, runtime entrypoints, SDK clients, events, and config keys.
-
-### Verification
-
-- `pnpm --filter @sdkwork/community-pc-community typecheck`
-
-### Owner And Status
-
-Owner and lifecycle status are tracked in `specs/component.spec.json`.
+Machine-readable contract: `specs/component.spec.json`.

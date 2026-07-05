@@ -43,5 +43,26 @@
       "path": "/community/v3/api/feed"
     }
   ],
-  "managedBy": "tools/community_sdk_generator_runner.mjs"
+  "managedBy": "tools/community_sdk_generator_runner.mjs",
+  "packageName": "@sdkwork/community-sdk",
+  "transportPackageName": "sdkwork-community-sdk-generated-typescript",
+  "typescript": {
+    "composedRoot": "sdkwork-community-sdk-typescript",
+    "composedEntry": "sdkwork-community-sdk-typescript/src/index.ts",
+    "transportRoot": "sdkwork-community-sdk-typescript/generated/server-openapi",
+    "transportEntry": "sdkwork-community-sdk-typescript/generated/server-openapi/src/index.ts"
+  },
+  "workspace": "sdkwork-community-sdk",
+  "authoritySpec": "../../generated/openapi/community-open-api.openapi.json",
+  "derivedSpecs": {
+    "default": "../../generated/openapi/community-open-api.openapi.json"
+  },
+  "discoverySurface": {
+    "sdkTarget": "custom",
+    "apiPrefix": "/community/v3/api",
+    "generatedProtocols": [
+      "http-openapi"
+    ],
+    "manualTransports": []
+  }
 }

@@ -1,0 +1,17 @@
+[package]
+name = "sdkwork-community-service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+chrono.workspace = true
+serde = { workspace = true, features = ["derive"] }
+sdkwork-community-core-rust.workspace = true
+sdkwork-community-storage-sqlx-rust.workspace = true
+sdkwork-utils-rust.workspace = true
+thiserror.workspace = true

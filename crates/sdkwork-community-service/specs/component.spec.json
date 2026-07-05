@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-community-service",
+    "displayName": "Sdkwork Community Service",
+    "version": "0.1.0",
+    "type": "rust-crate",
+    "root": "sdkwork-community/crates/sdkwork-community-service",
+    "domain": "communication",
+    "capability": "community-service",
+    "languages": ["rust"],
+    "generated": false,
+    "manifests": ["Cargo.toml"]
+  },
+  "canonicalSpecs": [
+    { "file": "COMPONENT_SPEC.md", "path": "../../../sdkwork-specs/COMPONENT_SPEC.md", "purpose": "Component-local contract and discovery rules." },
+    { "file": "RUST_CODE_SPEC.md", "path": "../../../sdkwork-specs/RUST_CODE_SPEC.md", "purpose": "Rust crate and module rules." },
+    { "file": "DOMAIN_SPEC.md", "path": "../../../sdkwork-specs/DOMAIN_SPEC.md", "purpose": "Domain and capability boundary rules." }
+  ],
+  "contracts": { "publicExports": ["."], "runtimeEntrypoints": [], "routeManifest": null, "sdkClients": [], "events": [], "configKeys": [] },
+  "verification": { "commands": ["cargo test"] }
+}

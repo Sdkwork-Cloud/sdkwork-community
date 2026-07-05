@@ -56,9 +56,19 @@ pub fn app_routes() -> Vec<CommunityHttpRoute> {
             "entries.update",
         ),
         route(
+            HttpMethod::Delete,
+            "/app/v3/api/community/entries/{entryId}",
+            "entries.delete",
+        ),
+        route(
             HttpMethod::Get,
             "/app/v3/api/community/entries/{entryId}/publication_readiness",
             "entries.publicationReadiness.retrieve",
+        ),
+        route(
+            HttpMethod::Post,
+            "/app/v3/api/community/entries/{entryId}/reactions",
+            "reactions.set",
         ),
         route(
             HttpMethod::Get,

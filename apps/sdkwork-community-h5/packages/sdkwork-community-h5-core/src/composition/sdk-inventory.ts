@@ -1,3 +1,7 @@
+export const sdkworkCommunityH5SdkInventory = [
+  "sdkwork-community-app-sdk",
+] as const;
+
 export function listSdkworkCoreSdkInventory() {
-  return [] as const;
+  return sdkworkCommunityH5SdkInventory;
 }

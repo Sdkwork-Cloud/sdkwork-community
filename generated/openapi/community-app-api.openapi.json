@@ -69,7 +69,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/app/v3/api/community/feed": {
@@ -163,7 +166,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "feed",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/app/v3/api/community/entries/{entryId}": {
@@ -225,7 +231,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       },
       "patch": {
         "tags": [
@@ -295,7 +304,73 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
+      },
+      "delete": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community entries.delete",
+        "operationId": "entries.delete",
+        "parameters": [
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkCommandResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community.app",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "entries",
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/app/v3/api/community/entries/{entryId}/recommendations": {
@@ -357,7 +432,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/app/v3/api/community/entries": {
@@ -420,7 +498,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/app/v3/api/community/entries/{entryId}/publication_readiness": {
@@ -482,7 +563,85 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
+      }
+    },
+    "/app/v3/api/community/entries/{entryId}/reactions": {
+      "post": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community reactions.set",
+        "operationId": "reactions.set",
+        "parameters": [
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityReactionCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community.app",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "reactions",
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/app/v3/api/community/entries/{entryId}/comments": {
@@ -544,7 +703,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "comments",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       },
       "post": {
         "tags": [
@@ -614,7 +776,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.app",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "comments",
-        "x-sdkwork-public": false
+        "x-sdkwork-public": false,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     }
   },
@@ -1172,6 +1337,44 @@
         "properties": {
           "body": {
             "type": "string"
+          }
+        }
+      },
+      "CommunityReactionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reactionType",
+          "active"
+        ],
+        "properties": {
+          "reactionType": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityReactionSetAccepted": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accepted",
+          "reactionCount"
+        ],
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "reactionCount": {
+            "type": "integer"
           }
         }
       },

@@ -1,18 +1,11 @@
-import { useState } from 'react'
+import { CommunityView } from "@sdkwork/community-pc-community";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="App">
-      <h1>SDKWork Community PC</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
+    <div className="App h-screen flex flex-col bg-[#1e1e20]">
+      <CommunityView />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

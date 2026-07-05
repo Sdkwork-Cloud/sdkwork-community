@@ -5,7 +5,7 @@ Capability: community-http
 Package type: web-backend-service
 Status: standard
 
-This README is the SDKWork module entrypoint for `sdkwork-community-http-rust`. The machine-readable component contract is `specs/component.spec.json`; canonical standards are under `../../../sdkwork-specs/`.
+This crate owns canonical HTTP route **catalog metadata** (paths, operation IDs, auth headers). Executable routers live in `sdkwork-routes-community-{open,app,backend}-api` and are served by `sdkwork-community-standalone-gateway`.
 
 ## Public API
 

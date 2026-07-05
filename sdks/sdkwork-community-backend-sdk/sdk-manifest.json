@@ -78,5 +78,26 @@
       "path": "/backend/v3/api/community/recommendations/rebuild"
     }
   ],
-  "managedBy": "tools/community_sdk_generator_runner.mjs"
+  "managedBy": "tools/community_sdk_generator_runner.mjs",
+  "packageName": "@sdkwork/community-backend-sdk",
+  "transportPackageName": "sdkwork-community-backend-sdk-generated-typescript",
+  "typescript": {
+    "composedRoot": "sdkwork-community-backend-sdk-typescript",
+    "composedEntry": "sdkwork-community-backend-sdk-typescript/src/index.ts",
+    "transportRoot": "sdkwork-community-backend-sdk-typescript/generated/server-openapi",
+    "transportEntry": "sdkwork-community-backend-sdk-typescript/generated/server-openapi/src/index.ts"
+  },
+  "workspace": "sdkwork-community-backend-sdk",
+  "authoritySpec": "../../generated/openapi/community-backend-api.openapi.json",
+  "derivedSpecs": {
+    "default": "../../generated/openapi/community-backend-api.openapi.json"
+  },
+  "discoverySurface": {
+    "sdkTarget": "backend",
+    "apiPrefix": "/backend/v3/api",
+    "generatedProtocols": [
+      "http-openapi"
+    ],
+    "manualTransports": []
+  }
 }

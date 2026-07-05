@@ -146,6 +146,26 @@ const domainSchemas = {
       body: { type: "string" },
     },
   },
+  CommunityReactionCommand: {
+    type: "object",
+    additionalProperties: false,
+    required: ["reactionType", "active"],
+    properties: {
+      reactionType: { type: "string" },
+      active: { type: "boolean" },
+    },
+  },
+  CommunityReactionSetAccepted: {
+    type: "object",
+    additionalProperties: false,
+    required: ["accepted", "reactionCount"],
+    properties: {
+      accepted: { type: "boolean" },
+      resourceId: { type: "string" },
+      status: { type: "string" },
+      reactionCount: { type: "integer" },
+    },
+  },
   CommunityModerationCommand: {
     type: "object",
     additionalProperties: false,
@@ -179,7 +199,9 @@ const appRoutes = [
   route("get", "/app/v3/api/community/entries/{entryId}/recommendations", "entries.recommendations.list", false, [pathParam("entryId")]),
   route("post", "/app/v3/api/community/entries", "entries.create", false, [], "CommunityEntryCommand"),
   route("patch", "/app/v3/api/community/entries/{entryId}", "entries.update", false, [pathParam("entryId")], "CommunityEntryCommand"),
+  route("delete", "/app/v3/api/community/entries/{entryId}", "entries.delete", false, [pathParam("entryId")]),
   route("get", "/app/v3/api/community/entries/{entryId}/publication_readiness", "entries.publicationReadiness.retrieve", false, [pathParam("entryId")]),
+  route("post", "/app/v3/api/community/entries/{entryId}/reactions", "reactions.set", false, [pathParam("entryId")], "CommunityReactionCommand"),
   route("get", "/app/v3/api/community/entries/{entryId}/comments", "comments.list", false, [pathParam("entryId")]),
   route("post", "/app/v3/api/community/entries/{entryId}/comments", "comments.create", false, [pathParam("entryId")], "CommunityCommentCommand"),
 ];
@@ -239,6 +261,11 @@ function listParams() {
 }
 
 function route(method, pathKey, operationId, usesApiKey, parameters = [], bodySchemaName = null) {
+  const apiSurface = pathKey.startsWith("/community/v3/api")
+    ? "open-api"
+    : pathKey.startsWith("/backend/v3/api")
+      ? "backend-api"
+      : "app-api";
   return {
     method,
     path: pathKey,
@@ -275,6 +302,9 @@ function route(method, pathKey, operationId, usesApiKey, parameters = [], bodySc
       "x-sdkwork-domain": DOMAIN,
       "x-sdkwork-resource": operationId.split(".")[0],
       "x-sdkwork-public": usesApiKey,
+      "x-sdkwork-request-context": "WebRequestContext",
+      "x-sdkwork-api-surface": apiSurface,
+      "x-sdkwork-standard-profile": "sdkwork-v3",
     },
   };
 }

@@ -20,7 +20,7 @@
   "baseUrl": "http://127.0.0.1:18080",
   "standardProfile": "sdkwork-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 9,
+  "ownerOnlyOperationCount": 11,
   "operations": [
     {
       "method": "GET",
@@ -41,6 +41,11 @@
       "method": "POST",
       "operationId": "entries.create",
       "path": "/app/v3/api/community/entries"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "entries.delete",
+      "path": "/app/v3/api/community/entries/{entryId}"
     },
     {
       "method": "GET",
@@ -66,7 +71,33 @@
       "method": "GET",
       "operationId": "feed.list",
       "path": "/app/v3/api/community/feed"
+    },
+    {
+      "method": "POST",
+      "operationId": "reactions.set",
+      "path": "/app/v3/api/community/entries/{entryId}/reactions"
     }
   ],
-  "managedBy": "tools/community_sdk_generator_runner.mjs"
+  "managedBy": "tools/community_sdk_generator_runner.mjs",
+  "packageName": "@sdkwork/community-app-sdk",
+  "transportPackageName": "sdkwork-community-app-sdk-generated-typescript",
+  "typescript": {
+    "composedRoot": "sdkwork-community-app-sdk-typescript",
+    "composedEntry": "sdkwork-community-app-sdk-typescript/src/index.ts",
+    "transportRoot": "sdkwork-community-app-sdk-typescript/generated/server-openapi",
+    "transportEntry": "sdkwork-community-app-sdk-typescript/generated/server-openapi/src/index.ts"
+  },
+  "workspace": "sdkwork-community-app-sdk",
+  "authoritySpec": "../../generated/openapi/community-app-api.openapi.json",
+  "derivedSpecs": {
+    "default": "../../generated/openapi/community-app-api.openapi.json"
+  },
+  "discoverySurface": {
+    "sdkTarget": "app",
+    "apiPrefix": "/app/v3/api",
+    "generatedProtocols": [
+      "http-openapi"
+    ],
+    "manualTransports": []
+  }
 }

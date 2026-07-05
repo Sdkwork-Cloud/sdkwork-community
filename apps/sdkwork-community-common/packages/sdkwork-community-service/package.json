@@ -5,7 +5,8 @@
   "type": "module",
   "dependencies": {
     "@sdkwork/community-contracts": "workspace:*",
-    "@sdkwork/community-sdk-ports": "workspace:*"
+    "@sdkwork/community-sdk-ports": "workspace:*",
+    "@sdkwork/utils": "workspace:*"
   },
   "exports": {
     ".": {

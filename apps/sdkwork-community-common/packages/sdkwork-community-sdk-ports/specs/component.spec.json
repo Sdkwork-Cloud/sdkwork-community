@@ -6,7 +6,7 @@
     "displayName": "Community Sdk Ports",
     "version": "0.1.0",
     "type": "node-package",
-    "root": "sdkwork-community/packages/sdkwork-community-sdk-ports",
+    "root": "apps/sdkwork-community-common/packages/sdkwork-community-sdk-ports",
     "domain": "communication",
     "capability": "community-sdk-ports",
     "languages": [

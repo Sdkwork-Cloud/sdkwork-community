@@ -1,11 +1,15 @@
 import { createSdkworkCommunityService, type SdkworkCommunityService } from "@sdkwork/community-service";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
+import type { CommunityRuntimeConfig } from "./community-app-sdk-client";
 
-export interface CommunityRuntimeConfig {
-  appApiBaseUrl: string;
-  backendApiBaseUrl?: string;
-  openApiBaseUrl: string;
-}
+export { createGeneratedCommunityAppSdkPort } from "./generated-app-sdk-port";
+export {
+  COMMUNITY_APP_SDK_FAMILY_ID,
+  createCommunityAppSdkClient,
+  type CommunityAppSdkClient,
+  type CommunityAppSdkClientOptions,
+  type CommunityRuntimeConfig,
+} from "./community-app-sdk-client";
 
 export interface CommunityRuntime {
   appClient: SdkworkCommunityAppSdkPort;

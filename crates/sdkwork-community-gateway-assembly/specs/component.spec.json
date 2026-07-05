@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-community-gateway-assembly",
+    "displayName": "Sdkwork Community Gateway Assembly",
+    "version": "0.1.0",
+    "type": "rust-crate",
+    "root": "sdkwork-community/crates/sdkwork-community-gateway-assembly",
+    "domain": "communication",
+    "capability": "community-gateway-assembly",
+    "languages": ["rust"],
+    "generated": false,
+    "manifests": ["Cargo.toml"]
+  },
+  "canonicalSpecs": [
+    { "file": "COMPONENT_SPEC.md", "path": "../../../sdkwork-specs/COMPONENT_SPEC.md", "purpose": "Component-local contract and discovery rules." },
+    { "file": "RUST_CODE_SPEC.md", "path": "../../../sdkwork-specs/RUST_CODE_SPEC.md", "purpose": "Rust crate and module rules." },
+    { "file": "APPLICATION_GATEWAY_SPEC.md", "path": "../../../sdkwork-specs/APPLICATION_GATEWAY_SPEC.md", "purpose": "Application gateway assembly rules." }
+  ],
+  "contracts": { "publicExports": ["."], "runtimeEntrypoints": [], "routeManifest": null, "sdkClients": [], "events": [], "configKeys": [] },
+  "verification": { "commands": ["cargo test"] }
+}

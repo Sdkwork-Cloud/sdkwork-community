@@ -7,8 +7,8 @@
     "version": "0.1.0",
     "type": "react-package",
     "root": "sdkwork-community/apps/sdkwork-community-pc/packages/sdkwork-community-pc-community",
-    "domain": "communication",
-    "declaredDomain": "communication",
+    "domain": "community",
+    "declaredDomain": "community",
     "capability": "community",
     "status": "ready",
     "languages": [

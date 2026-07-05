@@ -1,30 +1,21 @@
 # SDKWork Community
+
 repository-kind: application
 
-`sdkwork-community` is the owner workspace for SDKWork community capabilities. It contains the community domain contracts, OpenAPI authority documents, generated SDK families, TypeScript runtime layers, PC React integration helpers, Rust domain/http/storage crates, and SQLx-backed database schema.
+`sdkwork-community` is the owner workspace for SDKWork community capabilities: domain contracts, OpenAPI authorities, generated SDK families, TypeScript runtime layers, multi-client application roots, Rust HTTP services, and PostgreSQL/SQLite persistence through `sdkwork-database`.
 
-The workspace is intentionally independent from `sdkwork-appbase`: community source, database logic, API definitions, and SDK generation are owned here.
+The workspace is independent from `sdkwork-appbase`. Community source, database assets, API definitions, and SDK generation are owned here.
 
 ## Application Capabilities
 
 ### Community Domain
 
-The community domain supports:
-
-- Community entry kinds: announcements, discussions, questions, resources, and services.
-- Review states: draft, pending review, approved, flagged, and rejected.
-- Category-aware and tag-aware community entries.
-- Public community feed listing and entry retrieval.
-- Feed sorting modes: latest, top, trending, and unanswered.
-- Feed filtering by category, kind, tag, review state, featured status, and query text.
-- Entry digests and digest summaries for compact UI lists.
-- Recommendation scoring based on shared category, kind, tags, author, featured state, accepted answers, and activity.
-- Publication readiness checks for title, category, body, excerpt, tags, and moderation state.
-- Moderation state transitions and moderation event persistence in the Rust storage layer.
+- Entry kinds: announcements, discussions, questions, resources, and services
+- Review states: draft, pending review, approved, flagged, and rejected
+- Category-aware and tag-aware entries with feed sorting and filtering
+- Publication readiness, recommendations, moderation, and comment threads
 
 ### API Surfaces
-
-The repository defines three owner-only API authority documents.
 
 | Surface | Prefix | Authority | Operations |
 | --- | --- | --- | --- |
@@ -32,138 +23,84 @@ The repository defines three owner-only API authority documents.
 | App API | `/app/v3/api/community` | `sdkwork-community.app` | 9 |
 | Backend API | `/backend/v3/api/community` | `sdkwork-community.backend` | 11 |
 
-Open API operations:
+All HTTP surfaces use the SDKWork v3 envelope (`SdkWorkApiResponse` + numeric `ProblemDetail`) and are served through `sdkwork-web-framework` route crates.
 
-- `GET /community/v3/api/categories`
-- `GET /community/v3/api/feed`
-- `GET /community/v3/api/entries/{entryId}`
-- `GET /community/v3/api/entries/by_slug/{slug}`
-
-App API operations:
-
-- `GET /app/v3/api/community/categories`
-- `GET /app/v3/api/community/feed`
-- `GET /app/v3/api/community/entries/{entryId}`
-- `GET /app/v3/api/community/entries/{entryId}/recommendations`
-- `POST /app/v3/api/community/entries`
-- `PATCH /app/v3/api/community/entries/{entryId}`
-- `GET /app/v3/api/community/entries/{entryId}/publication_readiness`
-- `GET /app/v3/api/community/entries/{entryId}/comments`
-- `POST /app/v3/api/community/entries/{entryId}/comments`
-
-Backend API operations:
-
-- `GET /backend/v3/api/community/categories`
-- `POST /backend/v3/api/community/categories`
-- `PATCH /backend/v3/api/community/categories/{categoryId}`
-- `DELETE /backend/v3/api/community/categories/{categoryId}`
-- `GET /backend/v3/api/community/entries`
-- `POST /backend/v3/api/community/entries/{entryId}/moderation`
-- `POST /backend/v3/api/community/entries/{entryId}/feature`
-- `POST /backend/v3/api/community/entries/{entryId}/pin`
-- `DELETE /backend/v3/api/community/entries/{entryId}`
-- `GET /backend/v3/api/community/moderation/queue`
-- `POST /backend/v3/api/community/recommendations/rebuild`
-
-Generated OpenAPI files are stored in:
+Generated OpenAPI artifacts:
 
 - `generated/openapi/community-open-api.openapi.json`
 - `generated/openapi/community-app-api.openapi.json`
 - `generated/openapi/community-backend-api.openapi.json`
 
-### SDK Generation
+Authority copies live under `apis/{open-api,app-api,backend-api}/community/openapi.json`.
 
-The workspace owns three generated SDK families.
+### SDK Families
 
-| SDK family | API authority | Operation count | Dependencies |
-| --- | --- | --- | --- |
-| `sdks/sdkwork-community-sdk` | `sdkwork-community.open` | 4 | none |
-| `sdks/sdkwork-community-app-sdk` | `sdkwork-community.app` | 9 | none |
-| `sdks/sdkwork-community-backend-sdk` | `sdkwork-community.backend` | 11 | none |
+| SDK family | API authority | Operations |
+| --- | --- | --- |
+| `sdks/sdkwork-community-sdk` | `sdkwork-community.open` | 4 |
+| `sdks/sdkwork-community-app-sdk` | `sdkwork-community.app` | 9 |
+| `sdks/sdkwork-community-backend-sdk` | `sdkwork-community.backend` | 11 |
 
-Generated TypeScript SDK output lives under each SDK family's `*-typescript/generated/server-openapi` directory.
+PC and H5 application roots consume `sdkwork-community-app-sdk` through `@sdkwork/community-runtime`.
 
 ### TypeScript Packages
 
+Shared packages live under `apps/sdkwork-community-common/packages/`:
+
 | Package | Capability |
 | --- | --- |
-| `@sdkwork/community-contracts` | Community domain types, route catalogs, filtering, sorting, feed summaries, recommendations, entry digests, review-state normalization, and publication readiness. |
-| `@sdkwork/community-sdk-ports` | Typed app SDK port interfaces plus an in-memory community app SDK port for local tests and lightweight runtime wiring. |
-| `@sdkwork/community-service` | Service facade over the community app SDK port for feed listing and entry retrieval. |
-| `@sdkwork/community-runtime` | Runtime composition for app client, runtime configuration, and service facade. |
-| `@sdkwork/community-pc-community` | PC React community package metadata, workspace manifest helpers, standard theme preset, and post route intent helpers. |
+| `@sdkwork/community-contracts` | Domain types, route catalogs, filtering, recommendations, publication readiness |
+| `@sdkwork/community-sdk-ports` | Typed app SDK port; in-memory port for tests |
+| `@sdkwork/community-service` | Service facade over the app SDK port (feed, entries, comments) |
+| `@sdkwork/community-runtime` | Generated SDK client wiring and runtime composition |
+
+PC application package:
+
+| Package | Capability |
+| --- | --- |
+| `@sdkwork/community-pc-community` | PC community UI, host adapter, and SDK-backed `CommunityService` |
+| `@sdkwork/community-pc-core` | PC app SDK client bootstrap and composition helpers |
 
 ### Rust Crates
 
 | Crate | Capability |
 | --- | --- |
-| `sdkwork_community_core` | Rust community domain model, capability manifest, and publication readiness evaluation. |
-| `sdkwork_community_http` | Canonical route catalogs for open, app, and backend API prefixes, plus required auth header declarations. |
-| `sdkwork_community_storage_sqlx` | SQLx SQLite storage implementation, schema manifest, migration plan, repository bindings, category creation, entry creation, approval, feed listing, and slug retrieval. |
+| `sdkwork-community-core-rust` | Domain model and publication readiness |
+| `sdkwork-community-http-rust` | Canonical route catalog metadata |
+| `sdkwork-community-storage-sqlx-rust` | SQLx repositories (PostgreSQL + SQLite) |
+| `sdkwork-community-database-host` | `sdkwork-database` lifecycle bootstrap |
+| `sdkwork-community-service` | Business use-cases |
+| `sdkwork-routes-community-{open,app,backend}-api` | Axum routers on `sdkwork-web-framework` |
+| `sdkwork-community-service-host` | Service host and database pool wiring |
+| `sdkwork-community-gateway-assembly` | Application router assembly |
+| `sdkwork-community-standalone-gateway` | Standalone HTTP server binary |
 
-The storage crate owns the initial SQL migration:
-
-- `crates/sdkwork-community-storage-sqlx-rust/migrations/0001_community_foundation.sql`
-
-The migration creates community tables for categories, entries, entry bodies, tags, entry tags, comments, reactions, moderation events, recommendation snapshots, schema versioning, and migration locking.
-
-### PC React Integration
-
-The PC React package provides integration helpers instead of coupling to appbase.
-
-It can create:
-
-- A community app capability manifest.
-- A community workspace manifest with route path, composer path, and detail route pattern.
-- A community post route intent for opening a specific entry and optional comment.
-- Standard SDKWork theme metadata for community surfaces.
+Database schema authority is `database/` (baseline DDL, contract registry, seeds, drift policy). Crate-local SQL migrations are deprecated.
 
 ## Repository Layout
 
-This repository uses the standard SDKWork project-root directory dictionary. The `packages/` directory at the root level is a shared package repository governed by the TypeScript/Node architecture standard, containing domain-neutral shared packages used across multiple application surfaces.
-
 ```text
-apis/
-  open-api/community/       # Open API contracts
-  app-api/community/        # App API contracts
-  backend-api/community/    # Backend API contracts
+apis/                         # OpenAPI authority documents
 apps/
-  sdkwork-community-pc/
-    packages/sdkwork-community-pc-community/
-  sdkwork-community-h5/
-    packages/sdkwork-community-h5-community/
+  sdkwork-community-common/   # Shared TypeScript packages
+  sdkwork-community-pc/       # PC React application root
+  sdkwork-community-h5/       # H5 React application root
   sdkwork-community-flutter-mobile/
-    packages/sdkwork_community_flutter_mobile_community/
-crates/
-  sdkwork-community-core-rust/
-  sdkwork-community-http-rust/
-  sdkwork-community-storage-sqlx-rust/
-docs/
-packages/                    # Shared TypeScript packages (architecture-local)
-  sdkwork-community-contracts/
-  sdkwork-community-sdk-ports/
-  sdkwork-community-service/
-  sdkwork-community-runtime/
-scripts/
-sdks/
-  sdkwork-community-sdk/
-  sdkwork-community-app-sdk/
-  sdkwork-community-backend-sdk/
-tests/
-tools/
-  community_openapi_export.mjs
-  community_schema_quality_gate.mjs
-  community_sdk_generate.mjs
-  community_sdk_generator_runner.mjs
+crates/                       # Rust domain, routes, service host, gateway
+database/                     # sdkwork-database module assets
+deployments/                  # Docker and deployment handoff
+generated/openapi/            # Materialized OpenAPI exports
+scripts/                      # Dev runner, verification, clean helpers
+sdks/                         # Generated SDK families
+specs/                        # Repository topology and component contracts
+tools/                        # OpenAPI export and SDK generation
 ```
 
 ## Prerequisites
 
-- Node.js with `pnpm`.
-- Rust toolchain with `cargo`.
-- PowerShell on Windows for the command examples below.
-
-The workspace is configured for `pnpm@10.33.0`.
+- Node.js with `pnpm@10.33.0`
+- Rust toolchain with `cargo`
+- PostgreSQL for production-style local development (SQLite supported for tests)
 
 ## Install
 
@@ -173,149 +110,87 @@ pnpm install
 
 ## Common Commands
 
-Export OpenAPI documents:
+Materialize OpenAPI authorities:
 
 ```powershell
-pnpm openapi:export
+pnpm api:materialize
 ```
 
-Check generated SDKs without changing files:
-
-```powershell
-pnpm sdk:check
-```
-
-Regenerate SDKs:
+Regenerate or check SDKs:
 
 ```powershell
 pnpm sdk:generate
+pnpm sdk:check
 ```
 
-Run Node test suites:
+Start local development (community API gateway + frontend):
 
 ```powershell
-pnpm test:node
+pnpm dev:desktop
+pnpm dev:browser
 ```
 
-Run Vitest suites:
+Build client surfaces:
 
 ```powershell
-pnpm test:vitest
+pnpm build:desktop
+pnpm build:browser
 ```
 
-Run TypeScript type checking:
+Run the standalone community API server only:
 
 ```powershell
-pnpm typecheck
+pnpm gateway:run
 ```
 
-Run Rust tests:
+Database lifecycle:
 
 ```powershell
-cargo test --workspace
+pnpm db:bootstrap
+pnpm db:status
+pnpm db:postgres:migrate
 ```
 
-Run H5 application:
-
-```powershell
-pnpm h5:dev
-```
-
-Build H5 application:
-
-```powershell
-pnpm h5:build
-```
-
-Run PC application:
-
-```powershell
-pnpm pc:dev
-```
-
-Build PC application:
-
-```powershell
-pnpm pc:build
-```
-
-Run Flutter application:
-
-```powershell
-pnpm flutter:pub-get
-pnpm flutter:analyze
-pnpm flutter:test
-```
-
-Build Flutter application:
-
-```powershell
-pnpm flutter:build:android
-pnpm flutter:build:ios
-```
-
-Run the full verification gate:
+Run verification (standards, envelope, SDK, database, deploy, composition):
 
 ```powershell
 pnpm verify
 ```
 
-`pnpm verify` runs SDK generation checks, Node tests, Vitest tests, and Rust workspace tests.
+Deployment planning and validation:
+
+```powershell
+pnpm deploy:plan
+pnpm deploy:validate
+```
+
+CI uses `.github/workflows/governance.yml` with `pnpm workflow:prepare-ci-dependencies` for sibling SDKWork repositories.
+
+Flutter mobile:
+
+```powershell
+pnpm dev:flutter-android
+pnpm test:flutter
+pnpm build:flutter-android
+pnpm build:flutter-ios
+```
+
+## Platform Integration
+
+| Framework | Status |
+| --- | --- |
+| `sdkwork-web-framework` | Integrated in route crates and standalone gateway |
+| `sdkwork-database` | Integrated via `database/` module and lifecycle CLI |
+| `sdkwork-utils` | Used in Rust storage/service/route layers |
+| `sdkwork-iam-web-adapter` | Integrated for app/backend request context |
+| `sdkwork-discovery` | Not required (no RPC services yet) |
+| `sdkwork-drive` | Not required until file upload features ship |
+
+File uploads, when added, must use `sdkwork-drive-app-sdk` on clients and Drive uploader services on the Rust backend per `DRIVE_SPEC.md`.
 
 ## Boundary Governance
 
-The repository includes governance tests that assert community ownership stays inside `sdkwork-community` and does not depend on `sdkwork-appbase` ownership paths.
-
-Key governance coverage includes:
-
-- Required source, Rust, OpenAPI, and SDK families exist in this workspace.
-- Active community files do not reference appbase package ownership.
-- OpenAPI documents use the expected SDKWork v3 prefixes.
-- SDK manifests are owner-only and dependency-free.
-- Schema quality gates validate generated OpenAPI defaults.
-
-## License
-
-This repository currently declares `SEE LICENSE IN LICENSE` in `package.json`.
-
-## SDKWork Documentation Contract
-
-Domain: communication
-Capability: community-workspace
-Package type: rust-crate
-Status: standard
-
-### Public API
-
-Public exports are declared in `specs/component.spec.json` under `contracts.publicExports`.
-
-### Required SDK Surface
-
-- None declared in `specs/component.spec.json`.
-
-### Configuration
-
-Configuration keys and runtime entrypoints are declared in `specs/component.spec.json`.
-
-### SaaS/Private/Local Behavior
-
-This module follows the canonical standards linked from `specs/component.spec.json`, including deployment and runtime configuration rules where applicable.
-
-### Security
-
-Do not add secrets, live tokens, manual auth headers, or app-local credential handling to this module.
-
-### Extension Points
-
-Extension points are limited to declared public exports, runtime entrypoints, SDK clients, events, and config keys.
-
-### Verification
-
-- `pnpm typecheck`
-
-### Owner And Status
-
-Owner and lifecycle status are tracked in `specs/component.spec.json`.
+Governance tests assert community ownership stays inside this repository and does not depend on `sdkwork-appbase` ownership paths.
 
 ## Documentation Canon
 

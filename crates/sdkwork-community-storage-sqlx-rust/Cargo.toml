@@ -8,10 +8,12 @@ name = "sdkwork_community_storage_sqlx"
 path = "src/lib.rs"
 
 [dependencies]
+chrono.workspace = true
 sdkwork-community-database-host.workspace = true
 sdkwork-database-config.workspace = true
 sdkwork-database-sqlx.workspace = true
-sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite"] }
+sdkwork-utils-rust.workspace = true
+sqlx = { workspace = true, features = ["runtime-tokio", "sqlite", "postgres"] }
 
 [dev-dependencies]
-tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

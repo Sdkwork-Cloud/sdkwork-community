@@ -1,6 +1,6 @@
 # sdkwork-community-storage-sqlx-rust
 
-Domain: drive
+Domain: communication
 Capability: community-storage-sqlx
 Package type: rust-crate
 Status: standard

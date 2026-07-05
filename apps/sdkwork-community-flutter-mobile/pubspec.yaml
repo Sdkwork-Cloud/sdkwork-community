@@ -10,8 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sdkwork_community_contracts:
-    path: ../../packages/common/community/sdkwork-community-contracts
+  sdkwork_community_flutter_mobile_core:
+    path: packages/sdkwork_community_flutter_mobile_core
+  sdkwork_community_flutter_mobile_community:
+    path: packages/sdkwork_community_flutter_mobile_community
 
 dev_dependencies:
   flutter_test:

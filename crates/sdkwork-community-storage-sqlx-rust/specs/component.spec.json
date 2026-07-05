@@ -7,7 +7,7 @@
     "version": "0.1.0",
     "type": "rust-crate",
     "root": "sdkwork-community/crates/sdkwork-community-storage-sqlx-rust",
-    "domain": "drive",
+    "domain": "communication",
     "capability": "community-storage-sqlx",
     "languages": [
       "rust"

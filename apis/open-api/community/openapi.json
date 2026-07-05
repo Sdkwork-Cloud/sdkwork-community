@@ -68,7 +68,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.open",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
-        "x-sdkwork-public": true
+        "x-sdkwork-public": true,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "open-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/community/v3/api/feed": {
@@ -161,7 +164,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.open",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "feed",
-        "x-sdkwork-public": true
+        "x-sdkwork-public": true,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "open-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/community/v3/api/entries/{entryId}": {
@@ -222,7 +228,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.open",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": true
+        "x-sdkwork-public": true,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "open-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     },
     "/community/v3/api/entries/by_slug/{slug}": {
@@ -283,7 +292,10 @@
         "x-sdkwork-api-authority": "sdkwork-community.open",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
-        "x-sdkwork-public": true
+        "x-sdkwork-public": true,
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "open-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3"
       }
     }
   },
@@ -841,6 +853,44 @@
         "properties": {
           "body": {
             "type": "string"
+          }
+        }
+      },
+      "CommunityReactionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reactionType",
+          "active"
+        ],
+        "properties": {
+          "reactionType": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityReactionSetAccepted": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accepted",
+          "reactionCount"
+        ],
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "reactionCount": {
+            "type": "integer"
           }
         }
       },

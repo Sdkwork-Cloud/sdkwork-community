@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "sdkwork-community-database-host",
+    "displayName": "Sdkwork Community Database Host",
+    "version": "0.1.0",
+    "type": "rust-crate",
+    "root": "sdkwork-community/crates/sdkwork-community-database-host",
+    "domain": "communication",
+    "capability": "community-database-host",
+    "languages": ["rust"],
+    "generated": false,
+    "manifests": ["Cargo.toml"]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "DATABASE_FRAMEWORK_SPEC.md",
+      "path": "../../../sdkwork-specs/DATABASE_FRAMEWORK_SPEC.md",
+      "purpose": "Database lifecycle and SPI orchestration."
+    },
+    {
+      "file": "RUST_CODE_SPEC.md",
+      "path": "../../../sdkwork-specs/RUST_CODE_SPEC.md",
+      "purpose": "Rust crate structure rules."
+    }
+  ],
+  "contracts": {
+    "publicExports": ["."],
+    "runtimeEntrypoints": [],
+    "routeManifest": null,
+    "sdkClients": [],
+    "events": [],
+    "configKeys": ["COMMUNITY_DATABASE_URL", "COMMUNITY_DATABASE_ENGINE"]
+  },
+  "verification": {
+    "commands": ["cargo test -p sdkwork-community-database-host"]
+  }
+}

@@ -105,10 +105,10 @@ pub fn evaluate_publication_readiness(
         CommunityEntryKind::Resource | CommunityEntryKind::Service
     );
     let checklist = CommunityPublicationChecklist {
-        has_body: entry.body.map(str::trim).unwrap_or_default().len() > 0,
+        has_body: !entry.body.map(str::trim).unwrap_or_default().is_empty(),
         has_category: !entry.category_id.trim().is_empty(),
         has_excerpt: !excerpt_required
-            || entry.excerpt.map(str::trim).unwrap_or_default().len() > 0,
+            || !entry.excerpt.map(str::trim).unwrap_or_default().is_empty(),
         has_minimum_tags: entry.tags.iter().filter(|tag| !tag.trim().is_empty()).count()
             >= minimum_tags,
         has_title: !entry.title.trim().is_empty(),

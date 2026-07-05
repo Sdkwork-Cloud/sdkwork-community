@@ -5,6 +5,8 @@
   "language": "typescript",
   "sdkType": "app",
   "packageName": "sdkwork-community-app-sdk-generated-typescript",
+  "transportPackageName": "sdkwork-community-app-sdk-generated-typescript",
+  "consumerPackageName": "@sdkwork/community-app-sdk",
   "generator": "@sdkwork/sdk-generator",
   "capabilities": {
     "supportsGeneratedTests": true,

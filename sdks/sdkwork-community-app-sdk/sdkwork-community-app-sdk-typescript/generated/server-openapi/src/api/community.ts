@@ -1,7 +1,7 @@
 import { appApiPath } from './paths';
 import type { HttpClient } from '../http/client';
 
-import type { CommunityCommentCommand, CommunityEntryCommand, SdkWorkListResponse, SdkWorkResourceResponse } from '../types';
+import type { CommunityCommentCommand, CommunityEntryCommand, CommunityReactionCommand, SdkWorkCommandData, SdkWorkPageData } from '../types';
 
 
 export class CommunityCommentsApi {
@@ -13,13 +13,27 @@ export class CommunityCommentsApi {
 
 
 /** Community comments.list */
-  async list(entryId: string): Promise<SdkWorkListResponse> {
-    return this.client.get<SdkWorkListResponse>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/comments`));
+  async list(entryId: string): Promise<SdkWorkPageData> {
+    return this.client.get<SdkWorkPageData>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/comments`));
   }
 
 /** Community comments.create */
-  async create(entryId: string, body: CommunityCommentCommand): Promise<SdkWorkResourceResponse> {
-    return this.client.post<SdkWorkResourceResponse>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/comments`), body, undefined, undefined, 'application/json');
+  async create(entryId: string, body: CommunityCommentCommand): Promise<Record<string, unknown>> {
+    return this.client.post<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/comments`), body, undefined, undefined, 'application/json');
+  }
+}
+
+export class CommunityReactionsApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Community reactions.set */
+  async set(entryId: string, body: CommunityReactionCommand): Promise<Record<string, unknown>> {
+    return this.client.post<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/reactions`), body, undefined, undefined, 'application/json');
   }
 }
 
@@ -32,8 +46,8 @@ export class CommunityEntriesPublicationReadinessApi {
 
 
 /** Community entries.publicationReadiness.retrieve */
-  async retrieve(entryId: string): Promise<SdkWorkResourceResponse> {
-    return this.client.get<SdkWorkResourceResponse>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/publication_readiness`));
+  async retrieve(entryId: string): Promise<Record<string, unknown>> {
+    return this.client.get<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/publication_readiness`));
   }
 }
 
@@ -46,8 +60,8 @@ export class CommunityEntriesRecommendationsApi {
 
 
 /** Community entries.recommendations.list */
-  async list(entryId: string): Promise<SdkWorkListResponse> {
-    return this.client.get<SdkWorkListResponse>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/recommendations`));
+  async list(entryId: string): Promise<SdkWorkPageData> {
+    return this.client.get<SdkWorkPageData>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/recommendations`));
   }
 }
 
@@ -64,18 +78,23 @@ export class CommunityEntriesApi {
 
 
 /** Community entries.retrieve */
-  async retrieve(entryId: string): Promise<SdkWorkResourceResponse> {
-    return this.client.get<SdkWorkResourceResponse>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
+  async retrieve(entryId: string): Promise<Record<string, unknown>> {
+    return this.client.get<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
   }
 
 /** Community entries.update */
-  async update(entryId: string, body: CommunityEntryCommand): Promise<SdkWorkResourceResponse> {
-    return this.client.patch<SdkWorkResourceResponse>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  async update(entryId: string, body: CommunityEntryCommand): Promise<Record<string, unknown>> {
+    return this.client.patch<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), body, undefined, undefined, 'application/json');
+  }
+
+/** Community entries.delete */
+  async delete(entryId: string): Promise<SdkWorkCommandData> {
+    return this.client.delete<SdkWorkCommandData>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
   }
 
 /** Community entries.create */
-  async create(body: CommunityEntryCommand): Promise<SdkWorkResourceResponse> {
-    return this.client.post<SdkWorkResourceResponse>(appApiPath(`/community/entries`), body, undefined, undefined, 'application/json');
+  async create(body: CommunityEntryCommand): Promise<Record<string, unknown>> {
+    return this.client.post<Record<string, unknown>>(appApiPath(`/community/entries`), body, undefined, undefined, 'application/json');
   }
 }
 
@@ -96,7 +115,7 @@ export class CommunityFeedApi {
 
 
 /** Community feed.list */
-  async list(params?: CommunityFeedListParams): Promise<SdkWorkListResponse> {
+  async list(params?: CommunityFeedListParams): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'categoryId', value: params?.categoryId, style: 'form', explode: true, allowReserved: false },
       { name: 'kind', value: params?.kind, style: 'form', explode: true, allowReserved: false },
@@ -104,7 +123,7 @@ export class CommunityFeedApi {
       { name: 'reviewState', value: params?.reviewState, style: 'form', explode: true, allowReserved: false },
       { name: 'tag', value: params?.tag, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkListResponse>(appendQueryString(appApiPath(`/community/feed`), query));
+    return this.client.get<SdkWorkPageData>(appendQueryString(appApiPath(`/community/feed`), query));
   }
 }
 
@@ -117,8 +136,8 @@ export class CommunityCategoriesApi {
 
 
 /** Community categories.list */
-  async list(): Promise<SdkWorkListResponse> {
-    return this.client.get<SdkWorkListResponse>(appApiPath(`/community/categories`));
+  async list(): Promise<SdkWorkPageData> {
+    return this.client.get<SdkWorkPageData>(appApiPath(`/community/categories`));
   }
 }
 
@@ -127,6 +146,7 @@ export class CommunityApi {
   public readonly categories: CommunityCategoriesApi;
   public readonly feed: CommunityFeedApi;
   public readonly entries: CommunityEntriesApi;
+  public readonly reactions: CommunityReactionsApi;
   public readonly comments: CommunityCommentsApi;
 
   constructor(client: HttpClient) {
@@ -134,6 +154,7 @@ export class CommunityApi {
     this.categories = new CommunityCategoriesApi(client);
     this.feed = new CommunityFeedApi(client);
     this.entries = new CommunityEntriesApi(client);
+    this.reactions = new CommunityReactionsApi(client);
     this.comments = new CommunityCommentsApi(client);
   }
 

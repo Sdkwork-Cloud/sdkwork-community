@@ -23,5 +23,10 @@ describe("@sdkwork/community-service", () => {
 
     await expect(service.listFeed({ q: "sdk" })).resolves.toHaveLength(1);
     await expect(service.retrieveEntry("entry-1")).resolves.toMatchObject({ id: "entry-1" });
+    await expect(service.createComment("entry-1", "Ship it")).resolves.toMatchObject({
+      body: "Ship it",
+      entryId: "entry-1",
+    });
+    await expect(service.listComments("entry-1")).resolves.toHaveLength(1);
   });
 });

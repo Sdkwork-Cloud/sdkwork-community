@@ -50,7 +50,7 @@ const entries: SdkworkCommunityEntry[] = [
   },
 ];
 
-describe("@sdkwork/community-pc-react", () => {
+describe("@sdkwork/community-pc-community", () => {
   it("keeps community feed behavior available through the PC React package", () => {
     expect(
       filterCommunityEntries(entries, {
@@ -65,7 +65,7 @@ describe("@sdkwork/community-pc-react", () => {
   it("creates a community workspace manifest and route intent for desktop shells", () => {
     expect(
       createCommunityWorkspaceManifest({
-        packageNames: ["@sdkwork/community-pc-react", "@sdkwork/search-pc-react"],
+        packageNames: ["@sdkwork/community-pc-community", "@sdkwork/search-pc-react"],
         title: "Community",
       }),
     ).toEqual({
@@ -76,7 +76,7 @@ describe("@sdkwork/community-pc-react", () => {
       detailRoutePattern: "/community/:entryId",
       host: "tauri",
       id: "sdkwork-community",
-      packageNames: ["@sdkwork/community-pc-react", "@sdkwork/search-pc-react"],
+      packageNames: ["@sdkwork/community-pc-community", "@sdkwork/search-pc-react"],
       routePath: "/community",
       theme: {
         color: "lobster",

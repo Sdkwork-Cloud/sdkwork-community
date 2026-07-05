@@ -5,7 +5,7 @@ use sdkwork_community_http::{
 
 #[test]
 fn community_http_routes_use_sdkwork_v3_prefixes_and_resource_operation_ids() {
-    assert_eq!(app_routes().len(), 9);
+    assert_eq!(app_routes().len(), 11);
     assert_eq!(backend_routes().len(), 11);
     assert_eq!(open_routes().len(), 4);
     assert!(app_routes()

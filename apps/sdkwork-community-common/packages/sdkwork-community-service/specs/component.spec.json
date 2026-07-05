@@ -6,7 +6,7 @@
     "displayName": "Community Service",
     "version": "0.1.0",
     "type": "node-package",
-    "root": "sdkwork-community/packages/sdkwork-community-service",
+    "root": "apps/sdkwork-community-common/packages/sdkwork-community-service",
     "domain": "communication",
     "capability": "community-service",
     "languages": [

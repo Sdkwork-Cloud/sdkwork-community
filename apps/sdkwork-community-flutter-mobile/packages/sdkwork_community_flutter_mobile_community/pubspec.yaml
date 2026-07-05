@@ -10,8 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sdkwork_community_contracts:
-    path: ../../../../packages/common/community/sdkwork-community-contracts
 
 dev_dependencies:
   flutter_test:

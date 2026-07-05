@@ -1,82 +1,64 @@
-> Migrated from `docs/superpowers/specs/2026-06-06-sdkwork-community-migration-design.md` on 2026-06-24.
-> Owner: SDKWork maintainers
+# Community Ownership And Integration
 
-## Purpose
+Status: completed
+Owner: SDKWork maintainers
+Updated: 2026-07-03
 
-`sdkwork-community` owns SDKWork community posts, discussions, questions, resources, public feeds, moderation state, recommendations, and community route composition. `sdkwork-appbase` should remain a foundation/runtime/IAM assembly workspace and must not own community product logic.
+## Current Ownership
 
-## Scope
+`sdkwork-community` owns community product logic end-to-end:
 
-- Move the existing `@sdkwork/community-pc-react` package out of `sdkwork-appbase`.
-- Add framework-independent TypeScript contracts, SDK ports, service, and runtime packages.
-- Add Rust core, SQLx storage implementation, SQL migrations, and HTTP route metadata.
-- Add owner-only OpenAPI 3.1.2 app/backend/open API documents and SDK generation wrappers.
-- Remove appbase community package, TypeScript alias, catalog entry, and workspace references after the new owner is present.
+- OpenAPI authorities (`apis/`, `generated/openapi/`)
+- Generated SDK families (`sdks/sdkwork-community-{sdk,app-sdk,backend-sdk}`)
+- Rust domain, SQLx storage, HTTP route crates, standalone gateway
+- Shared TypeScript contracts, SDK ports, runtime, and service packages
+- Multi-client application roots (PC, H5, Flutter)
+- PC UI package `@sdkwork/community-pc-community`
 
-## Architecture
+`sdkwork-appbase` remains a foundation/runtime/IAM workspace and must not own community product code.
 
-The workspace follows the independent application shape already used by neighboring SDKWork domains:
+## PC Client Architecture
 
-- `packages/common/community/*` contains TypeScript contracts and service boundaries.
-- `apps/sdkwork-community-pc/packages/community/sdkwork-community-pc-react` contains PC React reusable community logic.
-- `crates/sdkwork-community-core-rust` contains Rust domain contracts and publication/moderation logic.
-- `crates/sdkwork-community-storage-sqlx-rust` owns SQLx migrations, repository contracts, and SQLite behavior.
-- `crates/sdkwork-community-http-rust` owns HTTP route metadata for SDKWork v3 API surfaces.
-- `generated/openapi` stores generated owner-only OpenAPI inputs.
-- `sdks/sdkwork-community-{sdk,app-sdk,backend-sdk}` stores SDK assembly metadata, generation wrappers, and smoke tests.
+| Layer | Package | Responsibility |
+| --- | --- | --- |
+| UI + host adapter | `@sdkwork/community-pc-community` | `CommunityView`, `CommunityDetail`, read-only settings, i18n, `configureCommunityPcHost()` |
+| IM integration | `@sdkwork/im-pc-community` | Thin adapter: IM toast, Avatar, session, drive upload, language bridge |
+| SDK consumption | `@sdkwork/community-runtime` | Generated app SDK port wiring |
+| Domain facade | `@sdkwork/community-service` | Typed feed, entry, and comment operations |
 
-## API Surface
+Host applications must call `configureCommunityPcHost()` before rendering community UI. Standalone bootstrap lives in `apps/sdkwork-community-pc/src/bootstrap/communityHost.tsx`.
 
-App API routes expose reader and authenticated contribution behavior under `/app/v3/api/community/*`:
+## App API Surface (Shipped)
 
-- category list
-- feed list
-- entry retrieve
-- recommendation list
-- entry create/update
-- comment list/create
-- reaction set
-- publication readiness retrieve
+App API operations under `/app/v3/api/community/*`:
 
-Backend API routes expose moderation and management behavior under `/backend/v3/api/community/*`:
+- `categories.list`
+- `feed.list`
+- `entries.retrieve`, `entries.create`, `entries.update`, `entries.delete`
+- `entries.recommendations.list`
+- `entries.publicationReadiness.retrieve`
+- `comments.list`, `comments.create`
+- `reactions.set`
 
-- category management
-- entry management
-- moderation state updates
-- feature/pin commands
-- recommendation snapshot rebuild
-- moderation queue
+PC UI exposes the **feeds** tab only (`PC_COMMUNITY_SUPPORTED_TABS`). `CommunityService` implements the shipped App API subset: categories, feed, entry create/delete, comments, and reactions. Media upload remains a UI fail-closed constant until a matching App API operation ships.
 
-Open API routes expose public integration behavior under `/community/v3/api/*`.
+## IM Integration
 
-All operations use owner `sdkwork-community`, authorities `sdkwork-community.app`, `sdkwork-community.backend`, or `sdkwork-community.open`, tag `community`, dotted operationIds, SDKWork v3 path prefixes, RFC 9457 problem responses, and owner-only generated SDK inputs.
+`sdkwork-im` integrates community through:
 
-## Storage
+1. Gateway upstream proxy at `/app/v3/api/community/*`
+2. `@sdkwork/im-pc-community` host adapter over `@sdkwork/community-pc-community`
+3. Session-scoped community app SDK client in `@sdkwork/im-pc-core`
 
-The initial SQLx schema creates:
+IM must not duplicate community UI, service logic, or OpenAPI ownership.
 
-- `community_category`
-- `community_entry`
-- `community_entry_body`
-- `community_tag`
-- `community_entry_tag`
-- `community_comment`
-- `community_reaction`
-- `community_moderation_event`
-- `community_recommendation_snapshot`
-- `community_schema_version`
-- `community_migration_lock`
+## Verification
 
-Indexes cover tenant/category/kind/state/feed ordering, slug uniqueness, featured and pinned ordering, tag lookup, comments, reactions, moderation queue, recommendation lookup, and schema bookkeeping.
+```powershell
+pnpm verify
+pnpm --filter @sdkwork/community-pc-community typecheck
+node ../sdkwork-im/scripts/dev/sdkwork-im-pc-sidebar-module-sdk-boundary.test.mjs
+node ../sdkwork-im/apps/sdkwork-im-pc/scripts/community-app-sdk-integration-contract.test.mjs
+```
 
-## Appbase Cleanup
-
-After the new workspace exists, appbase must no longer declare:
-
-- `packages/pc-react/communication/sdkwork-community-pc-react`
-- `@sdkwork/community-pc-react` alias in `tsconfig.base.json`
-- `sdkwork-community-pc-react` in `scripts/package-catalog.mjs`
-- community workspace references in `pnpm-lock.yaml`
-
-Appbase may still mention `sdkwork-community` as an extraction source in historical docs only if it does not wire active package ownership. Active source, SDKs, OpenAPI documents, and Rust implementation belong to `sdkwork-community`.
-
+Authority: `TECH_ARCHITECTURE.md`, `../sdkwork-specs/API_SPEC.md` sections 4.5 and 14–16.

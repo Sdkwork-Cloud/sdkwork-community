@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 2,
+  "kind": "sdkwork.app.topology",
+  "appId": "sdkwork-community",
+  "archetype": "application-http-gateway",
+  "profileRoot": "configs/topology",
+  "profilePattern": "{deploymentProfile}.{serviceLayout}.{environment}.env",
+  "vocabulary": {
+    "deploymentProfile": { "allowed": ["standalone", "cloud"] },
+    "serviceLayout": { "allowed": ["unified-process", "split-services"] },
+    "environment": { "allowed": ["development", "production"] }
+  },
+  "defaults": {
+    "developmentProfileId": "standalone.unified-process.development",
+    "productionProfileId": "standalone.unified-process.production",
+    "gatewayBind": "0.0.0.0:18094"
+  },
+  "profileFiles": {
+    "standalone.unified-process.development": "configs/topology/standalone.unified-process.development.env",
+    "standalone.unified-process.production": "configs/topology/standalone.unified-process.production.env",
+    "cloud.split-services.production": "configs/topology/cloud.split-services.production.env"
+  },
+  "envKeys": {
+    "deploymentProfile": "SDKWORK_COMMUNITY_DEPLOYMENT_PROFILE",
+    "serviceLayout": "SDKWORK_COMMUNITY_SERVICE_LAYOUT",
+    "environment": "SDKWORK_COMMUNITY_ENVIRONMENT",
+    "profileId": "SDKWORK_COMMUNITY_PROFILE_ID",
+    "standaloneGatewayBind": "COMMUNITY_API_BIND",
+    "apiGatewayBaseUrl": "SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL",
+    "clientApiGatewayBaseUrl": "VITE_SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL"
+  },
+  "surfaces": {
+    "application.public-ingress": {
+      "connectivityPlane": "application",
+      "protocols": ["http"],
+      "bindEnv": "COMMUNITY_API_BIND",
+      "httpUrlEnv": "SDKWORK_COMMUNITY_APPLICATION_PUBLIC_HTTP_URL",
+      "clientHttpEnv": "VITE_SDKWORK_COMMUNITY_APPLICATION_PUBLIC_HTTP_URL"
+    }
+  },
+  "database": {
+    "appPrefix": "SDKWORK_COMMUNITY"
+  },
+  "components": {
+    "applicationServer": {
+      "crate": "sdkwork-community-standalone-gateway",
+      "binary": "sdkwork-community-standalone-gateway"
+    }
+  },
+  "deploymentProfiles": {
+    "standalone": {
+      "serviceLayout": "unified-process",
+      "runtimeTarget": "browser",
+      "connectivity": {
+        "communityApi": {
+          "bind": "0.0.0.0:18094",
+          "env": "COMMUNITY_API_BIND"
+        }
+      },
+      "surfaces": {
+        "pc": {
+          "devPort": 3000,
+          "appApiBaseUrl": "http://localhost:18094/app/v3/api",
+          "openApiBaseUrl": "http://localhost:18094/community/v3/api"
+        },
+        "h5": {
+          "devPort": 3001,
+          "appApiBaseUrl": "http://localhost:18094/app/v3/api",
+          "openApiBaseUrl": "http://localhost:18094/community/v3/api"
+        }
+      }
+    },
+    "cloud": {
+      "serviceLayout": "split-services",
+      "runtimeTarget": "browser",
+      "connectivity": {
+        "communityApi": {
+          "gatewayPath": "/community"
+        }
+      }
+    }
+  }
+}

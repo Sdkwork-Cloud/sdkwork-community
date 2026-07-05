@@ -52,6 +52,28 @@ export interface SdkworkCommunityEntry {
   title: string;
 }
 
+export interface SdkworkCommunityCategory {
+  description?: string;
+  enabled: boolean;
+  id: string;
+  priority: number;
+  slug: string;
+  tenantId: string;
+  title: string;
+}
+
+export interface SdkworkCommunityComment {
+  author: SdkworkCommunityAuthor;
+  body: string;
+  createdAt: Date | number | string;
+  entryId: string;
+  id: string;
+  isAcceptedAnswer?: boolean;
+  reviewState: SdkworkCommunityReviewState;
+  tenantId: string;
+  updatedAt?: Date | number | string;
+}
+
 export interface SdkworkCommunityApiRoute {
   method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
   operationId: string;
@@ -179,7 +201,9 @@ export const COMMUNITY_APP_API_ROUTES: readonly SdkworkCommunityApiRoute[] = [
   route("GET", "/app/v3/api/community/entries/{entryId}/recommendations", "entries.recommendations.list", false),
   route("POST", "/app/v3/api/community/entries", "entries.create", false),
   route("PATCH", "/app/v3/api/community/entries/{entryId}", "entries.update", false),
+  route("DELETE", "/app/v3/api/community/entries/{entryId}", "entries.delete", false),
   route("GET", "/app/v3/api/community/entries/{entryId}/publication_readiness", "entries.publicationReadiness.retrieve", false),
+  route("POST", "/app/v3/api/community/entries/{entryId}/reactions", "reactions.set", false),
   route("GET", "/app/v3/api/community/entries/{entryId}/comments", "comments.list", false),
   route("POST", "/app/v3/api/community/entries/{entryId}/comments", "comments.create", false),
 ];
