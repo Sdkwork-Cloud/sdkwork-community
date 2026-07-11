@@ -33,7 +33,6 @@ struct FeedQueryParams {
     review_state: Option<String>,
     tag: Option<String>,
     page: Option<i64>,
-    #[serde(rename = "pageSize")]
     page_size: Option<i64>,
 }
 

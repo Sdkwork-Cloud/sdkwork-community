@@ -1,16 +1,21 @@
 [package]
 name = "sdkwork-community-gateway-assembly"
-version.workspace = true
 edition.workspace = true
 license.workspace = true
-publish.workspace = true
+version.workspace = true
+description = "Generated gateway assembly for sdkwork-community application HTTP plane."
 
 [lib]
+name = "sdkwork_community_gateway_assembly"
 path = "src/lib.rs"
 
 [dependencies]
 axum.workspace = true
+tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
 sdkwork-community-service-host.workspace = true
 sdkwork-routes-community-app-api.workspace = true
 sdkwork-routes-community-backend-api.workspace = true
 sdkwork-routes-community-open-api.workspace = true
+sdkwork_routes_community_app_api = { package = "sdkwork-routes-community-app-api", path = "../sdkwork-routes-community-app-api" }
+sdkwork_routes_community_backend_api = { package = "sdkwork-routes-community-backend-api", path = "../sdkwork-routes-community-backend-api" }
+sdkwork_routes_community_open_api = { package = "sdkwork-routes-community-open-api", path = "../sdkwork-routes-community-open-api" }

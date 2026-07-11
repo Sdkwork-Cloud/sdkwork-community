@@ -55,7 +55,11 @@
     "check:app-composition": "node ../sdkwork-specs/tools/verify-repo.mjs --root .",
     "deploy:validate": "node ../sdkwork-specs/tools/check-deploy-standard.mjs",
     "deploy:plan": "node ../sdkwork-specs/tools/deployctl.mjs plan --root .",
-    "workflow:prepare-ci-dependencies": "node scripts/prepare-ci-dependencies.mjs"
+    "workflow:prepare-ci-dependencies": "node scripts/prepare-ci-dependencies.mjs",
+    "topology:validate": "node ../sdkwork-app-topology/scripts/sdkwork-topology.mjs validate --root . --spec specs/topology.spec.json",
+    "topology:plan": "node ../sdkwork-app-topology/scripts/sdkwork-topology.mjs plan --root . --spec specs/topology.spec.json",
+    "gateway:package:cloud": "node ../sdkwork-app-topology/scripts/gateway-cloud-bundle.mjs bundle --root .",
+    "gateway:validate:cloud": "node ../sdkwork-app-topology/scripts/gateway-cloud-bundle.mjs validate --root ."
   },
   "devDependencies": {
     "@sdkwork/ui-pc-react": "workspace:*",

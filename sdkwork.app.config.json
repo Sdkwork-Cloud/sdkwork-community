@@ -1,0 +1,32 @@
+{
+  "name": "sdkwork-community-flutter-mobile",
+  "version": "0.1.0",
+  "description": "SDKWork Community Flutter Mobile Application",
+  "runtime": {
+    "family": "mobile",
+    "framework": "flutter",
+    "supportedDeploymentProfiles": [
+      "standalone",
+      "cloud"
+    ],
+    "defaultDeploymentProfile": "standalone"
+  },
+  "publish": {
+    "platforms": [
+      "APP_IOS",
+      "APP_ANDROID"
+    ]
+  },
+  "app": {
+    "identifiers": {
+      "bundleId": "com.sdkwork.community.flutter",
+      "packageName": "com.sdkwork.community.flutter"
+    },
+    "key": "sdkwork-community"
+  },
+  "artifacts": {
+    "installConfig": {
+      "packages": []
+    }
+  }
+}

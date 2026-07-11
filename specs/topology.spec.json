@@ -1,28 +1,38 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "kind": "sdkwork.app.topology",
   "appId": "sdkwork-community",
   "archetype": "application-http-gateway",
   "profileRoot": "configs/topology",
-  "profilePattern": "{deploymentProfile}.{serviceLayout}.{environment}.env",
+  "profilePattern": "{deploymentProfile}.{environment}.env",
   "vocabulary": {
-    "deploymentProfile": { "allowed": ["standalone", "cloud"] },
-    "serviceLayout": { "allowed": ["unified-process", "split-services"] },
-    "environment": { "allowed": ["development", "production"] }
+    "deploymentProfile": {
+      "allowed": [
+        "standalone",
+        "cloud"
+      ]
+    },
+    "environment": {
+      "allowed": [
+        "development",
+        "production"
+      ]
+    }
   },
   "defaults": {
-    "developmentProfileId": "standalone.unified-process.development",
-    "productionProfileId": "standalone.unified-process.production",
-    "gatewayBind": "0.0.0.0:18094"
+    "developmentProfileId": "standalone.development",
+    "productionProfileId": "cloud.production",
+    "gatewayBind": "0.0.0.0:18094",
+    "desktopBuildProfileId": "standalone.production"
   },
   "profileFiles": {
-    "standalone.unified-process.development": "configs/topology/standalone.unified-process.development.env",
-    "standalone.unified-process.production": "configs/topology/standalone.unified-process.production.env",
-    "cloud.split-services.production": "configs/topology/cloud.split-services.production.env"
+    "standalone.development": "configs/topology/standalone.development.env",
+    "standalone.production": "configs/topology/standalone.production.env",
+    "cloud.production": "configs/topology/cloud.production.env",
+    "cloud.development": "configs/topology/cloud.development.env"
   },
   "envKeys": {
     "deploymentProfile": "SDKWORK_COMMUNITY_DEPLOYMENT_PROFILE",
-    "serviceLayout": "SDKWORK_COMMUNITY_SERVICE_LAYOUT",
     "environment": "SDKWORK_COMMUNITY_ENVIRONMENT",
     "profileId": "SDKWORK_COMMUNITY_PROFILE_ID",
     "standaloneGatewayBind": "COMMUNITY_API_BIND",
@@ -32,10 +42,23 @@
   "surfaces": {
     "application.public-ingress": {
       "connectivityPlane": "application",
-      "protocols": ["http"],
+      "protocols": [
+        "http"
+      ],
       "bindEnv": "COMMUNITY_API_BIND",
       "httpUrlEnv": "SDKWORK_COMMUNITY_APPLICATION_PUBLIC_HTTP_URL",
       "clientHttpEnv": "VITE_SDKWORK_COMMUNITY_APPLICATION_PUBLIC_HTTP_URL"
+    },
+    "platform.api-gateway": {
+      "connectivityPlane": "platform",
+      "protocols": [
+        "http"
+      ],
+      "owner": "sdkwork-api-cloud-gateway",
+      "bindEnv": "SDKWORK_API_CLOUD_GATEWAY_BIND",
+      "httpUrlEnv": "SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL",
+      "clientHttpEnv": "VITE_SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL",
+      "autostartEnv": "SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_AUTOSTART"
     }
   },
   "database": {
@@ -45,6 +68,12 @@
     "applicationServer": {
       "crate": "sdkwork-community-standalone-gateway",
       "binary": "sdkwork-community-standalone-gateway"
+    },
+    "cloudGateway": {
+      "crate": "sdkwork-api-cloud-gateway",
+      "binary": "sdkwork-api-cloud-gateway",
+      "repository": "sdkwork-api-cloud-gateway",
+      "configGlob": "configs/sdkwork-api-cloud-gateway.community.{profile}.toml"
     }
   },
   "deploymentProfiles": {
@@ -79,5 +108,104 @@
         }
       }
     }
+  },
+  "cloudPublicHosts": {
+    "platform.api-gateway": {
+      "httpHost": "api.sdkwork.com"
+    }
+  },
+  "orchestration": {
+    "profiles": {
+      "standalone.development": {
+        "processes": [
+          {
+            "id": "application.public-ingress",
+            "crate": "sdkwork-community-standalone-gateway",
+            "binary": "sdkwork-community-standalone-gateway",
+            "required": true
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress"
+        ]
+      },
+      "standalone.production": {
+        "processes": [
+          {
+            "id": "application.public-ingress",
+            "crate": "sdkwork-community-standalone-gateway",
+            "binary": "sdkwork-community-standalone-gateway",
+            "required": true
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress"
+        ]
+      },
+      "cloud.development": {
+        "processes": [
+          {
+            "id": "platform.api-gateway",
+            "crate": "sdkwork-api-cloud-gateway",
+            "binary": "sdkwork-api-cloud-gateway",
+            "repository": "sdkwork-api-cloud-gateway",
+            "required": false
+          },
+          {
+            "id": "application.public-ingress",
+            "crate": "sdkwork-community-standalone-gateway",
+            "binary": "sdkwork-community-standalone-gateway",
+            "required": true
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress",
+          "platform.api-gateway"
+        ]
+      },
+      "cloud.production": {
+        "processes": [
+          {
+            "id": "platform.api-gateway",
+            "crate": "sdkwork-api-cloud-gateway",
+            "binary": "sdkwork-api-cloud-gateway",
+            "repository": "sdkwork-api-cloud-gateway",
+            "required": false
+          },
+          {
+            "id": "application.public-ingress",
+            "crate": "sdkwork-community-standalone-gateway",
+            "binary": "sdkwork-community-standalone-gateway",
+            "required": true
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress",
+          "platform.api-gateway"
+        ]
+      }
+    }
+  },
+  "packaging": {
+    "cloudConfigFiles": [
+      "sdkwork-api-cloud-gateway.community.development.toml",
+      "sdkwork-api-cloud-gateway.community.production.toml"
+    ],
+    "targets": [
+      {
+        "id": "container-noarch-cloud-container-config-bundle-tar-gz",
+        "profile": "container",
+        "platform": "container",
+        "architecture": "noarch",
+        "formats": [
+          "tar.gz"
+        ],
+        "runner": "ubuntu-24.04",
+        "outputGlob": "dist/cloud-config/sdkwork-community-api-gateway-config-*.tar.gz",
+        "deploymentProfile": "cloud",
+        "runtimeTarget": "container",
+        "variant": "config-bundle"
+      }
+    ]
   }
 }
