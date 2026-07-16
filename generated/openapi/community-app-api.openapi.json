@@ -180,14 +180,7 @@
         "summary": "Community entries.retrieve",
         "operationId": "entries.retrieve",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "responses": {
           "200": {
@@ -243,14 +236,7 @@
         "summary": "Community entries.update",
         "operationId": "entries.update",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "requestBody": {
           "required": true,
@@ -316,25 +302,11 @@
         "summary": "Community entries.delete",
         "operationId": "entries.delete",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SdkWorkCommandResponse"
-                }
-              }
-            }
+          "204": {
+            "description": "OK"
           },
           "400": {
             "description": "Problem detail",
@@ -381,14 +353,7 @@
         "summary": "Community entries.recommendations.list",
         "operationId": "entries.recommendations.list",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "responses": {
           "200": {
@@ -457,7 +422,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "OK",
             "content": {
               "application/json": {
@@ -512,14 +477,7 @@
         "summary": "Community entries.publicationReadiness.retrieve",
         "operationId": "entries.publicationReadiness.retrieve",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "responses": {
           "200": {
@@ -575,16 +533,9 @@
           "community"
         ],
         "summary": "Community reactions.set",
-        "operationId": "reactions.set",
+        "operationId": "reactions.create",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "requestBody": {
           "required": true,
@@ -597,7 +548,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "OK",
             "content": {
               "application/json": {
@@ -652,14 +603,7 @@
         "summary": "Community comments.list",
         "operationId": "comments.list",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "responses": {
           "200": {
@@ -715,14 +659,7 @@
         "summary": "Community comments.create",
         "operationId": "comments.create",
         "parameters": [
-          {
-            "name": "entryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+          null
         ],
         "requestBody": {
           "required": true,
@@ -735,7 +672,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "OK",
             "content": {
               "application/json": {
@@ -970,6 +907,14 @@
             "format": "uuid",
             "description": "Server-owned request correlation id."
           },
+          "i18nKey": {
+            "type": "string",
+            "description": "Optional stable localization key such as errors.result.40001."
+          },
+          "locale": {
+            "type": "string",
+            "description": "Optional effective BCP 47 locale used by framework message mapping."
+          },
           "errors": {
             "type": "array",
             "items": {
@@ -997,6 +942,28 @@
             "format": "int32",
             "minimum": 40011,
             "maximum": 40099
+          },
+          "i18nKey": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
           }
         }
       },

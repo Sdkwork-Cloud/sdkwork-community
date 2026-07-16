@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "pnpm dev:desktop",
+    "stop": "node ../sdkwork-specs/tools/stop-sdkwork-workspace-processes.mjs --workspace .",    "dev": "pnpm dev:desktop",
     "build": "pnpm build:desktop",
     "test": "pnpm test:node && pnpm test:vitest && cargo test --workspace",
     "check": "pnpm typecheck && pnpm api:check && pnpm sdk:check && pnpm db:validate && pnpm check:api-envelope && pnpm check:pnpm-script-standard && pnpm deploy:validate",

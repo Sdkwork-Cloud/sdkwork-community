@@ -125,8 +125,13 @@ function standardProfileFor(family) {
 
 function writeSdkManifest({ family, inputPath, baseUrl, languages }) {
   const document = JSON.parse(readFileSync(inputPath, "utf8"));
+  const manifestPath = path.join(family.sdkRoot, "sdk-manifest.json");
+  const currentManifest = existsSync(manifestPath)
+    ? JSON.parse(readFileSync(manifestPath, "utf8"))
+    : {};
   const standardProfile = standardProfileFor(family);
   const manifest = {
+    ...currentManifest,
     schemaVersion: 1,
     sdkName: family.sdkName,
     sdkOwner: "sdkwork-community",
@@ -157,7 +162,7 @@ function writeSdkManifest({ family, inputPath, baseUrl, languages }) {
 }
 
 function syncAssembly(family, inputPath) {
-  const assemblyPath = path.join(family.sdkRoot, ".sdkwork-assembly.json");
+  const assemblyPath = path.join(family.sdkRoot, "sdk-manifest.json");
   const assembly = existsSync(assemblyPath) ? JSON.parse(readFileSync(assemblyPath, "utf8")) : {};
   const relativeInput = toPosix(path.relative(family.sdkRoot, inputPath));
   assembly.workspace = family.sdkName;

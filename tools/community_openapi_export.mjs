@@ -6,6 +6,7 @@ import {
   sdkWorkEnvelopeComponentSchemas,
   successResponseSchemaRef,
 } from "../../sdkwork-specs/tools/lib/openapi-envelope-schemas.mjs";
+import { alignOpenApiOperationPatterns } from "../../sdkwork-specs/tools/lib/align-api-operation-patterns.mjs";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(scriptDir, "..");
@@ -239,7 +240,7 @@ function envelopeSchemaRef(method, operationId) {
 }
 
 function pathParam(name) {
-  return {
+  const document = {
     name,
     in: "path",
     required: true,
@@ -327,7 +328,7 @@ function documentFor({ authority, routes, serverUrl, title }) {
     item.operation["x-sdkwork-api-authority"] = authority;
     paths[item.path][item.method] = item.operation;
   }
-  return {
+  const document = {
     openapi: "3.1.2",
     info: {
       title,
@@ -363,6 +364,7 @@ function documentFor({ authority, routes, serverUrl, title }) {
     "x-sdkwork-domain": DOMAIN,
     "x-sdkwork-standard-profile": "sdkwork-v3",
   };
+  return alignOpenApiOperationPatterns(document).document;
 }
 
 function parseArgs(argv) {
