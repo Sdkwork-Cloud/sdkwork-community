@@ -4,7 +4,7 @@
   "applicationCode": "community",
   "packageName": "sdkwork-community-gateway-assembly",
   "crateDir": "crates/sdkwork-community-gateway-assembly",
-  "generatedAt": "2026-07-08T01:33:37.307Z",
+  "generatedAt": "2026-07-16T16:45:59.900Z",
   "routeCrates": [
     {
       "packageName": "sdkwork-routes-community-app-api",

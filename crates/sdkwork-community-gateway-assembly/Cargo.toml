@@ -11,11 +11,8 @@ path = "src/lib.rs"
 
 [dependencies]
 axum.workspace = true
-tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
+tokio.workspace = true
 sdkwork-community-service-host.workspace = true
 sdkwork-routes-community-app-api.workspace = true
 sdkwork-routes-community-backend-api.workspace = true
 sdkwork-routes-community-open-api.workspace = true
-sdkwork_routes_community_app_api = { package = "sdkwork-routes-community-app-api", path = "../sdkwork-routes-community-app-api" }
-sdkwork_routes_community_backend_api = { package = "sdkwork-routes-community-backend-api", path = "../sdkwork-routes-community-backend-api" }
-sdkwork_routes_community_open_api = { package = "sdkwork-routes-community-open-api", path = "../sdkwork-routes-community-open-api" }
