@@ -170,5 +170,6 @@ CREATE INDEX IF NOT EXISTS idx_community_moderation_event_entry
 CREATE INDEX IF NOT EXISTS idx_community_recommendation_source
     ON community_recommendation_snapshot (tenant_id, source_entry_id, score);
 
-INSERT OR IGNORE INTO community_schema_version (id, version, applied_at)
-VALUES ('community.storage', 'community.storage.v1', '2026-06-06T00:00:00Z');
+INSERT INTO community_schema_version (id, version, applied_at)
+VALUES ('community.storage', 'community.storage.v1', '2026-06-06T00:00:00Z')
+ON CONFLICT (id) DO NOTHING;
