@@ -89,7 +89,7 @@
       {
         "name": "Build release gateway binary",
         "shell": "pwsh",
-        "run": "cargo build --release -p sdkwork-community-standalone-gateway"
+        "run": "cargo build --release -p sdkwork-api-community-standalone-gateway"
       }
     ],
     "validate": [
@@ -108,7 +108,7 @@
       "architecture": "x64",
       "formats": ["tar.gz"],
       "runner": "ubuntu-24.04",
-      "outputGlobs": ["target/release/sdkwork-community-standalone-gateway"],
+      "outputGlobs": ["target/release/sdkwork-api-community-standalone-gateway"],
       "deploymentProfile": "standalone",
       "runtimeTarget": "server"
     }

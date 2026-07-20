@@ -18,7 +18,7 @@ OpenAPI authorities (apis/)
   -> sdkwork-database module (database/)
 ```
 
-HTTP traffic enters through `sdkwork-community-standalone-gateway`, which mounts open, app, and backend community routers assembled by `sdkwork-community-gateway-assembly`.
+HTTP traffic enters through `sdkwork-api-community-standalone-gateway`, which mounts open, app, and backend community routers assembled by `sdkwork-api-community-assembly`.
 
 ## 2. Technology Choices
 

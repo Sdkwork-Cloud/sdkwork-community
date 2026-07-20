@@ -5,7 +5,7 @@ Capability: community-http
 Package type: web-backend-service
 Status: standard
 
-This crate owns canonical HTTP route **catalog metadata** (paths, operation IDs, auth headers). Executable routers live in `sdkwork-routes-community-{open,app,backend}-api` and are served by `sdkwork-community-standalone-gateway`.
+This crate owns canonical HTTP route **catalog metadata** (paths, operation IDs, auth headers). Executable routers live in `sdkwork-routes-community-{open,app,backend}-api` and are served by `sdkwork-api-community-standalone-gateway`.
 
 ## Public API
 

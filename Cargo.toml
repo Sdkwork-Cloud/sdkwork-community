@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "crates/sdkwork-api-community-assembly",
     "crates/sdkwork-community-core-rust",
     "crates/sdkwork-community-database-host",
     "crates/sdkwork-community-storage-sqlx-rust",
@@ -10,8 +11,8 @@ members = [
     "crates/sdkwork-routes-community-app-api",
     "crates/sdkwork-routes-community-backend-api",
     "crates/sdkwork-community-service-host",
-    "crates/sdkwork-community-gateway-assembly",
-    "crates/sdkwork-community-standalone-gateway",
+    "crates/sdkwork-api-community-assembly",
+    "crates/sdkwork-api-community-standalone-gateway",
 ]
 resolver = "2"
 
@@ -45,7 +46,7 @@ sdkwork-routes-community-open-api = { path = "crates/sdkwork-routes-community-op
 sdkwork-routes-community-app-api = { path = "crates/sdkwork-routes-community-app-api" }
 sdkwork-routes-community-backend-api = { path = "crates/sdkwork-routes-community-backend-api" }
 sdkwork-community-service-host = { path = "crates/sdkwork-community-service-host" }
-sdkwork-community-gateway-assembly = { path = "crates/sdkwork-community-gateway-assembly" }
+sdkwork-api-community-assembly = { path = "crates/sdkwork-api-community-assembly" }
 sdkwork-database-config = { path = "../sdkwork-database/crates/sdkwork-database-config", package = "sdkwork-database-config" }
 sdkwork-database-lifecycle = { path = "../sdkwork-database/crates/sdkwork-database-lifecycle", package = "sdkwork-database-lifecycle" }
 sdkwork-database-spi = { path = "../sdkwork-database/crates/sdkwork-database-spi", package = "sdkwork-database-spi" }

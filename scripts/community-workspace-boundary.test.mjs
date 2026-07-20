@@ -56,7 +56,7 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
     "crates/sdkwork-community-service/Cargo.toml",
     "crates/sdkwork-routes-community-app-api/Cargo.toml",
     "crates/sdkwork-community-service-host/Cargo.toml",
-    "crates/sdkwork-community-standalone-gateway/Cargo.toml",
+    "crates/sdkwork-api-community-standalone-gateway/Cargo.toml",
     "database/database.manifest.json",
     "database/ddl/baseline/postgres/0001_community_baseline.sql",
     "generated/openapi/community-open-api.openapi.json",

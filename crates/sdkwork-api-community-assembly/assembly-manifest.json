@@ -1,0 +1,43 @@
+{
+  "kind": "sdkwork.api.assembly",
+  "schemaVersion": 1,
+  "applicationCode": "community",
+  "apiMode": "served",
+  "packageName": "sdkwork-api-community-assembly",
+  "crateDir": "crates/sdkwork-api-community-assembly",
+  "routeCrates": [
+    {
+      "packageName": "sdkwork-routes-community-app-api",
+      "memberDir": "crates/sdkwork-routes-community-app-api",
+      "libName": "sdkwork_routes_community_app_api",
+      "surface": "app-api",
+      "pathPrefix": null,
+      "mountOrder": 0,
+      "componentRef": "crates/sdkwork-routes-community-app-api/specs/component.spec.json",
+      "routeManifestRef": "crates/sdkwork-routes-community-app-api/apis/app-api/community/openapi.json",
+      "sourceRef": "crates/sdkwork-routes-community-app-api/Cargo.toml"
+    },
+    {
+      "packageName": "sdkwork-routes-community-backend-api",
+      "memberDir": "crates/sdkwork-routes-community-backend-api",
+      "libName": "sdkwork_routes_community_backend_api",
+      "surface": "backend-api",
+      "pathPrefix": null,
+      "mountOrder": 1,
+      "componentRef": "crates/sdkwork-routes-community-backend-api/specs/component.spec.json",
+      "routeManifestRef": "crates/sdkwork-routes-community-backend-api/apis/backend-api/community/openapi.json",
+      "sourceRef": "crates/sdkwork-routes-community-backend-api/Cargo.toml"
+    },
+    {
+      "packageName": "sdkwork-routes-community-open-api",
+      "memberDir": "crates/sdkwork-routes-community-open-api",
+      "libName": "sdkwork_routes_community_open_api",
+      "surface": "open-api",
+      "pathPrefix": null,
+      "mountOrder": 2,
+      "componentRef": "crates/sdkwork-routes-community-open-api/specs/component.spec.json",
+      "routeManifestRef": "crates/sdkwork-routes-community-open-api/apis/open-api/community/openapi.json",
+      "sourceRef": "crates/sdkwork-routes-community-open-api/Cargo.toml"
+    }
+  ]
+}

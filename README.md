@@ -72,8 +72,8 @@ PC application package:
 | `sdkwork-community-service` | Business use-cases |
 | `sdkwork-routes-community-{open,app,backend}-api` | Axum routers on `sdkwork-web-framework` |
 | `sdkwork-community-service-host` | Service host and database pool wiring |
-| `sdkwork-community-gateway-assembly` | Application router assembly |
-| `sdkwork-community-standalone-gateway` | Standalone HTTP server binary |
+| `sdkwork-api-community-assembly` | Application router assembly |
+| `sdkwork-api-community-standalone-gateway` | Standalone HTTP server binary |
 
 Database schema authority is `database/` (baseline DDL, contract registry, seeds, drift policy). Crate-local SQL migrations are deprecated.
 

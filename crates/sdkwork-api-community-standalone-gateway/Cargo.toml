@@ -1,17 +1,17 @@
 [package]
-name = "sdkwork-community-standalone-gateway"
+name = "sdkwork-api-community-standalone-gateway"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
 
 [[bin]]
-name = "sdkwork-community-standalone-gateway"
+name = "sdkwork-api-community-standalone-gateway"
 path = "src/main.rs"
 
 [dependencies]
 axum.workspace = true
-sdkwork-community-gateway-assembly.workspace = true
+sdkwork-api-community-assembly.workspace = true
 sdkwork-community-service-host.workspace = true
 sdkwork-database-sqlx.workspace = true
 sdkwork-web-bootstrap.workspace = true

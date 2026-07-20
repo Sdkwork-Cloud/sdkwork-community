@@ -86,7 +86,7 @@ function main() {
 
   const gateway = spawnLogged(
     cargoCommand(),
-    ["run", "-p", "sdkwork-community-standalone-gateway"],
+    ["run", "-p", "sdkwork-api-community-standalone-gateway"],
     { env: gatewayEnv },
   );
 
