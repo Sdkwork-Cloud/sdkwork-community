@@ -12,22 +12,62 @@
   "mode": "apply",
   "hasChanges": true,
   "hasDestructiveChanges": false,
-  "changeFingerprint": "014f3dc79dfbbf8a18982b81e289b34863e6c7d3c111490e9e3ae80094f0ccde",
+  "changeFingerprint": "c3fb096b1cee49bbcb64c1f9e1c7d5518dc8cce9bfe98e8c070e344da51dcede",
   "changeImpact": {
     "schemaVersion": 1,
     "areas": [
-      "build-metadata"
+      "api-surface",
+      "models",
+      "runtime",
+      "build-metadata",
+      "publish-workflow",
+      "documentation"
     ],
     "details": [
+      {
+        "area": "api-surface",
+        "paths": [
+          "src/api/category.ts",
+          "src/api/entry.ts",
+          "src/api/feed.ts",
+          "src/http/client.ts"
+        ]
+      },
+      {
+        "area": "models",
+        "paths": [
+          "src/types/field-error.ts",
+          "src/types/problem-detail.ts"
+        ]
+      },
+      {
+        "area": "runtime",
+        "paths": [
+          "src/http/client.ts"
+        ]
+      },
       {
         "area": "build-metadata",
         "paths": [
           "package.json"
         ]
+      },
+      {
+        "area": "publish-workflow",
+        "paths": [
+          "bin/publish.ps1",
+          "bin/sdk-gen.bat"
+        ]
+      },
+      {
+        "area": "documentation",
+        "paths": [
+          "README.md"
+        ]
       }
     ],
     "requiresVerification": true,
-    "summary": "Detected impact areas: build-metadata. Verification is required."
+    "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation. Verification is required."
   },
   "executionDecision": {
     "schemaVersion": 1,
@@ -50,7 +90,7 @@
         "id": "verify-check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: build-metadata.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -68,7 +108,7 @@
         "id": "verify-build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: build-metadata.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -87,13 +127,13 @@
   "verificationPlan": {
     "shouldRun": true,
     "runPhase": "now",
-    "summary": "Detected impact areas: build-metadata. Verification is required. Run the required verification commands now against the generated SDK output.",
+    "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation. Verification is required. Run the required verification commands now against the generated SDK output.",
     "steps": [
       {
         "id": "check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: build-metadata.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -111,7 +151,7 @@
         "id": "build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: build-metadata.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -150,35 +190,37 @@
   "syncSummary": {
     "dryRun": false,
     "controlPlaneEnabled": true,
-    "writtenFiles": 1,
+    "writtenFiles": 10,
     "skippedScaffoldFiles": 2,
-    "skippedUnchangedGeneratedFiles": 48,
+    "skippedUnchangedGeneratedFiles": 39,
     "deletedGeneratedFiles": 0,
     "changeSummaryPath": ".sdkwork/sdkwork-generator-changes.json",
-    "changeFingerprint": "014f3dc79dfbbf8a18982b81e289b34863e6c7d3c111490e9e3ae80094f0ccde",
+    "changeFingerprint": "c3fb096b1cee49bbcb64c1f9e1c7d5518dc8cce9bfe98e8c070e344da51dcede",
     "changes": {
       "createdGeneratedFiles": [],
       "updatedGeneratedFiles": [
-        "package.json"
-      ],
-      "unchangedGeneratedFiles": [
-        "bin/publish-core.mjs",
         "bin/publish.ps1",
-        "bin/publish.sh",
         "bin/sdk-gen.bat",
-        "bin/sdk-gen.sh",
-        "CHANGELOG.md",
-        "LICENSE",
+        "package.json",
         "README.md",
-        "sdkwork-sdk.json",
-        "src/api/base.ts",
         "src/api/category.ts",
         "src/api/entry.ts",
         "src/api/feed.ts",
+        "src/http/client.ts",
+        "src/types/field-error.ts",
+        "src/types/problem-detail.ts"
+      ],
+      "unchangedGeneratedFiles": [
+        "bin/publish-core.mjs",
+        "bin/publish.sh",
+        "bin/sdk-gen.sh",
+        "CHANGELOG.md",
+        "LICENSE",
+        "sdkwork-sdk.json",
+        "src/api/base.ts",
         "src/api/index.ts",
         "src/api/paths.ts",
         "src/auth/index.ts",
-        "src/http/client.ts",
         "src/http/index.ts",
         "src/index.ts",
         "src/sdk.ts",
@@ -197,10 +239,8 @@
         "src/types/community-reaction-set-accepted.ts",
         "src/types/community-review-state.ts",
         "src/types/community-stats.ts",
-        "src/types/field-error.ts",
         "src/types/index.ts",
         "src/types/page-info.ts",
-        "src/types/problem-detail.ts",
         "src/types/sdk-work-api-response.ts",
         "src/types/sdk-work-command-data.ts",
         "src/types/sdk-work-command-response.ts",
@@ -218,35 +258,77 @@
         "custom/README.md"
       ],
       "backedUpFiles": [
+        "bin/publish.ps1",
+        "bin/sdk-gen.bat",
         "package.json"
       ]
     },
     "impact": {
       "schemaVersion": 1,
       "areas": [
-        "build-metadata"
+        "api-surface",
+        "models",
+        "runtime",
+        "build-metadata",
+        "publish-workflow",
+        "documentation"
       ],
       "details": [
+        {
+          "area": "api-surface",
+          "paths": [
+            "src/api/category.ts",
+            "src/api/entry.ts",
+            "src/api/feed.ts",
+            "src/http/client.ts"
+          ]
+        },
+        {
+          "area": "models",
+          "paths": [
+            "src/types/field-error.ts",
+            "src/types/problem-detail.ts"
+          ]
+        },
+        {
+          "area": "runtime",
+          "paths": [
+            "src/http/client.ts"
+          ]
+        },
         {
           "area": "build-metadata",
           "paths": [
             "package.json"
           ]
+        },
+        {
+          "area": "publish-workflow",
+          "paths": [
+            "bin/publish.ps1",
+            "bin/sdk-gen.bat"
+          ]
+        },
+        {
+          "area": "documentation",
+          "paths": [
+            "README.md"
+          ]
         }
       ],
       "requiresVerification": true,
-      "summary": "Detected impact areas: build-metadata. Verification is required."
+      "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation. Verification is required."
     },
     "verificationPlan": {
       "shouldRun": true,
       "runPhase": "now",
-      "summary": "Detected impact areas: build-metadata. Verification is required. Run the required verification commands now against the generated SDK output.",
+      "summary": "Detected impact areas: api-surface, models, runtime, build-metadata, publish-workflow, documentation. Verification is required. Run the required verification commands now against the generated SDK output.",
       "steps": [
         {
           "id": "check",
           "title": "Unified package check",
           "required": true,
-          "rationale": "Validate the generated package with the unified publish helper. Triggered by: build-metadata.",
+          "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation.",
           "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
           "command": "node",
           "args": [
@@ -264,7 +346,7 @@
           "id": "build",
           "title": "Unified package build",
           "required": true,
-          "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: build-metadata.",
+          "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata, publish-workflow, documentation.",
           "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
           "command": "node",
           "args": [
@@ -294,6 +376,8 @@
       ]
     },
     "backedUpFiles": [
+      "bin/publish.ps1",
+      "bin/sdk-gen.bat",
       "package.json"
     ],
     "preservedLegacyFiles": false

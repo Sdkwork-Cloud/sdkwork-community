@@ -59,7 +59,7 @@
     },
     {
       "method": "POST",
-      "operationId": "entries.moderation.update",
+      "operationId": "entries.moderation.create",
       "path": "/backend/v3/api/community/entries/{entryId}/moderation"
     },
     {

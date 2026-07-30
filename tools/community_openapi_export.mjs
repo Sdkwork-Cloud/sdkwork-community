@@ -248,17 +248,25 @@ function pathParam(name) {
   };
 }
 
-function queryParam(name) {
+function queryParam(name, schema = { type: "string" }) {
   return {
     name,
     in: "query",
     required: false,
-    schema: { type: "string" },
+    schema,
   };
 }
 
 function listParams() {
-  return [queryParam("categoryId"), queryParam("kind"), queryParam("q"), queryParam("reviewState"), queryParam("tag")];
+  return [
+    queryParam("categoryId"),
+    queryParam("kind"),
+    queryParam("q"),
+    queryParam("reviewState"),
+    queryParam("tag"),
+    queryParam("page", { type: "integer", minimum: 1, default: 1 }),
+    queryParam("page_size", { type: "integer", minimum: 1, maximum: 200, default: 20 }),
+  ];
 }
 
 function route(method, pathKey, operationId, usesApiKey, parameters = [], bodySchemaName = null) {

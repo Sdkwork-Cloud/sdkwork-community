@@ -1,5 +1,5 @@
 import { customApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { SdkWorkResourceResponse } from '../types';
 
@@ -13,8 +13,8 @@ export class EntryPublicBySlugApi {
 
 
 /** Community entries.publicBySlug.retrieve */
-  async retrieve(slug: string): Promise<SdkWorkResourceResponse> {
-    return this.client.get<SdkWorkResourceResponse>(customApiPath(`/entries/by_slug/${serializePathParameter(slug, { name: 'slug', style: 'simple', explode: false })}`));
+  async retrieve(slug: string | number, requestOptions?: ApiRequestOptions): Promise<SdkWorkResourceResponse> {
+    return this.client.request<SdkWorkResourceResponse>(customApiPath(`/entries/by_slug/${serializePathParameter(slug, { name: 'slug', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any });
   }
 }
 
@@ -27,8 +27,8 @@ export class EntryPublicApi {
 
 
 /** Community entries.public.retrieve */
-  async retrieve(entryId: string): Promise<SdkWorkResourceResponse> {
-    return this.client.get<SdkWorkResourceResponse>(customApiPath(`/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`));
+  async retrieve(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<SdkWorkResourceResponse> {
+    return this.client.request<SdkWorkResourceResponse>(customApiPath(`/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any });
   }
 }
 

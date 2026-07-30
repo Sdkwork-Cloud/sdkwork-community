@@ -133,16 +133,13 @@ async fn list_feed(
         approved_only: true,
     };
     match state.service.list_feed(&subject.tenant_id, query).await {
-        Ok(items) => {
-            let count = items.len() as i64;
-            success_items(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                items.into_iter().map(map_entry).collect(),
-                params.page.unwrap_or(1),
-                params.page_size.unwrap_or(20),
-                Some(count),
-            )
-        }
+        Ok(result) => success_items(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            result.items.into_iter().map(map_entry).collect(),
+            result.page,
+            result.page_size,
+            Some(result.total_items),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -348,7 +345,10 @@ async fn create_comment(
         )
         .await
     {
-        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_comment(item)),
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_comment(item),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -371,12 +371,7 @@ async fn set_reaction(
     };
     match state
         .service
-        .set_reaction(
-            &subject.tenant_id,
-            &entry_id,
-            &subject.user_id,
-            body,
-        )
+        .set_reaction(&subject.tenant_id, &entry_id, &subject.user_id, body)
         .await
     {
         Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),

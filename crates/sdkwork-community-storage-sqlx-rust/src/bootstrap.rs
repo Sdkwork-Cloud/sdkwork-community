@@ -9,7 +9,8 @@ pub use sdkwork_community_database_host::{
 
 pub type CommunityDatabasePool = DatabasePool;
 
-pub async fn connect_community_database_pool_from_env() -> Result<CommunityDatabasePool, PoolError> {
+pub async fn connect_community_database_pool_from_env() -> Result<CommunityDatabasePool, PoolError>
+{
     let config = DatabaseConfig::from_env("COMMUNITY")?;
     create_pool_from_config(config).await
 }

@@ -2,6 +2,8 @@
 pub enum CommunityServiceError {
     #[error("validation: {0}")]
     Validation(String),
+    #[error("invalid-parameter: {0}")]
+    InvalidParameter(String),
     #[error("not-found: {0}")]
     NotFound(String),
     #[error("conflict: {0}")]
@@ -16,6 +18,7 @@ impl CommunityServiceError {
     pub fn code(&self) -> &'static str {
         match self {
             Self::Validation(_) => "validation",
+            Self::InvalidParameter(_) => "invalid-parameter",
             Self::NotFound(_) => "not-found",
             Self::Conflict(_) => "conflict",
             Self::Unauthorized(_) => "unauthorized",
@@ -26,6 +29,7 @@ impl CommunityServiceError {
     pub fn message(&self) -> &str {
         match self {
             Self::Validation(message)
+            | Self::InvalidParameter(message)
             | Self::NotFound(message)
             | Self::Conflict(message)
             | Self::Unauthorized(message)

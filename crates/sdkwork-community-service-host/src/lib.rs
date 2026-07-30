@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sdkwork_community_database_host::bootstrap_community_database;
 use sdkwork_community_service::CommunityService;
-use sdkwork_community_storage_sqlx::{CommunitySqlxStore, community_initial_migration_sql};
+use sdkwork_community_storage_sqlx::{community_initial_migration_sql, CommunitySqlxStore};
 use sdkwork_database_config::{DatabaseConfig, DatabaseEngine};
 use sdkwork_database_sqlx::{DatabasePool, PoolContext};
 
@@ -14,7 +14,8 @@ pub struct CommunityServiceHost {
 impl CommunityServiceHost {
     pub async fn from_env() -> Result<Self, String> {
         let _ = dotenvy::dotenv();
-        let database = sdkwork_community_storage_sqlx::bootstrap_community_database_from_env().await?;
+        let database =
+            sdkwork_community_storage_sqlx::bootstrap_community_database_from_env().await?;
         let store = Arc::new(CommunitySqlxStore::new(database.pool().clone()));
         let service = Arc::new(CommunityService::new(store));
         Ok(Self {

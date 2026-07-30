@@ -2,8 +2,8 @@ use sqlx::{Row, SqlitePool};
 
 use super::{
     CommunityCategoryPatch, CommunityEntryPatch, CommunityFeedQuery, CommunityModerationPatch,
-    CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry, NewCommunityCategory,
-    NewCommunityComment, NewCommunityEntry,
+    CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry,
+    CommunityStoredEntryPage, NewCommunityCategory, NewCommunityComment, NewCommunityEntry,
 };
 
 pub async fn list_categories(
@@ -209,12 +209,78 @@ pub async fn list_feed(
     pool: &SqlitePool,
     tenant_id: &str,
     query: &CommunityFeedQuery,
-) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
+) -> Result<CommunityStoredEntryPage, sqlx::Error> {
     let review_state = if query.approved_only {
         Some("approved".to_owned())
     } else {
         query.review_state.clone()
     };
+    let q = query
+        .q
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_ascii_lowercase);
+    let tag = query
+        .tag
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_ascii_lowercase);
+    let page = query.page.max(1);
+    let page_size = query.page_size.clamp(1, 200);
+    let offset = (page - 1) * page_size;
+    let count_row = sqlx::query(
+        r#"
+        SELECT COUNT(*) AS total_items
+        FROM community_entry e
+        JOIN community_entry_body b ON b.entry_id = e.id
+        WHERE e.tenant_id = ?
+          AND (? IS NULL OR e.review_state = ?)
+          AND (? IS NULL OR e.category_id = ?)
+          AND (? IS NULL OR e.kind = ?)
+          AND (
+            ? IS NULL
+            OR instr(lower(e.title), ?) > 0
+            OR instr(lower(COALESCE(e.excerpt, '')), ?) > 0
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND instr(lower(t.slug), ?) > 0
+            )
+          )
+          AND (
+            ? IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND lower(t.slug) = ?
+            )
+          )
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(review_state.as_deref())
+    .bind(review_state.as_deref())
+    .bind(query.category_id.as_deref())
+    .bind(query.category_id.as_deref())
+    .bind(query.kind.as_deref())
+    .bind(query.kind.as_deref())
+    .bind(q.as_deref())
+    .bind(q.as_deref())
+    .bind(q.as_deref())
+    .bind(q.as_deref())
+    .bind(tag.as_deref())
+    .bind(tag.as_deref())
+    .fetch_one(pool)
+    .await?;
+    let total_items = integer_cell(&count_row, "total_items");
     let rows = sqlx::query(
         r#"
         SELECT e.id, e.tenant_id, e.category_id, e.author_id, e.author_name, e.slug, e.kind,
@@ -227,7 +293,32 @@ pub async fn list_feed(
           AND (? IS NULL OR e.review_state = ?)
           AND (? IS NULL OR e.category_id = ?)
           AND (? IS NULL OR e.kind = ?)
+          AND (
+            ? IS NULL
+            OR instr(lower(e.title), ?) > 0
+            OR instr(lower(COALESCE(e.excerpt, '')), ?) > 0
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND instr(lower(t.slug), ?) > 0
+            )
+          )
+          AND (
+            ? IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND lower(t.slug) = ?
+            )
+          )
         ORDER BY e.is_pinned DESC, e.last_activity_at DESC, e.published_at DESC, e.slug ASC
+        LIMIT ? OFFSET ?
         "#,
     )
     .bind(tenant_id)
@@ -237,9 +328,26 @@ pub async fn list_feed(
     .bind(query.category_id.as_deref())
     .bind(query.kind.as_deref())
     .bind(query.kind.as_deref())
+    .bind(q.as_deref())
+    .bind(q.as_deref())
+    .bind(q.as_deref())
+    .bind(q.as_deref())
+    .bind(tag.as_deref())
+    .bind(tag.as_deref())
+    .bind(page_size)
+    .bind(offset)
     .fetch_all(pool)
     .await?;
-    filter_entries(pool, rows, query).await
+    let mut items = Vec::with_capacity(rows.len());
+    for row in rows {
+        items.push(entry_from_row(pool, row).await?);
+    }
+    Ok(CommunityStoredEntryPage {
+        items,
+        page,
+        page_size,
+        total_items,
+    })
 }
 
 pub async fn retrieve_entry_by_id(
@@ -521,13 +629,12 @@ pub async fn set_reaction(
         }
     }
 
-    let row = sqlx::query(
-        "SELECT reaction_count FROM community_entry WHERE tenant_id = ? AND id = ?",
-    )
-    .bind(&input.tenant_id)
-    .bind(&input.entry_id)
-    .fetch_one(pool)
-    .await?;
+    let row =
+        sqlx::query("SELECT reaction_count FROM community_entry WHERE tenant_id = ? AND id = ?")
+            .bind(&input.tenant_id)
+            .bind(&input.entry_id)
+            .fetch_one(pool)
+            .await?;
     Ok(integer_cell(&row, "reaction_count"))
 }
 
@@ -550,78 +657,65 @@ pub async fn list_moderation_queue(
 ) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
     let query = CommunityFeedQuery {
         review_state: Some("pending-review".to_owned()),
+        page: 1,
+        page_size: 200,
         approved_only: false,
         ..CommunityFeedQuery::default()
     };
-    list_feed(pool, tenant_id, &query).await
+    list_feed(pool, tenant_id, &query)
+        .await
+        .map(|page| page.items)
 }
 
 pub async fn rebuild_recommendations(
     pool: &SqlitePool,
     tenant_id: &str,
 ) -> Result<i64, sqlx::Error> {
-    let entries = list_feed(
-        pool,
-        tenant_id,
-        &CommunityFeedQuery {
-            approved_only: true,
-            ..CommunityFeedQuery::default()
-        },
-    )
-    .await?;
     let now = chrono::Utc::now().to_rfc3339();
     let mut count = 0_i64;
-    for entry in entries {
-        sqlx::query(
-            r#"
-            INSERT INTO community_recommendation_snapshot
-                (id, tenant_id, source_entry_id, target_entry_id, score, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT (id) DO UPDATE SET score = excluded.score, created_at = excluded.created_at
-            "#,
+    let page_size = 200_i64;
+    let mut page = 1_i64;
+    loop {
+        let result = list_feed(
+            pool,
+            tenant_id,
+            &CommunityFeedQuery {
+                page,
+                page_size,
+                approved_only: true,
+                ..CommunityFeedQuery::default()
+            },
         )
-        .bind(format!("rec_{}_{}", entry.id, tenant_id))
-        .bind(tenant_id)
-        .bind(&entry.id)
-        .bind(&entry.id)
-        .bind(1_i64)
-        .bind(&now)
-        .execute(pool)
         .await?;
-        count += 1;
+        let total_items = result.total_items;
+        if result.items.is_empty() {
+            break;
+        }
+        for entry in result.items {
+            sqlx::query(
+                r#"
+                INSERT INTO community_recommendation_snapshot
+                    (id, tenant_id, source_entry_id, target_entry_id, score, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (id) DO UPDATE SET score = excluded.score, created_at = excluded.created_at
+                "#,
+            )
+            .bind(format!("rec_{}_{}", entry.id, tenant_id))
+            .bind(tenant_id)
+            .bind(&entry.id)
+            .bind(&entry.id)
+            .bind(1_i64)
+            .bind(&now)
+            .execute(pool)
+            .await?;
+            count += 1;
+        }
+        if page * page_size >= total_items {
+            break;
+        }
+        page += 1;
     }
     Ok(count)
-}
-
-async fn filter_entries(
-    pool: &SqlitePool,
-    rows: Vec<sqlx::sqlite::SqliteRow>,
-    query: &CommunityFeedQuery,
-) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
-    let mut entries = Vec::with_capacity(rows.len());
-    for row in rows {
-        let entry = entry_from_row(pool, row).await?;
-        if let Some(query_text) = &query.q {
-            let normalized = query_text.trim().to_ascii_lowercase();
-            if !normalized.is_empty()
-                && !entry.title.to_ascii_lowercase().contains(&normalized)
-                && !entry.excerpt.to_ascii_lowercase().contains(&normalized)
-                && !entry.tags.iter().any(|tag| tag.contains(&normalized))
-            {
-                continue;
-            }
-        }
-        if let Some(tag) = &query.tag {
-            if !entry.tags.iter().any(|value| value == tag) {
-                continue;
-            }
-        }
-        entries.push(entry);
-    }
-    let page = query.page.max(1);
-    let page_size = query.page_size.clamp(1, 100);
-    let start = ((page - 1) * page_size) as usize;
-    Ok(entries.into_iter().skip(start).take(page_size as usize).collect())
 }
 
 async fn entry_from_row(
@@ -700,13 +794,11 @@ async fn upsert_entry_tags(
         .bind(&input.now)
         .execute(&mut **tx)
         .await?;
-        sqlx::query(
-            "INSERT OR IGNORE INTO community_entry_tag (entry_id, tag_id) VALUES (?, ?)",
-        )
-        .bind(&input.id)
-        .bind(&tag_id)
-        .execute(&mut **tx)
-        .await?;
+        sqlx::query("INSERT OR IGNORE INTO community_entry_tag (entry_id, tag_id) VALUES (?, ?)")
+            .bind(&input.id)
+            .bind(&tag_id)
+            .execute(&mut **tx)
+            .await?;
     }
     Ok(())
 }

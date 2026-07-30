@@ -93,6 +93,8 @@ const params = {
   q: 'q',
   reviewState: 'reviewState',
   tag: 'tag',
+  page: 6,
+  page_size: 7,
 };
 const result = await client.feed.public.list(params);
 ```

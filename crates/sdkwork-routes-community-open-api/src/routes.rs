@@ -30,7 +30,9 @@ struct FeedQueryParams {
     page_size: Option<i64>,
 }
 
-pub fn build_open_router(host: Arc<sdkwork_community_service_host::CommunityServiceHost>) -> Router {
+pub fn build_open_router(
+    host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
+) -> Router {
     Router::new()
         .route("/community/v3/api/categories", get(list_categories))
         .route("/community/v3/api/feed", get(list_feed))
@@ -60,16 +62,16 @@ async fn list_categories(
     State(state): State<OpenState>,
     context: Option<axum::Extension<WebRequestContext>>,
 ) -> Response {
-    let subject = match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await
-    {
-        Ok(subject) => subject,
-        Err(error) => {
-            return map_service_error(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                sdkwork_community_service::CommunityServiceError::Validation(error),
-            )
-        }
-    };
+    let subject =
+        match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await {
+            Ok(subject) => subject,
+            Err(error) => {
+                return map_service_error(
+                    context.as_ref().map(|Extension(ctx)| ctx),
+                    sdkwork_community_service::CommunityServiceError::Validation(error),
+                )
+            }
+        };
     match state.service.list_categories(&subject.tenant_id).await {
         Ok(items) => {
             let count = items.len() as i64;
@@ -90,16 +92,16 @@ async fn list_feed(
     Query(params): Query<FeedQueryParams>,
     context: Option<axum::Extension<WebRequestContext>>,
 ) -> Response {
-    let subject = match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await
-    {
-        Ok(subject) => subject,
-        Err(error) => {
-            return map_service_error(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                sdkwork_community_service::CommunityServiceError::Validation(error),
-            )
-        }
-    };
+    let subject =
+        match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await {
+            Ok(subject) => subject,
+            Err(error) => {
+                return map_service_error(
+                    context.as_ref().map(|Extension(ctx)| ctx),
+                    sdkwork_community_service::CommunityServiceError::Validation(error),
+                )
+            }
+        };
     let query = CommunityFeedQuery {
         category_id: params.category_id,
         kind: params.kind,
@@ -111,16 +113,13 @@ async fn list_feed(
         ..CommunityFeedQuery::default()
     };
     match state.service.list_feed(&subject.tenant_id, query).await {
-        Ok(items) => {
-            let count = items.len() as i64;
-            success_items(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                items.into_iter().map(map_entry).collect(),
-                params.page.unwrap_or(1),
-                params.page_size.unwrap_or(20),
-                Some(count),
-            )
-        }
+        Ok(result) => success_items(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            result.items.into_iter().map(map_entry).collect(),
+            result.page,
+            result.page_size,
+            Some(result.total_items),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -130,16 +129,16 @@ async fn retrieve_entry(
     Path(entry_id): Path<String>,
     context: Option<axum::Extension<WebRequestContext>>,
 ) -> Response {
-    let subject = match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await
-    {
-        Ok(subject) => subject,
-        Err(error) => {
-            return map_service_error(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                sdkwork_community_service::CommunityServiceError::Validation(error),
-            )
-        }
-    };
+    let subject =
+        match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await {
+            Ok(subject) => subject,
+            Err(error) => {
+                return map_service_error(
+                    context.as_ref().map(|Extension(ctx)| ctx),
+                    sdkwork_community_service::CommunityServiceError::Validation(error),
+                )
+            }
+        };
     match state
         .service
         .retrieve_entry(&subject.tenant_id, &entry_id, true)
@@ -155,16 +154,16 @@ async fn retrieve_entry_by_slug(
     Path(slug): Path<String>,
     context: Option<axum::Extension<WebRequestContext>>,
 ) -> Response {
-    let subject = match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await
-    {
-        Ok(subject) => subject,
-        Err(error) => {
-            return map_service_error(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                sdkwork_community_service::CommunityServiceError::Validation(error),
-            )
-        }
-    };
+    let subject =
+        match runtime_subject_from_web_context(context.as_ref().map(|Extension(ctx)| ctx)).await {
+            Ok(subject) => subject,
+            Err(error) => {
+                return map_service_error(
+                    context.as_ref().map(|Extension(ctx)| ctx),
+                    sdkwork_community_service::CommunityServiceError::Validation(error),
+                )
+            }
+        };
     match state
         .service
         .retrieve_entry_by_slug(&subject.tenant_id, &slug)

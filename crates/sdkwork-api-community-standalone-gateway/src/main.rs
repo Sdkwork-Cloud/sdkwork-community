@@ -4,9 +4,7 @@ use std::time::Duration;
 use sdkwork_api_community_assembly::assemble_api_router;
 use sdkwork_community_service_host::CommunityServiceHost;
 use sdkwork_database_sqlx::DatabasePool;
-use sdkwork_web_bootstrap::{
-    service_router, ReadinessCheck, ReadinessFuture, ServiceRouterConfig,
-};
+use sdkwork_web_bootstrap::{service_router, ReadinessCheck, ReadinessFuture, ServiceRouterConfig};
 use tower_http::trace::TraceLayer;
 
 #[tokio::main]
@@ -26,9 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .router
         .layer(TraceLayer::new_for_http());
 
-    let readiness = Arc::new(CommunityReadiness {
-        host: host.clone(),
-    });
+    let readiness = Arc::new(CommunityReadiness { host: host.clone() });
     let app = service_router(
         business,
         ServiceRouterConfig::default().with_readiness_check(readiness),
@@ -58,10 +54,14 @@ impl ReadinessCheck for CommunityReadiness {
         Box::pin(async move {
             let result = match self.host.database_pool() {
                 DatabasePool::Postgres(pool, _) => {
-                    sqlx::query_scalar::<_, i64>("SELECT 1").fetch_one(pool).await
+                    sqlx::query_scalar::<_, i64>("SELECT 1")
+                        .fetch_one(pool)
+                        .await
                 }
                 DatabasePool::Sqlite(pool, _) => {
-                    sqlx::query_scalar::<_, i64>("SELECT 1").fetch_one(pool).await
+                    sqlx::query_scalar::<_, i64>("SELECT 1")
+                        .fetch_one(pool)
+                        .await
                 }
             };
             result

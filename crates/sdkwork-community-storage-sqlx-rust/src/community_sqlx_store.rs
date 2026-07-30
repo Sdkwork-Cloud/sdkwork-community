@@ -1,6 +1,6 @@
 use sdkwork_database_sqlx::DatabasePool;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct CommunityFeedQuery {
     pub category_id: Option<String>,
     pub kind: Option<String>,
@@ -10,6 +10,21 @@ pub struct CommunityFeedQuery {
     pub page: i64,
     pub page_size: i64,
     pub approved_only: bool,
+}
+
+impl Default for CommunityFeedQuery {
+    fn default() -> Self {
+        Self {
+            category_id: None,
+            kind: None,
+            q: None,
+            review_state: None,
+            tag: None,
+            page: 1,
+            page_size: 20,
+            approved_only: false,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -139,7 +154,7 @@ impl CommunitySqlxStore {
         &self,
         tenant_id: &str,
         query: &CommunityFeedQuery,
-    ) -> Result<Vec<super::CommunityStoredEntry>, sqlx::Error> {
+    ) -> Result<super::CommunityStoredEntryPage, sqlx::Error> {
         match &self.pool {
             DatabasePool::Sqlite(pool, _) => {
                 super::sqlite_queries::list_feed(pool, tenant_id, query).await
@@ -158,12 +173,20 @@ impl CommunitySqlxStore {
     ) -> Result<Option<super::CommunityStoredEntry>, sqlx::Error> {
         match &self.pool {
             DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::retrieve_entry_by_id(pool, tenant_id, entry_id, approved_only)
-                    .await
+                super::sqlite_queries::retrieve_entry_by_id(
+                    pool,
+                    tenant_id,
+                    entry_id,
+                    approved_only,
+                )
+                .await
             }
             DatabasePool::Postgres(pool, _) => {
                 super::postgres_queries::retrieve_entry_by_id(
-                    pool, tenant_id, entry_id, approved_only,
+                    pool,
+                    tenant_id,
+                    entry_id,
+                    approved_only,
                 )
                 .await
             }
@@ -224,13 +247,21 @@ impl CommunitySqlxStore {
         match &self.pool {
             DatabasePool::Sqlite(pool, _) => {
                 super::sqlite_queries::update_moderation(
-                    pool, tenant_id, entry_id, actor_user_id, patch,
+                    pool,
+                    tenant_id,
+                    entry_id,
+                    actor_user_id,
+                    patch,
                 )
                 .await
             }
             DatabasePool::Postgres(pool, _) => {
                 super::postgres_queries::update_moderation(
-                    pool, tenant_id, entry_id, actor_user_id, patch,
+                    pool,
+                    tenant_id,
+                    entry_id,
+                    actor_user_id,
+                    patch,
                 )
                 .await
             }
@@ -283,11 +314,7 @@ impl CommunitySqlxStore {
         }
     }
 
-    pub async fn delete_entry(
-        &self,
-        tenant_id: &str,
-        entry_id: &str,
-    ) -> Result<bool, sqlx::Error> {
+    pub async fn delete_entry(&self, tenant_id: &str, entry_id: &str) -> Result<bool, sqlx::Error> {
         match &self.pool {
             DatabasePool::Sqlite(pool, _) => {
                 super::sqlite_queries::delete_entry(pool, tenant_id, entry_id).await

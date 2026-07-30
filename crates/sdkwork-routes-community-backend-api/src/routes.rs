@@ -40,7 +40,10 @@ pub fn build_backend_router(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
     Router::new()
-        .route("/backend/v3/api/community/categories", get(list_categories).post(create_category))
+        .route(
+            "/backend/v3/api/community/categories",
+            get(list_categories).post(create_category),
+        )
         .route(
             "/backend/v3/api/community/categories/{categoryId}",
             patch(update_category).delete(delete_category),
@@ -58,7 +61,10 @@ pub fn build_backend_router(
             "/backend/v3/api/community/entries/{entryId}/pin",
             post(pin_entry),
         )
-        .route("/backend/v3/api/community/entries/{entryId}", delete(delete_entry))
+        .route(
+            "/backend/v3/api/community/entries/{entryId}",
+            delete(delete_entry),
+        )
         .route(
             "/backend/v3/api/community/moderation/queue",
             get(list_moderation_queue),
@@ -118,8 +124,15 @@ async fn create_category(
         Ok(subject) => subject,
         Err(response) => return response,
     };
-    match state.service.create_category(&subject.tenant_id, body).await {
-        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_category(item)),
+    match state
+        .service
+        .create_category(&subject.tenant_id, body)
+        .await
+    {
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_category(item),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -140,7 +153,10 @@ async fn update_category(
         .update_category(&subject.tenant_id, &category_id, body)
         .await
     {
-        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_category(item)),
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_category(item),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -182,20 +198,17 @@ async fn list_entries(
         review_state: params.review_state,
         tag: params.tag,
         page: params.page.unwrap_or(1),
-        page_size: params.page_size.unwrap_or(50),
+        page_size: params.page_size.unwrap_or(20),
         approved_only: false,
     };
     match state.service.list_feed(&subject.tenant_id, query).await {
-        Ok(items) => {
-            let count = items.len() as i64;
-            success_items(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                items.into_iter().map(map_entry).collect(),
-                params.page.unwrap_or(1),
-                params.page_size.unwrap_or(50),
-                Some(count),
-            )
-        }
+        Ok(result) => success_items(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            result.items.into_iter().map(map_entry).collect(),
+            result.page,
+            result.page_size,
+            Some(result.total_items),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -290,7 +303,11 @@ async fn list_moderation_queue(
         Ok(subject) => subject,
         Err(response) => return response,
     };
-    match state.service.list_moderation_queue(&subject.tenant_id).await {
+    match state
+        .service
+        .list_moderation_queue(&subject.tenant_id)
+        .await
+    {
         Ok(items) => {
             let count = items.len() as i64;
             success_items(
@@ -314,7 +331,11 @@ async fn rebuild_recommendations(
         Ok(subject) => subject,
         Err(response) => return response,
     };
-    match state.service.rebuild_recommendations(&subject.tenant_id).await {
+    match state
+        .service
+        .rebuild_recommendations(&subject.tenant_id)
+        .await
+    {
         Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
@@ -324,10 +345,7 @@ async fn rebuild_recommendations(
 fn auth_subject(
     context: Option<&WebRequestContext>,
     iam: Option<Extension<IamAppContext>>,
-) -> Result<
-    sdkwork_routes_community_common::subject::RuntimeSubject,
-    Response,
-> {
+) -> Result<sdkwork_routes_community_common::subject::RuntimeSubject, Response> {
     runtime_subject_from_extension(iam).map_err(|error| {
         map_service_error(
             context,

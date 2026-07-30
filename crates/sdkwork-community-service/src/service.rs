@@ -6,7 +6,7 @@ use sdkwork_community_storage_sqlx::{
     CommunityStoredEntry, NewCommunityCategory, NewCommunityComment, NewCommunityEntry,
     SetCommunityReaction,
 };
-use sdkwork_utils_rust::{slugify, uuid};
+use sdkwork_utils_rust::{slugify, uuid, validated_offset_list_params};
 
 use crate::error::CommunityServiceError;
 
@@ -46,6 +46,14 @@ pub struct CommunityEntryView {
     pub published_at: Option<String>,
     pub last_activity_at: Option<String>,
     pub updated_at: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct CommunityEntryPageView {
+    pub items: Vec<CommunityEntryView>,
+    pub page: i64,
+    pub page_size: i64,
+    pub total_items: i64,
 }
 
 #[derive(Debug, Clone)]
@@ -154,12 +162,25 @@ impl CommunityService {
     pub async fn list_feed(
         &self,
         tenant_id: &str,
-        query: CommunityFeedQuery,
-    ) -> Result<Vec<CommunityEntryView>, CommunityServiceError> {
+        mut query: CommunityFeedQuery,
+    ) -> Result<CommunityEntryPageView, CommunityServiceError> {
+        let pagination = validated_offset_list_params(Some(query.page), Some(query.page_size))
+            .map_err(|_| {
+                CommunityServiceError::InvalidParameter(
+                    "page must be at least 1 and page_size must be between 1 and 200".to_owned(),
+                )
+            })?;
+        query.page = pagination.page;
+        query.page_size = pagination.page_size;
         self.store
             .list_feed(tenant_id, &query)
             .await
-            .map(|items| items.into_iter().map(map_entry).collect())
+            .map(|result| CommunityEntryPageView {
+                items: result.items.into_iter().map(map_entry).collect(),
+                page: result.page,
+                page_size: result.page_size,
+                total_items: result.total_items,
+            })
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))
     }
 
@@ -174,7 +195,9 @@ impl CommunityService {
             .retrieve_entry_by_id(tenant_id, entry_id, approved_only)
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
-            .ok_or_else(|| CommunityServiceError::NotFound(format!("entry {entry_id} not found")))?;
+            .ok_or_else(|| {
+                CommunityServiceError::NotFound(format!("entry {entry_id} not found"))
+            })?;
         Ok(map_entry(entry))
     }
 
@@ -188,7 +211,9 @@ impl CommunityService {
             .retrieve_entry_by_slug(tenant_id, slug)
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
-            .ok_or_else(|| CommunityServiceError::NotFound(format!("entry slug {slug} not found")))?;
+            .ok_or_else(|| {
+                CommunityServiceError::NotFound(format!("entry slug {slug} not found"))
+            })?;
         Ok(map_entry(entry))
     }
 
@@ -281,7 +306,13 @@ impl CommunityService {
         if excerpt_required && entry.excerpt.as_deref().unwrap_or("").trim().is_empty() {
             issues.push("missing-excerpt".to_owned());
         }
-        if entry.tags.iter().filter(|tag| !tag.trim().is_empty()).count() < 1 {
+        if entry
+            .tags
+            .iter()
+            .filter(|tag| !tag.trim().is_empty())
+            .count()
+            < 1
+        {
             issues.push("missing-tags".to_owned());
         }
         let ready = issues.iter().all(|issue| {
@@ -321,14 +352,16 @@ impl CommunityService {
                 },
             )
             .await?;
-        candidates.retain(|candidate| candidate.id != source.id);
-        candidates.sort_by(|left, right| {
+        candidates
+            .items
+            .retain(|candidate| candidate.id != source.id);
+        candidates.items.sort_by(|left, right| {
             recommendation_score(&source, right)
                 .cmp(&recommendation_score(&source, left))
                 .then_with(|| right.updated_at.cmp(&left.updated_at))
         });
-        candidates.truncate(10);
-        Ok(candidates)
+        candidates.items.truncate(10);
+        Ok(candidates.items)
     }
 
     pub async fn list_comments(
@@ -710,9 +743,10 @@ fn recommendation_score(source: &CommunityEntryView, candidate: &CommunityEntryV
     if candidate.has_accepted_answer {
         score += 1;
     }
-    score + candidate
-        .tags
-        .iter()
-        .filter(|tag| source.tags.contains(tag))
-        .count() as i64
+    score
+        + candidate
+            .tags
+            .iter()
+            .filter(|tag| source.tags.contains(tag))
+            .count() as i64
 }

@@ -126,7 +126,9 @@ async fn backend_router_mounts_every_openapi_operation_path() {
 
 fn assert_route_mounted(response: &axum::http::Response<Body>, method: &str, path: &str) {
     assert!(
-        response.headers().contains_key(HeaderName::from_static("x-sdkwork-trace-id")),
+        response
+            .headers()
+            .contains_key(HeaderName::from_static("x-sdkwork-trace-id")),
         "Backend API route is not mounted: {method} {path}",
     );
 }

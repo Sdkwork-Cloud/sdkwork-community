@@ -1,6 +1,4 @@
-use sdkwork_community_service::{
-    CommunityCategoryView, CommunityCommentView, CommunityEntryView,
-};
+use sdkwork_community_service::{CommunityCategoryView, CommunityCommentView, CommunityEntryView};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]

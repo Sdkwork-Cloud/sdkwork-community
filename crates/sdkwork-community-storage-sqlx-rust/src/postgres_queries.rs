@@ -4,8 +4,8 @@ use sqlx::{PgPool, Row};
 
 use super::{
     CommunityCategoryPatch, CommunityEntryPatch, CommunityFeedQuery, CommunityModerationPatch,
-    CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry, NewCommunityCategory,
-    NewCommunityComment, NewCommunityEntry,
+    CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry,
+    CommunityStoredEntryPage, NewCommunityCategory, NewCommunityComment, NewCommunityEntry,
 };
 
 pub async fn list_categories(
@@ -92,7 +92,11 @@ pub async fn update_category(
     Ok(())
 }
 
-pub async fn delete_category(pool: &PgPool, tenant_id: &str, category_id: &str) -> Result<bool, sqlx::Error> {
+pub async fn delete_category(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+) -> Result<bool, sqlx::Error> {
     let result = sqlx::query("DELETE FROM community_category WHERE tenant_id = $1 AND id = $2")
         .bind(tenant_id)
         .bind(category_id)
@@ -184,12 +188,71 @@ pub async fn list_feed(
     pool: &PgPool,
     tenant_id: &str,
     query: &CommunityFeedQuery,
-) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
+) -> Result<CommunityStoredEntryPage, sqlx::Error> {
     let review_state = if query.approved_only {
         Some("approved".to_owned())
     } else {
         query.review_state.clone()
     };
+    let q = query
+        .q
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_ascii_lowercase);
+    let tag = query
+        .tag
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_ascii_lowercase);
+    let page = query.page.max(1);
+    let page_size = query.page_size.clamp(1, 200);
+    let offset = (page - 1) * page_size;
+    let count_row = sqlx::query(
+        r#"
+        SELECT COUNT(*) AS total_items
+        FROM community_entry e
+        JOIN community_entry_body b ON b.entry_id = e.id
+        WHERE e.tenant_id = $1
+          AND ($2::text IS NULL OR e.review_state = $2)
+          AND ($3::text IS NULL OR e.category_id = $3)
+          AND ($4::text IS NULL OR e.kind = $4)
+          AND (
+            $5::text IS NULL
+            OR POSITION($5 IN LOWER(e.title)) > 0
+            OR POSITION($5 IN LOWER(COALESCE(e.excerpt, ''))) > 0
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND POSITION($5 IN LOWER(t.slug)) > 0
+            )
+          )
+          AND (
+            $6::text IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND LOWER(t.slug) = $6
+            )
+          )
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(review_state.as_deref())
+    .bind(query.category_id.as_deref())
+    .bind(query.kind.as_deref())
+    .bind(q.as_deref())
+    .bind(tag.as_deref())
+    .fetch_one(pool)
+    .await?;
+    let total_items = integer_cell(&count_row, "total_items");
     let rows = sqlx::query(
         r#"
         SELECT e.id, e.tenant_id, e.category_id, e.author_id, e.author_name, e.slug, e.kind,
@@ -202,16 +265,54 @@ pub async fn list_feed(
           AND ($2::text IS NULL OR e.review_state = $2)
           AND ($3::text IS NULL OR e.category_id = $3)
           AND ($4::text IS NULL OR e.kind = $4)
+          AND (
+            $5::text IS NULL
+            OR POSITION($5 IN LOWER(e.title)) > 0
+            OR POSITION($5 IN LOWER(COALESCE(e.excerpt, ''))) > 0
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND POSITION($5 IN LOWER(t.slug)) > 0
+            )
+          )
+          AND (
+            $6::text IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM community_entry_tag et
+              JOIN community_tag t ON t.id = et.tag_id
+              WHERE et.entry_id = e.id
+                AND t.tenant_id = e.tenant_id
+                AND LOWER(t.slug) = $6
+            )
+          )
         ORDER BY e.is_pinned DESC, e.last_activity_at DESC, e.published_at DESC, e.slug ASC
+        LIMIT $7 OFFSET $8
         "#,
     )
     .bind(tenant_id)
     .bind(review_state.as_deref())
     .bind(query.category_id.as_deref())
     .bind(query.kind.as_deref())
+    .bind(q.as_deref())
+    .bind(tag.as_deref())
+    .bind(page_size)
+    .bind(offset)
     .fetch_all(pool)
     .await?;
-    filter_entries(pool, rows, query).await
+    let mut items = Vec::with_capacity(rows.len());
+    for row in rows {
+        items.push(entry_from_row(pool, row).await?);
+    }
+    Ok(CommunityStoredEntryPage {
+        items,
+        page,
+        page_size,
+        total_items,
+    })
 }
 
 pub async fn retrieve_entry_by_id(
@@ -385,7 +486,12 @@ pub async fn update_moderation(
     Ok(())
 }
 
-pub async fn set_featured(pool: &PgPool, tenant_id: &str, entry_id: &str, featured: bool) -> Result<(), sqlx::Error> {
+pub async fn set_featured(
+    pool: &PgPool,
+    tenant_id: &str,
+    entry_id: &str,
+    featured: bool,
+) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE community_entry SET is_featured = $1, updated_at = $2 WHERE tenant_id = $3 AND id = $4")
         .bind(featured)
         .bind(chrono::Utc::now().to_rfc3339())
@@ -396,7 +502,12 @@ pub async fn set_featured(pool: &PgPool, tenant_id: &str, entry_id: &str, featur
     Ok(())
 }
 
-pub async fn set_pinned(pool: &PgPool, tenant_id: &str, entry_id: &str, pinned: bool) -> Result<(), sqlx::Error> {
+pub async fn set_pinned(
+    pool: &PgPool,
+    tenant_id: &str,
+    entry_id: &str,
+    pinned: bool,
+) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE community_entry SET is_pinned = $1, updated_at = $2 WHERE tenant_id = $3 AND id = $4")
         .bind(pinned)
         .bind(chrono::Utc::now().to_rfc3339())
@@ -477,17 +588,20 @@ pub async fn set_reaction(
         }
     }
 
-    let row = sqlx::query(
-        "SELECT reaction_count FROM community_entry WHERE tenant_id = $1 AND id = $2",
-    )
-    .bind(&input.tenant_id)
-    .bind(&input.entry_id)
-    .fetch_one(pool)
-    .await?;
+    let row =
+        sqlx::query("SELECT reaction_count FROM community_entry WHERE tenant_id = $1 AND id = $2")
+            .bind(&input.tenant_id)
+            .bind(&input.entry_id)
+            .fetch_one(pool)
+            .await?;
     Ok(integer_cell(&row, "reaction_count"))
 }
 
-pub async fn delete_entry(pool: &PgPool, tenant_id: &str, entry_id: &str) -> Result<bool, sqlx::Error> {
+pub async fn delete_entry(
+    pool: &PgPool,
+    tenant_id: &str,
+    entry_id: &str,
+) -> Result<bool, sqlx::Error> {
     let result = sqlx::query("DELETE FROM community_entry WHERE tenant_id = $1 AND id = $2")
         .bind(tenant_id)
         .bind(entry_id)
@@ -496,85 +610,77 @@ pub async fn delete_entry(pool: &PgPool, tenant_id: &str, entry_id: &str) -> Res
     Ok(result.rows_affected() > 0)
 }
 
-pub async fn list_moderation_queue(pool: &PgPool, tenant_id: &str) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
+pub async fn list_moderation_queue(
+    pool: &PgPool,
+    tenant_id: &str,
+) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
     list_feed(
         pool,
         tenant_id,
         &CommunityFeedQuery {
             review_state: Some("pending-review".to_owned()),
+            page: 1,
+            page_size: 200,
             approved_only: false,
             ..CommunityFeedQuery::default()
         },
     )
     .await
+    .map(|page| page.items)
 }
 
 pub async fn rebuild_recommendations(pool: &PgPool, tenant_id: &str) -> Result<i64, sqlx::Error> {
-    let entries = list_feed(
-        pool,
-        tenant_id,
-        &CommunityFeedQuery {
-            approved_only: true,
-            ..CommunityFeedQuery::default()
-        },
-    )
-    .await?;
     let now = chrono::Utc::now().to_rfc3339();
     let mut count = 0_i64;
-    for entry in entries {
-        sqlx::query(
-            r#"
-            INSERT INTO community_recommendation_snapshot
-                (id, tenant_id, source_entry_id, target_entry_id, score, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT (id) DO UPDATE SET score = excluded.score, created_at = excluded.created_at
-            "#,
+    let page_size = 200_i64;
+    let mut page = 1_i64;
+    loop {
+        let result = list_feed(
+            pool,
+            tenant_id,
+            &CommunityFeedQuery {
+                page,
+                page_size,
+                approved_only: true,
+                ..CommunityFeedQuery::default()
+            },
         )
-        .bind(format!("rec_{}_{}", entry.id, tenant_id))
-        .bind(tenant_id)
-        .bind(&entry.id)
-        .bind(&entry.id)
-        .bind(1_i64)
-        .bind(&now)
-        .execute(pool)
         .await?;
-        count += 1;
+        let total_items = result.total_items;
+        if result.items.is_empty() {
+            break;
+        }
+        for entry in result.items {
+            sqlx::query(
+                r#"
+                INSERT INTO community_recommendation_snapshot
+                    (id, tenant_id, source_entry_id, target_entry_id, score, created_at)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                ON CONFLICT (id) DO UPDATE SET score = excluded.score, created_at = excluded.created_at
+                "#,
+            )
+            .bind(format!("rec_{}_{}", entry.id, tenant_id))
+            .bind(tenant_id)
+            .bind(&entry.id)
+            .bind(&entry.id)
+            .bind(1_i64)
+            .bind(&now)
+            .execute(pool)
+            .await?;
+            count += 1;
+        }
+        if page * page_size >= total_items {
+            break;
+        }
+        page += 1;
     }
     Ok(count)
 }
 
-async fn filter_entries(
+async fn entry_from_row(
     pool: &PgPool,
-    rows: Vec<sqlx::postgres::PgRow>,
-    query: &CommunityFeedQuery,
-) -> Result<Vec<CommunityStoredEntry>, sqlx::Error> {
-    let mut entries = Vec::with_capacity(rows.len());
-    for row in rows {
-        let entry = entry_from_row(pool, row).await?;
-        if let Some(query_text) = &query.q {
-            let normalized = query_text.trim().to_ascii_lowercase();
-            if !normalized.is_empty()
-                && !entry.title.to_ascii_lowercase().contains(&normalized)
-                && !entry.excerpt.to_ascii_lowercase().contains(&normalized)
-                && !entry.tags.iter().any(|tag| tag.contains(&normalized))
-            {
-                continue;
-            }
-        }
-        if let Some(tag) = &query.tag {
-            if !entry.tags.iter().any(|value| value == tag) {
-                continue;
-            }
-        }
-        entries.push(entry);
-    }
-    let page = query.page.max(1);
-    let page_size = query.page_size.clamp(1, 100);
-    let start = ((page - 1) * page_size) as usize;
-    Ok(entries.into_iter().skip(start).take(page_size as usize).collect())
-}
-
-async fn entry_from_row(pool: &PgPool, row: sqlx::postgres::PgRow) -> Result<CommunityStoredEntry, sqlx::Error> {
+    row: sqlx::postgres::PgRow,
+) -> Result<CommunityStoredEntry, sqlx::Error> {
     let entry_id = string_cell(&row, "id");
     let tags = entry_tags(pool, &entry_id).await?;
     Ok(CommunityStoredEntry {

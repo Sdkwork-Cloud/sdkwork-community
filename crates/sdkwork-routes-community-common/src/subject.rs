@@ -1,7 +1,9 @@
 use axum::Extension;
 use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_iam_web_adapter::iam_app_context_from_web_principal;
-use sdkwork_web_core::{DefaultWebRequestContextResolver, WebRequestContext, WebRequestContextResolver};
+use sdkwork_web_core::{
+    DefaultWebRequestContextResolver, WebRequestContext, WebRequestContextResolver,
+};
 
 #[derive(Debug, Clone)]
 pub struct RuntimeSubject {
@@ -69,7 +71,9 @@ pub fn default_runtime_subject() -> Result<RuntimeSubject, String> {
     let tenant_id = std::env::var("COMMUNITY_DEFAULT_TENANT_ID")
         .ok()
         .filter(|value| !value.trim().is_empty())
-        .ok_or_else(|| "COMMUNITY_DEFAULT_TENANT_ID is required for public community access".to_owned())?;
+        .ok_or_else(|| {
+            "COMMUNITY_DEFAULT_TENANT_ID is required for public community access".to_owned()
+        })?;
     Ok(RuntimeSubject {
         tenant_id,
         organization_id: None,
@@ -102,7 +106,9 @@ pub async fn optional_runtime_subject_from_headers(
 fn required_text(value: &str, field_name: &'static str) -> Result<String, String> {
     let value = value.trim();
     if value.is_empty() {
-        return Err(format!("authenticated runtime context {field_name} is required"));
+        return Err(format!(
+            "authenticated runtime context {field_name} is required"
+        ));
     }
     Ok(value.to_owned())
 }

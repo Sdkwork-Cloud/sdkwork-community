@@ -37,7 +37,11 @@ impl CommunityHttpRoute {
 
 pub fn app_routes() -> Vec<CommunityHttpRoute> {
     vec![
-        route(HttpMethod::Get, "/app/v3/api/community/categories", "categories.list"),
+        route(
+            HttpMethod::Get,
+            "/app/v3/api/community/categories",
+            "categories.list",
+        ),
         route(HttpMethod::Get, "/app/v3/api/community/feed", "feed.list"),
         route(
             HttpMethod::Get,
@@ -49,7 +53,11 @@ pub fn app_routes() -> Vec<CommunityHttpRoute> {
             "/app/v3/api/community/entries/{entryId}/recommendations",
             "entries.recommendations.list",
         ),
-        route(HttpMethod::Post, "/app/v3/api/community/entries", "entries.create"),
+        route(
+            HttpMethod::Post,
+            "/app/v3/api/community/entries",
+            "entries.create",
+        ),
         route(
             HttpMethod::Patch,
             "/app/v3/api/community/entries/{entryId}",
@@ -150,7 +158,11 @@ pub fn open_routes() -> Vec<CommunityHttpRoute> {
             "/community/v3/api/categories",
             "categories.public.list",
         ),
-        route(HttpMethod::Get, "/community/v3/api/feed", "feed.public.list"),
+        route(
+            HttpMethod::Get,
+            "/community/v3/api/feed",
+            "feed.public.list",
+        ),
         route(
             HttpMethod::Get,
             "/community/v3/api/entries/{entryId}",

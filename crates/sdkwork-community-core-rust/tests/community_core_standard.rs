@@ -13,7 +13,9 @@ fn community_core_manifest_owns_community_domain_contracts() {
         vec!["draft", "pending-review", "approved", "flagged", "rejected"]
     );
     assert!(manifest.operations.contains(&"feed.list"));
-    assert!(manifest.operations.contains(&"entries.publicationReadiness.retrieve"));
+    assert!(manifest
+        .operations
+        .contains(&"entries.publicationReadiness.retrieve"));
     assert!(manifest.operations.contains(&"entries.moderation.update"));
 }
 
@@ -46,5 +48,8 @@ fn community_core_evaluates_publication_readiness() {
     };
     let blocked = evaluate_publication_readiness(&flagged, 1, false);
     assert!(!blocked.ready);
-    assert_eq!(blocked.issues, vec!["flagged", "missing-body", "missing-tags"]);
+    assert_eq!(
+        blocked.issues,
+        vec!["flagged", "missing-body", "missing-tags"]
+    );
 }

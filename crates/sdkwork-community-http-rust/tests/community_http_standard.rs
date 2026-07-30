@@ -18,10 +18,16 @@ fn community_http_routes_use_sdkwork_v3_prefixes_and_resource_operation_ids() {
         .iter()
         .all(|route| route.path.starts_with("/community/v3/api")));
     assert!(all_routes().iter().all(|route| route.tag == "community"));
-    assert!(all_routes().iter().all(|route| route.operation_id.contains('.')));
+    assert!(all_routes()
+        .iter()
+        .all(|route| route.operation_id.contains('.')));
     assert!(backend_routes()
         .iter()
-        .any(|route| route.method == HttpMethod::Post && route.operation_id == "entries.moderation.update"));
-    assert_eq!(required_dual_token_headers(), ["Authorization", "Access-Token"]);
+        .any(|route| route.method == HttpMethod::Post
+            && route.operation_id == "entries.moderation.update"));
+    assert_eq!(
+        required_dual_token_headers(),
+        ["Authorization", "Access-Token"]
+    );
     assert_eq!(required_api_key_headers(), ["X-API-Key"]);
 }

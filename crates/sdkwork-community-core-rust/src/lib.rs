@@ -61,14 +61,14 @@ pub fn community_capability_manifest() -> CommunityCapabilityManifest {
     CommunityCapabilityManifest {
         owner: "sdkwork-community",
         domain: "community",
-        kinds: vec!["announcement", "discussion", "question", "resource", "service"],
-        review_states: vec![
-            "draft",
-            "pending-review",
-            "approved",
-            "flagged",
-            "rejected",
+        kinds: vec![
+            "announcement",
+            "discussion",
+            "question",
+            "resource",
+            "service",
         ],
+        review_states: vec!["draft", "pending-review", "approved", "flagged", "rejected"],
         operations: vec![
             "categories.list",
             "feed.list",
@@ -109,7 +109,11 @@ pub fn evaluate_publication_readiness(
         has_category: !entry.category_id.trim().is_empty(),
         has_excerpt: !excerpt_required
             || !entry.excerpt.map(str::trim).unwrap_or_default().is_empty(),
-        has_minimum_tags: entry.tags.iter().filter(|tag| !tag.trim().is_empty()).count()
+        has_minimum_tags: entry
+            .tags
+            .iter()
+            .filter(|tag| !tag.trim().is_empty())
+            .count()
             >= minimum_tags,
         has_title: !entry.title.trim().is_empty(),
     };
@@ -139,8 +143,8 @@ pub fn evaluate_publication_readiness(
 
     let ready = issues.iter().all(|issue| match *issue {
         "pending-review" => allow_pending_review,
-        "flagged" | "missing-body" | "missing-category" | "missing-excerpt"
-        | "missing-tags" | "missing-title" | "rejected" => false,
+        "flagged" | "missing-body" | "missing-category" | "missing-excerpt" | "missing-tags"
+        | "missing-title" | "rejected" => false,
         _ => true,
     });
 

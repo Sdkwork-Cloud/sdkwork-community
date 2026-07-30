@@ -48,11 +48,17 @@ fn community_storage_manifest_declares_complete_tables_and_migrations() {
             "community_migration_lock",
         ],
     );
-    assert!(manifest.indexes.contains(&"idx_community_entry_tenant_state_activity"));
-    assert!(manifest.indexes.contains(&"idx_community_entry_tenant_slug"));
-    assert_eq!(manifest.migration_plan[0].name, "0001_community_baseline.sql");
     assert!(manifest
-        .migration_plan[0]
+        .indexes
+        .contains(&"idx_community_entry_tenant_state_activity"));
+    assert!(manifest
+        .indexes
+        .contains(&"idx_community_entry_tenant_slug"));
+    assert_eq!(
+        manifest.migration_plan[0].name,
+        "0001_community_baseline.sql"
+    );
+    assert!(manifest.migration_plan[0]
         .sql
         .contains("CREATE TABLE IF NOT EXISTS community_entry"));
 }
@@ -122,6 +128,7 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
         .list_feed("100001", &approved_feed)
         .await
         .expect("draft feed")
+        .items
         .is_empty());
 
     store
@@ -137,6 +144,36 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
         .await
         .expect("approve entry");
 
+    store
+        .create_entry(NewCommunityEntry {
+            id: "entry_discussion".to_owned(),
+            tenant_id: "100001".to_owned(),
+            category_id: "category_product".to_owned(),
+            author_id: "user_2".to_owned(),
+            author_name: "Community User".to_owned(),
+            slug: "community-discussion".to_owned(),
+            kind: "discussion".to_owned(),
+            title: "Community discussion".to_owned(),
+            excerpt: "A second paginated feed entry.".to_owned(),
+            body_markdown: "Discussion body".to_owned(),
+            tags: vec!["discussion".to_owned()],
+            now: "2026-06-06T00:02:00Z".to_owned(),
+        })
+        .await
+        .expect("create second entry");
+    store
+        .update_moderation(
+            "100001",
+            "entry_discussion",
+            "moderator_1",
+            &CommunityModerationPatch {
+                review_state: "approved".to_owned(),
+                reason: None,
+            },
+        )
+        .await
+        .expect("approve second entry");
+
     let feed = store
         .list_feed(
             "100001",
@@ -149,9 +186,40 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
         )
         .await
         .expect("feed list");
-    assert_eq!(feed.len(), 1);
-    assert_eq!(feed[0].slug, "community-sdk-release");
-    assert_eq!(feed[0].tags, vec!["release", "sdk"]);
+    assert_eq!(feed.total_items, 1);
+    assert_eq!(feed.items.len(), 1);
+    assert_eq!(feed.items[0].slug, "community-sdk-release");
+    assert_eq!(feed.items[0].tags, vec!["release", "sdk"]);
+
+    let first_page = store
+        .list_feed(
+            "100001",
+            &CommunityFeedQuery {
+                page: 1,
+                page_size: 1,
+                approved_only: true,
+                ..CommunityFeedQuery::default()
+            },
+        )
+        .await
+        .expect("first feed page");
+    let second_page = store
+        .list_feed(
+            "100001",
+            &CommunityFeedQuery {
+                page: 2,
+                page_size: 1,
+                approved_only: true,
+                ..CommunityFeedQuery::default()
+            },
+        )
+        .await
+        .expect("second feed page");
+    assert_eq!(first_page.total_items, 2);
+    assert_eq!(first_page.items.len(), 1);
+    assert_eq!(second_page.total_items, 2);
+    assert_eq!(second_page.items.len(), 1);
+    assert_ne!(first_page.items[0].id, second_page.items[0].id);
     assert_eq!(
         store
             .retrieve_entry_by_slug("100001", "community-sdk-release")

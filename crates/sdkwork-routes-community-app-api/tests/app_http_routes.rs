@@ -96,11 +96,30 @@ async fn app_categories_returns_sdkwork_v3_success_envelope() {
 }
 
 #[tokio::test]
+async fn app_feed_rejects_page_size_above_standard_maximum() {
+    let host = seeded_host().await;
+    let app = build_app_router(host).layer(Extension(test_iam_context("100001", "user_1")));
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri("/app/v3/api/community/feed?page=1&page_size=201")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("feed response");
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    let payload = response_json(response).await;
+    assert_eq!(payload["code"], 40003);
+}
+
+#[tokio::test]
 async fn app_router_mounts_every_openapi_operation_path() {
-    let spec: Value = serde_json::from_str(include_str!(
-        "../../../apis/app-api/community/openapi.json"
-    ))
-    .expect("app api spec");
+    let spec: Value =
+        serde_json::from_str(include_str!("../../../apis/app-api/community/openapi.json"))
+            .expect("app api spec");
     let host = seeded_host().await;
     let app = build_app_router(host).layer(Extension(test_iam_context("100001", "user_1")));
 
@@ -126,7 +145,9 @@ async fn app_router_mounts_every_openapi_operation_path() {
 
 fn assert_route_mounted(response: &axum::http::Response<Body>, method: &str, path: &str) {
     assert!(
-        response.headers().contains_key(HeaderName::from_static("x-sdkwork-trace-id")),
+        response
+            .headers()
+            .contains_key(HeaderName::from_static("x-sdkwork-trace-id")),
         "App API route is not mounted: {method} {path}",
     );
 }

@@ -1,5 +1,5 @@
 import { customApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { SdkWorkListResponse } from '../types';
 
@@ -13,8 +13,8 @@ export class CategoryPublicApi {
 
 
 /** Community categories.public.list */
-  async list(): Promise<SdkWorkListResponse> {
-    return this.client.get<SdkWorkListResponse>(customApiPath(`/categories`));
+  async list(requestOptions?: ApiRequestOptions): Promise<SdkWorkListResponse> {
+    return this.client.request<SdkWorkListResponse>(customApiPath(`/categories`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any });
   }
 }
 

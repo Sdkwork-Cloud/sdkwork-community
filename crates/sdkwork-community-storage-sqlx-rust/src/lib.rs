@@ -144,6 +144,14 @@ pub struct CommunityStoredEntry {
     pub updated_at: String,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CommunityStoredEntryPage {
+    pub items: Vec<CommunityStoredEntry>,
+    pub page: i64,
+    pub page_size: i64,
+    pub total_items: i64,
+}
+
 pub fn community_database_tables() -> Vec<&'static str> {
     vec![
         "community_category",
@@ -182,7 +190,7 @@ pub fn community_migration_names() -> Vec<&'static str> {
 }
 
 pub fn community_initial_migration_sql() -> &'static str {
-    include_str!("../../../database/ddl/baseline/sqlite/0001_community_baseline.sql")
+    include_str!("../../../tests/fixtures/database/sqlite/ddl/baseline/0001_community_baseline.sql")
 }
 
 pub fn community_migration_plan() -> Vec<CommunityStorageMigration> {
@@ -190,7 +198,7 @@ pub fn community_migration_plan() -> Vec<CommunityStorageMigration> {
         1,
         "0001_community_baseline.sql",
         "community",
-        "database/ddl/baseline/sqlite/0001_community_baseline.sql",
+        "tests/fixtures/database/sqlite/ddl/baseline/0001_community_baseline.sql",
         community_initial_migration_sql(),
         community_database_tables(),
     )]
@@ -288,4 +296,3 @@ fn migration_checksum(name: &str, sql: &str) -> String {
     }
     format!("community-migration-checksum:{hash:016x}")
 }
-

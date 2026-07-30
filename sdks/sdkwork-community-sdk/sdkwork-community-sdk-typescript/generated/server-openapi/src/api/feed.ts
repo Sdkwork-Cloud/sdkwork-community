@@ -1,5 +1,5 @@
 import { customApiPath } from './paths';
-import type { HttpClient } from '../http/client';
+import type { ApiRequestOptions, HttpClient } from '../http/client';
 
 import type { SdkWorkListResponse } from '../types';
 
@@ -10,6 +10,8 @@ export interface FeedPublicListParams {
   q?: string;
   reviewState?: string;
   tag?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export class FeedPublicApi {
@@ -21,15 +23,17 @@ export class FeedPublicApi {
 
 
 /** Community feed.public.list */
-  async list(params?: FeedPublicListParams): Promise<SdkWorkListResponse> {
+  async list(params?: FeedPublicListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkListResponse> {
     const query = buildQueryString([
       { name: 'categoryId', value: params?.categoryId, style: 'form', explode: true, allowReserved: false },
       { name: 'kind', value: params?.kind, style: 'form', explode: true, allowReserved: false },
       { name: 'q', value: params?.q, style: 'form', explode: true, allowReserved: false },
       { name: 'reviewState', value: params?.reviewState, style: 'form', explode: true, allowReserved: false },
       { name: 'tag', value: params?.tag, style: 'form', explode: true, allowReserved: false },
+      { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
+      { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.get<SdkWorkListResponse>(appendQueryString(customApiPath(`/feed`), query));
+    return this.client.request<SdkWorkListResponse>(appendQueryString(customApiPath(`/feed`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any });
   }
 }
 

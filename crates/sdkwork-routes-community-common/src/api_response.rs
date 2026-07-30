@@ -15,10 +15,7 @@ pub fn resolve_trace_id(context: Option<&WebRequestContext>) -> String {
         .unwrap_or_else(sdkwork_utils_rust::uuid)
 }
 
-pub fn success_item<T: serde::Serialize>(
-    context: Option<&WebRequestContext>,
-    item: T,
-) -> Response {
+pub fn success_item<T: serde::Serialize>(context: Option<&WebRequestContext>, item: T) -> Response {
     let trace_id = resolve_trace_id(context);
     let envelope = SdkWorkApiResponse::success(SdkWorkResourceData { item }, trace_id.clone());
     attach_trace_header((StatusCode::OK, Json(envelope)).into_response(), &trace_id)
@@ -32,6 +29,14 @@ pub fn success_items<T: serde::Serialize>(
     total_items: Option<i64>,
 ) -> Response {
     let trace_id = resolve_trace_id(context);
+    let total_pages = total_items.map(|total| {
+        if total == 0 {
+            0
+        } else {
+            ((total + page_size - 1) / page_size) as i32
+        }
+    });
+    let has_more = total_items.map(|total| page * page_size < total);
     let envelope = SdkWorkApiResponse::success(
         SdkWorkPageData {
             items,
@@ -40,9 +45,9 @@ pub fn success_items<T: serde::Serialize>(
                 page: Some(page as i32),
                 page_size: Some(page_size as i32),
                 total_items: total_items.map(|value| value.to_string()),
-                total_pages: None,
+                total_pages,
                 next_cursor: None,
-                has_more: None,
+                has_more,
             },
         },
         trace_id.clone(),
@@ -66,6 +71,7 @@ pub fn map_service_error(
     let trace_id = resolve_trace_id(context);
     let (status, result_code) = match error.code() {
         "validation" => (StatusCode::BAD_REQUEST, SdkWorkResultCode::ValidationError),
+        "invalid-parameter" => (StatusCode::BAD_REQUEST, SdkWorkResultCode::InvalidParameter),
         "not-found" => (StatusCode::NOT_FOUND, SdkWorkResultCode::NotFound),
         "conflict" => (StatusCode::CONFLICT, SdkWorkResultCode::Conflict),
         "unauthorized" => (
@@ -82,19 +88,15 @@ pub fn map_service_error(
 }
 
 pub fn validation(context: Option<&WebRequestContext>, detail: impl Into<String>) -> Response {
-    map_service_error(
-        context,
-        CommunityServiceError::Validation(detail.into()),
-    )
+    map_service_error(context, CommunityServiceError::Validation(detail.into()))
 }
 
 fn attach_trace_header(response: Response, trace_id: &str) -> Response {
     let mut response = response;
     if let Ok(value) = HeaderValue::from_str(trace_id) {
-        response.headers_mut().insert(
-            HeaderName::from_static("x-sdkwork-trace-id"),
-            value,
-        );
+        response
+            .headers_mut()
+            .insert(HeaderName::from_static("x-sdkwork-trace-id"), value);
     }
     response
 }
