@@ -1,7 +1,4 @@
-import {
-  createSdkworkAppbasePcAuthRuntime,
-  type SdkworkAppbasePcAuthRuntimeComposition,
-} from "@sdkwork/auth-runtime-pc-react";
+import type { SdkworkAppbasePcAuthRuntimeComposition } from "@sdkwork/auth-runtime-pc-react/appbasePcAuthRuntime";
 import type { AuthTokenManager } from "@sdkwork/sdk-common";
 import type { Environment } from "./environment";
 import type { SdkClients } from "./sdkClients";
@@ -13,9 +10,12 @@ export interface CreateCommunityIamRuntimeOptions {
   tokenManager: AuthTokenManager;
 }
 
-export function createIamRuntime(
+export async function createIamRuntime(
   options: CreateCommunityIamRuntimeOptions,
-): SdkworkAppbasePcAuthRuntimeComposition {
+): Promise<SdkworkAppbasePcAuthRuntimeComposition> {
+  const { createSdkworkAppbasePcAuthRuntime } = await import(
+    "@sdkwork/auth-runtime-pc-react/appbasePcAuthRuntime"
+  );
   return createSdkworkAppbasePcAuthRuntime({
     app: {
       appId: options.environment.appKey,

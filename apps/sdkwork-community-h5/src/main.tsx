@@ -6,7 +6,9 @@ import { RuntimeProvider } from './providers/RuntimeProvider'
 import { SdkProvider } from './providers/SdkProvider'
 import './index.css'
 
-void getRuntime().initialize()
+void getRuntime().initialize().catch((error: unknown) => {
+  console.error('Community IAM runtime initialization failed.', error)
+})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

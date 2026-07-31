@@ -18,7 +18,9 @@ function CommunityAvatar({ alt, className, fallback, src }: CommunityPcAvatarPro
 
 export function bootstrapCommunityPcHost(): void {
   const runtime = getRuntime();
-  void runtime.initialize();
+  void runtime.initialize().catch((error: unknown) => {
+    console.error("Community IAM runtime initialization failed.", error);
+  });
   configureCommunityPcHost({
     Avatar: CommunityAvatar as ComponentType<CommunityPcAvatarProps>,
     toast(message, variant = "info") {

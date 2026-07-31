@@ -12,8 +12,8 @@
     "build:prod": "vite build --mode production",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run",
-    "test:config": "node scripts/test-config.mjs"
+    "test": "pnpm test:config",
+    "test:config": "vitest run apps/sdkwork-community-common/packages/sdkwork-community-runtime/tests/community-runtime.standard.test.ts --root ../.. --config vitest.config.ts --configLoader native --pool vmThreads"
   },
   "dependencies": {
     "@sdkwork/auth-runtime-pc-react": "workspace:*",

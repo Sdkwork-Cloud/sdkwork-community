@@ -43,7 +43,8 @@ export function createRuntime(): Runtime {
     }
 
     try {
-      const profile = await iam.runtime.service.iam.users.current.retrieve();
+      const authRuntime = await iam;
+      const profile = await authRuntime.runtime.service.iam.users.current.retrieve();
       currentUser = {
         ...(profile.displayName ? { displayName: profile.displayName, name: profile.displayName } : {}),
         ...(profile.id ? { id: profile.id } : {}),
@@ -66,11 +67,18 @@ export function createRuntime(): Runtime {
     iam,
     async initialize() {
       try {
-        await iam.runtime.hydrateTokenManager();
+        const authRuntime = await iam;
+        await authRuntime.runtime.hydrateTokenManager();
         await refreshCurrentUser();
-      } catch {
-        await iam.runtime.clearSession();
+      } catch (error) {
+        try {
+          const authRuntime = await iam;
+          await authRuntime.runtime.clearSession();
+        } catch {
+          // The SDK remains fail-closed when the IAM runtime itself cannot load.
+        }
         currentUser = null;
+        throw error;
       }
     },
     getCurrentUser: () => currentUser,
