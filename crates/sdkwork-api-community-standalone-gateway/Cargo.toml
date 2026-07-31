@@ -12,10 +12,8 @@ path = "src/main.rs"
 [dependencies]
 axum.workspace = true
 sdkwork-api-community-assembly.workspace = true
-sdkwork-community-service-host.workspace = true
-sdkwork-database-sqlx.workspace = true
+sdkwork-iam-web-adapter.workspace = true
 sdkwork-web-bootstrap.workspace = true
-sqlx.workspace = true
 tokio.workspace = true
 tower-http.workspace = true
 tracing.workspace = true

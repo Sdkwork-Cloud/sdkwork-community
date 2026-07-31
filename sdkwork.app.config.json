@@ -1,32 +1,153 @@
 {
-  "name": "sdkwork-community-flutter-mobile",
-  "version": "0.1.0",
-  "description": "SDKWork Community Flutter Mobile Application",
+  "schemaVersion": 3,
+  "kind": "sdkwork.app",
+  "app": {
+    "key": "sdkwork-community",
+    "name": "SDKWork Community",
+    "displayName": "SDKWork Community",
+    "description": "SDKWork community domain APIs, SDKs, clients, and PostgreSQL-backed service runtime.",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-community",
+    "appType": "SDK",
+    "identifiers": {
+      "containerImage": "sdkwork/community"
+    }
+  },
+  "backend": {
+    "primaryLanguage": "rust",
+    "framework": "axum",
+    "appId": "sdkwork-community",
+    "serviceId": "sdkwork-community",
+    "owner": "sdkwork-community",
+    "domain": "communication",
+    "capability": "community",
+    "apiAuthorities": [
+      "sdkwork-community-open-api",
+      "sdkwork-community-app-api",
+      "sdkwork-community-backend-api"
+    ],
+    "profileKey": "backend-root-admin",
+    "tenantId": "100001",
+    "organizationId": "0",
+    "accessTokenPermissionScope": [
+      "community.categories.read",
+      "community.categories.manage",
+      "community.entries.read",
+      "community.entries.write",
+      "community.comments.read",
+      "community.comments.write",
+      "community.reactions.write",
+      "community.moderation.read",
+      "community.moderation.manage",
+      "community.recommendations.read",
+      "community.recommendations.manage"
+    ]
+  },
   "runtime": {
-    "family": "mobile",
-    "framework": "flutter",
+    "family": "server",
+    "framework": "rust-axum",
+    "defaultPlatform": "API",
+    "defaultArchitecture": "x64",
     "supportedDeploymentProfiles": [
       "standalone",
       "cloud"
     ],
     "defaultDeploymentProfile": "standalone"
   },
-  "publish": {
-    "platforms": [
-      "APP_IOS",
-      "APP_ANDROID"
-    ]
-  },
-  "app": {
-    "identifiers": {
-      "bundleId": "com.sdkwork.community.flutter",
-      "packageName": "com.sdkwork.community.flutter"
+  "media": {
+    "icons": {
+      "primary": {
+        "id": "sdkwork-community-primary-icon",
+        "type": "ICON",
+        "purpose": "PRIMARY",
+        "platform": "API",
+        "format": "PNG",
+        "width": 1024,
+        "height": 1024,
+        "enabled": false,
+        "resource": {
+          "kind": "catalog-media-deferred"
+        }
+      },
+      "platform": []
     },
-    "key": "sdkwork-community"
+    "screenshots": [],
+    "previews": []
+  },
+  "publish": {
+    "status": "BETA",
+    "platforms": [
+      "API"
+    ],
+    "installPlatforms": [
+      "API"
+    ],
+    "installSkill": false
   },
   "artifacts": {
     "installConfig": {
-      "packages": []
+      "defaultPackageId": "linux-x64-standalone-server-tar-gz",
+      "packages": [
+        {
+          "id": "linux-x64-standalone-server-tar-gz",
+          "name": "SDKWork Community Linux x64 Standalone Server",
+          "sourceType": "SCRIPT",
+          "packageFormat": "TAR_GZ",
+          "platform": "API",
+          "architecture": "x64",
+          "profileBinding": "fixed",
+          "deploymentProfile": "standalone",
+          "runtimeTarget": "server",
+          "targetPlatform": "linux",
+          "enabled": true
+        },
+        {
+          "id": "linux-x64-cloud-server-assembly-tar-gz",
+          "name": "SDKWork Community Cloud Assembly Source Bundle",
+          "sourceType": "SCRIPT",
+          "packageFormat": "TAR_GZ",
+          "platform": "API",
+          "architecture": "x64",
+          "profileBinding": "fixed",
+          "deploymentProfile": "cloud",
+          "runtimeTarget": "server",
+          "targetPlatform": "linux",
+          "enabled": true,
+          "metadata": {
+            "variant": "assembly",
+            "embeddedOnly": true,
+            "consumer": "sdkwork-api-cloud-gateway"
+          }
+        }
+      ]
     }
+  },
+  "release": {
+    "currentVersion": "0.1.0",
+    "defaultChannel": "BETA",
+    "latest": {
+      "BETA": "0.1.0"
+    },
+    "notes": [
+      {
+        "version": "0.1.0",
+        "channel": "BETA",
+        "current": true,
+        "summary": "Initial SDKWork App Standard v3 community release.",
+        "packageIds": [
+          "linux-x64-standalone-server-tar-gz",
+          "linux-x64-cloud-server-assembly-tar-gz"
+        ]
+      }
+    ]
+  },
+  "security": {
+    "checksumRequired": false,
+    "signatureRequired": false,
+    "sbomRequired": false
+  },
+  "metadata": {
+    "deploymentConfig": "etc/sdkwork.deployment.config.json",
+    "componentSpec": "specs/component.spec.json",
+    "workflowManifest": "sdkwork.workflow.json"
   }
 }

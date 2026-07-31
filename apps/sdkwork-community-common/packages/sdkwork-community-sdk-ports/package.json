@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "test": "vitest run tests --config ../../vitest.config.ts --configLoader native --pool vmThreads",
+    "test": "vitest run apps/sdkwork-community-common/packages/sdkwork-community-sdk-ports/tests --root ../../../.. --config vitest.config.ts --configLoader native --pool vmThreads",
     "typecheck": "tsc --noEmit"
   },
   "sdkwork": {

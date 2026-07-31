@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "kind": "sdkwork.component.spec",
+  "component": {
+    "name": "@sdkwork/community-mobile-react-community",
+    "displayName": "SDKWork Community Mobile React",
+    "version": "0.1.0",
+    "type": "react-package",
+    "root": "sdkwork-community/apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community",
+    "domain": "community",
+    "declaredDomain": "community",
+    "capability": "community",
+    "status": "planned",
+    "languages": [
+      "typescript",
+      "react"
+    ],
+    "generated": false,
+    "private": true,
+    "manifests": [
+      "package.json"
+    ]
+  },
+  "contracts": {
+    "publicExports": [
+      "."
+    ],
+    "runtimeEntrypoints": [
+      "package.json#scripts.typecheck",
+      "package.json#scripts.test"
+    ],
+    "sdkClients": [],
+    "events": [],
+    "configKeys": [
+      "package.json#sdkwork"
+    ],
+    "sdkDependencies": [],
+    "routeManifest": null
+  },
+  "integration": {
+    "authority": "The canonical Community App API and composed app SDK remain the only authority for remote Community capabilities.",
+    "dependencyPolicy": "Consumers integrate through this package public export only after its planned capability model is represented by owner App API operations.",
+    "sdkPolicy": "The package fails closed for unavailable capabilities and must not add raw HTTP, manual auth headers, local DTO transport forks, or generated SDK edits."
+  },
+  "verification": {
+    "commands": [
+      "pnpm --filter @sdkwork/community-mobile-react-community typecheck",
+      "pnpm --filter @sdkwork/community-mobile-react-community test"
+    ]
+  },
+  "canonicalSpecs": [
+    {
+      "file": "COMPONENT_SPEC.md",
+      "path": "../../../../../sdkwork-specs/COMPONENT_SPEC.md",
+      "purpose": "Component-local contract and discovery rules."
+    },
+    {
+      "file": "CODE_STYLE_SPEC.md",
+      "path": "../../../../../sdkwork-specs/CODE_STYLE_SPEC.md",
+      "purpose": "Authored source structure and generated code boundaries."
+    },
+    {
+      "file": "NAMING_SPEC.md",
+      "path": "../../../../../sdkwork-specs/NAMING_SPEC.md",
+      "purpose": "Canonical SDKWork naming rules."
+    },
+    {
+      "file": "TEST_SPEC.md",
+      "path": "../../../../../sdkwork-specs/TEST_SPEC.md",
+      "purpose": "Verification and contract testing expectations."
+    },
+    {
+      "file": "APP_SDK_INTEGRATION_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_SDK_INTEGRATION_SPEC.md",
+      "purpose": "Injected composed SDK and fail-closed capability boundary rules."
+    },
+    {
+      "file": "APP_MOBILE_REACT_UI_SPEC.md",
+      "path": "../../../../../sdkwork-specs/APP_MOBILE_REACT_UI_SPEC.md",
+      "purpose": "Mobile React UI package rules."
+    }
+  ]
+}

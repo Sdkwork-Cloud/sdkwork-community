@@ -2,7 +2,7 @@
 
 Status: active
 Owner: SDKWork maintainers
-Updated: 2026-07-03
+Updated: 2026-07-31
 Specs: `ARCHITECTURE_DECISION_SPEC.md`, `WEB_FRAMEWORK_SPEC.md`, `DATABASE_FRAMEWORK_SPEC.md`, `APP_CLIENT_ARCHITECTURE_ALIGNMENT_SPEC.md`
 
 ## 1. Architecture Overview
@@ -25,7 +25,7 @@ HTTP traffic enters through `sdkwork-api-community-standalone-gateway`, which mo
 | Layer | Choice |
 | --- | --- |
 | HTTP runtime | Rust + Axum + `sdkwork-web-framework` |
-| Persistence | PostgreSQL (production), SQLite (tests) via `sdkwork-database` + SQLx |
+| Persistence | PostgreSQL for runtime and integration tests via `sdkwork-database` + SQLx |
 | Clients | PC React, H5 React, Flutter mobile |
 | SDK contract | OpenAPI 3.1.2, `sdkwork-v3` envelope profile |
 | Shared utilities | `sdkwork-utils-rust` / `@sdkwork/utils` where applicable |
@@ -62,7 +62,7 @@ See repository [README.md](../../../README.md) for the current directory diction
 
 ## 7. Deployment And Runtime Topology
 
-`specs/topology.spec.json` (schema v2) declares standalone and cloud deployment profiles with `configs/topology/*.env` profile files. Local development uses:
+`specs/topology.spec.json` (schema v5) declares standalone and cloud deployment profiles with `etc/topology/*.env` profile files. Local development uses:
 
 - `pnpm dev:desktop` — gateway on `:18094` + PC Vite
 - `pnpm dev:browser` — gateway on `:18094` + H5 Vite
@@ -86,7 +86,7 @@ Rust integration tests cover all three API surfaces:
 | `sdkwork-routes-community-app-api` | IAM 401 guard, categories envelope, route mount |
 | `sdkwork-routes-community-backend-api` | IAM 401 guard, categories envelope, route mount |
 
-Storage uses `CommunitySqlxStore` with `sdkwork-database` lifecycle bootstrap.
+Storage uses `CommunitySqlxStore` with `sdkwork-database` lifecycle bootstrap. Integration tests create an isolated PostgreSQL schema from `SDKWORK_DATABASE_TEST_POSTGRES_URL` and remove it after each fixture.
 
 ## 9. Architecture Decision Index
 

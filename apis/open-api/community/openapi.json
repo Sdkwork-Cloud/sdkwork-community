@@ -4,7 +4,7 @@
     "title": "SDKWork Community Open API",
     "version": "1.0.0",
     "x-sdkwork-owner": "sdkwork-community",
-    "x-sdkwork-api-authority": "sdkwork-community.open"
+    "x-sdkwork-api-authority": "sdkwork-community-open-api"
   },
   "servers": [
     {
@@ -59,16 +59,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
+        "security": [],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.open",
+        "x-sdkwork-api-authority": "sdkwork-community-open-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
         "x-sdkwork-public": true,
+        "x-sdkwork-auth-mode": "anonymous",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "open-api",
         "x-sdkwork-standard-profile": "sdkwork-v3"
@@ -176,16 +173,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
+        "security": [],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.open",
+        "x-sdkwork-api-authority": "sdkwork-community-open-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "feed",
         "x-sdkwork-public": true,
+        "x-sdkwork-auth-mode": "anonymous",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "open-api",
         "x-sdkwork-standard-profile": "sdkwork-v3"
@@ -199,7 +193,15 @@
         "summary": "Community entries.public.retrieve",
         "operationId": "entries.public.retrieve",
         "parameters": [
-          null
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -233,16 +235,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
+        "security": [],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.open",
+        "x-sdkwork-api-authority": "sdkwork-community-open-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": true,
+        "x-sdkwork-auth-mode": "anonymous",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "open-api",
         "x-sdkwork-standard-profile": "sdkwork-v3"
@@ -256,7 +255,15 @@
         "summary": "Community entries.publicBySlug.retrieve",
         "operationId": "entries.publicBySlug.retrieve",
         "parameters": [
-          null
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -290,16 +297,13 @@
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
+        "security": [],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.open",
+        "x-sdkwork-api-authority": "sdkwork-community-open-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": true,
+        "x-sdkwork-auth-mode": "anonymous",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "open-api",
         "x-sdkwork-standard-profile": "sdkwork-v3"
@@ -308,16 +312,6 @@
   },
   "components": {
     "securitySchemes": {
-      "AuthToken": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      },
-      "AccessToken": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "Access-Token"
-      },
       "ApiKey": {
         "type": "apiKey",
         "in": "header",
@@ -972,7 +966,7 @@
     }
   },
   "x-sdkwork-owner": "sdkwork-community",
-  "x-sdkwork-api-authority": "sdkwork-community.open",
+  "x-sdkwork-api-authority": "sdkwork-community-open-api",
   "x-sdkwork-domain": "community",
   "x-sdkwork-standard-profile": "sdkwork-v3"
 }

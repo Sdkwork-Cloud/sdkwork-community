@@ -1,30 +1,121 @@
 {
-  "name": "sdkwork-community-flutter-mobile",
-  "version": "0.1.0",
-  "description": "SDKWork Community Flutter Mobile Application",
+  "schemaVersion": 3,
+  "kind": "sdkwork.app",
+  "app": {
+    "key": "sdkwork-community-flutter-mobile",
+    "name": "SDKWork Community Flutter Mobile",
+    "displayName": "SDKWork Community Mobile",
+    "description": "SDKWork Community Flutter client for Android and iOS.",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-community",
+    "appType": "APP_FLUTTER",
+    "versionSource": "pubspec.yaml",
+    "identifiers": {
+      "packageName": "com.sdkwork.community.flutter",
+      "bundleId": "com.sdkwork.community.flutter"
+    }
+  },
+  "backend": {
+    "profileKey": "backend-root-admin",
+    "ownerMode": "tenant",
+    "grantMode": "current",
+    "platform": "APP",
+    "appId": "sdkwork-community",
+    "organizationId": "0",
+    "tenantId": "100001",
+    "accessTokenPermissionScope": [
+      "community.categories.read",
+      "community.entries.read",
+      "community.entries.write",
+      "community.comments.read",
+      "community.comments.write",
+      "community.reactions.write",
+      "community.recommendations.read"
+    ]
+  },
   "runtime": {
     "family": "mobile",
     "framework": "flutter",
+    "runtimes": [
+      "APP_ANDROID",
+      "APP_IOS"
+    ],
+    "deliveryModes": [
+      "DIRECT_DOWNLOAD"
+    ],
+    "defaultPlatform": "APP_ANDROID",
+    "defaultArchitecture": "universal",
     "supportedDeploymentProfiles": [
-      "standalone"
+      "standalone",
+      "cloud"
     ],
     "defaultDeploymentProfile": "standalone"
   },
-  "publish": {
-    "platforms": [
-      "APP_IOS",
-      "APP_ANDROID"
-    ]
+  "media": {
+    "icons": {
+      "primary": {
+        "id": "sdkwork-community-flutter-mobile-primary-icon",
+        "type": "ICON",
+        "purpose": "PRIMARY",
+        "platform": "APP",
+        "format": "PNG",
+        "width": 1024,
+        "height": 1024,
+        "enabled": false,
+        "resource": {
+          "kind": "catalog-media-deferred"
+        }
+      },
+      "platform": []
+    },
+    "screenshots": [],
+    "previews": []
   },
-  "app": {
-    "identifiers": {
-      "bundleId": "com.sdkwork.community.flutter",
-      "packageName": "com.sdkwork.community.flutter"
-    }
+  "publish": {
+    "status": "DRAFT",
+    "platforms": [
+      "APP_ANDROID",
+      "APP_IOS"
+    ],
+    "installPlatforms": [
+      "APP_ANDROID",
+      "APP_IOS"
+    ],
+    "installSkill": false
   },
   "artifacts": {
     "installConfig": {
-      "packages": []
+      "packages": [],
+      "metadata": {
+        "workspaceRoot": "apps/sdkwork-community-flutter-mobile",
+        "framework": "flutter",
+        "packageManager": "flutter"
+      }
     }
+  },
+  "release": {
+    "currentVersion": "0.1.0",
+    "defaultChannel": "BETA",
+    "latest": {
+      "BETA": "0.1.0"
+    },
+    "notes": [
+      {
+        "version": "0.1.0",
+        "channel": "BETA",
+        "current": true,
+        "summary": "Initial SDKWork App Standard v3 Community Flutter declaration.",
+        "packageIds": []
+      }
+    ]
+  },
+  "security": {
+    "checksumRequired": true,
+    "signatureRequired": true,
+    "sbomRequired": true
+  },
+  "metadata": {
+    "standardOwner": "sdkwork-community",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json",
+    "releaseAuthority": "../../sdkwork.workflow.json"
   }
 }

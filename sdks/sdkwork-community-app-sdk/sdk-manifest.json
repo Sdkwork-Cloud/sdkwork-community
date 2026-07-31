@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sdkName": "sdkwork-community-app-sdk",
   "sdkOwner": "sdkwork-community",
-  "apiAuthority": "sdkwork-community.app",
+  "apiAuthority": "sdkwork-community-app-api",
   "sdkFamily": "sdkwork-community-app-sdk",
   "sdkType": "app",
   "apiPrefix": "/app/v3/api",

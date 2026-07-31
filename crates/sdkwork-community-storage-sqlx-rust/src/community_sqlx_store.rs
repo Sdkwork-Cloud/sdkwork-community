@@ -66,32 +66,24 @@ impl CommunitySqlxStore {
         &self.pool
     }
 
+    fn postgres_pool(&self) -> &sqlx::PgPool {
+        self.pool
+            .as_postgres()
+            .expect("CommunitySqlxStore requires a validated PostgreSQL pool")
+    }
+
     pub async fn list_categories(
         &self,
         tenant_id: &str,
     ) -> Result<Vec<super::CommunityStoredCategory>, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::list_categories(pool, tenant_id).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::list_categories(pool, tenant_id).await
-            }
-        }
+        super::postgres_queries::list_categories(self.postgres_pool(), tenant_id).await
     }
 
     pub async fn create_category(
         &self,
         input: super::NewCommunityCategory,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::create_category(pool, input).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::create_category(pool, input).await
-            }
-        }
+        super::postgres_queries::create_category(self.postgres_pool(), input).await
     }
 
     pub async fn update_category(
@@ -100,14 +92,13 @@ impl CommunitySqlxStore {
         category_id: &str,
         patch: &CommunityCategoryPatch,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::update_category(pool, tenant_id, category_id, patch).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::update_category(pool, tenant_id, category_id, patch).await
-            }
-        }
+        super::postgres_queries::update_category(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            patch,
+        )
+        .await
     }
 
     pub async fn delete_category(
@@ -115,23 +106,11 @@ impl CommunitySqlxStore {
         tenant_id: &str,
         category_id: &str,
     ) -> Result<bool, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::delete_category(pool, tenant_id, category_id).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::delete_category(pool, tenant_id, category_id).await
-            }
-        }
+        super::postgres_queries::delete_category(self.postgres_pool(), tenant_id, category_id).await
     }
 
     pub async fn create_entry(&self, input: super::NewCommunityEntry) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => super::sqlite_queries::create_entry(pool, input).await,
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::create_entry(pool, input).await
-            }
-        }
+        super::postgres_queries::create_entry(self.postgres_pool(), input).await
     }
 
     pub async fn update_entry(
@@ -140,14 +119,8 @@ impl CommunitySqlxStore {
         entry_id: &str,
         patch: &CommunityEntryPatch,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::update_entry(pool, tenant_id, entry_id, patch).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::update_entry(pool, tenant_id, entry_id, patch).await
-            }
-        }
+        super::postgres_queries::update_entry(self.postgres_pool(), tenant_id, entry_id, patch)
+            .await
     }
 
     pub async fn list_feed(
@@ -155,14 +128,7 @@ impl CommunitySqlxStore {
         tenant_id: &str,
         query: &CommunityFeedQuery,
     ) -> Result<super::CommunityStoredEntryPage, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::list_feed(pool, tenant_id, query).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::list_feed(pool, tenant_id, query).await
-            }
-        }
+        super::postgres_queries::list_feed(self.postgres_pool(), tenant_id, query).await
     }
 
     pub async fn retrieve_entry_by_id(
@@ -171,26 +137,13 @@ impl CommunitySqlxStore {
         entry_id: &str,
         approved_only: bool,
     ) -> Result<Option<super::CommunityStoredEntry>, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::retrieve_entry_by_id(
-                    pool,
-                    tenant_id,
-                    entry_id,
-                    approved_only,
-                )
-                .await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::retrieve_entry_by_id(
-                    pool,
-                    tenant_id,
-                    entry_id,
-                    approved_only,
-                )
-                .await
-            }
-        }
+        super::postgres_queries::retrieve_entry_by_id(
+            self.postgres_pool(),
+            tenant_id,
+            entry_id,
+            approved_only,
+        )
+        .await
     }
 
     pub async fn retrieve_entry_by_slug(
@@ -198,14 +151,7 @@ impl CommunitySqlxStore {
         tenant_id: &str,
         slug: &str,
     ) -> Result<Option<super::CommunityStoredEntry>, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::retrieve_entry_by_slug(pool, tenant_id, slug).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::retrieve_entry_by_slug(pool, tenant_id, slug).await
-            }
-        }
+        super::postgres_queries::retrieve_entry_by_slug(self.postgres_pool(), tenant_id, slug).await
     }
 
     pub async fn list_comments(
@@ -213,28 +159,14 @@ impl CommunitySqlxStore {
         tenant_id: &str,
         entry_id: &str,
     ) -> Result<Vec<super::CommunityStoredComment>, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::list_comments(pool, tenant_id, entry_id).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::list_comments(pool, tenant_id, entry_id).await
-            }
-        }
+        super::postgres_queries::list_comments(self.postgres_pool(), tenant_id, entry_id).await
     }
 
     pub async fn create_comment(
         &self,
         input: super::NewCommunityComment,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::create_comment(pool, input).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::create_comment(pool, input).await
-            }
-        }
+        super::postgres_queries::create_comment(self.postgres_pool(), input).await
     }
 
     pub async fn update_moderation(
@@ -244,28 +176,14 @@ impl CommunitySqlxStore {
         actor_user_id: &str,
         patch: &CommunityModerationPatch,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::update_moderation(
-                    pool,
-                    tenant_id,
-                    entry_id,
-                    actor_user_id,
-                    patch,
-                )
-                .await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::update_moderation(
-                    pool,
-                    tenant_id,
-                    entry_id,
-                    actor_user_id,
-                    patch,
-                )
-                .await
-            }
-        }
+        super::postgres_queries::update_moderation(
+            self.postgres_pool(),
+            tenant_id,
+            entry_id,
+            actor_user_id,
+            patch,
+        )
+        .await
     }
 
     pub async fn set_featured(
@@ -274,14 +192,8 @@ impl CommunitySqlxStore {
         entry_id: &str,
         featured: bool,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::set_featured(pool, tenant_id, entry_id, featured).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::set_featured(pool, tenant_id, entry_id, featured).await
-            }
-        }
+        super::postgres_queries::set_featured(self.postgres_pool(), tenant_id, entry_id, featured)
+            .await
     }
 
     pub async fn set_pinned(
@@ -290,63 +202,28 @@ impl CommunitySqlxStore {
         entry_id: &str,
         pinned: bool,
     ) -> Result<(), sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::set_pinned(pool, tenant_id, entry_id, pinned).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::set_pinned(pool, tenant_id, entry_id, pinned).await
-            }
-        }
+        super::postgres_queries::set_pinned(self.postgres_pool(), tenant_id, entry_id, pinned).await
     }
 
     pub async fn set_reaction(
         &self,
         input: super::SetCommunityReaction,
     ) -> Result<i64, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::set_reaction(pool, &input).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::set_reaction(pool, &input).await
-            }
-        }
+        super::postgres_queries::set_reaction(self.postgres_pool(), &input).await
     }
 
     pub async fn delete_entry(&self, tenant_id: &str, entry_id: &str) -> Result<bool, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::delete_entry(pool, tenant_id, entry_id).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::delete_entry(pool, tenant_id, entry_id).await
-            }
-        }
+        super::postgres_queries::delete_entry(self.postgres_pool(), tenant_id, entry_id).await
     }
 
     pub async fn list_moderation_queue(
         &self,
         tenant_id: &str,
     ) -> Result<Vec<super::CommunityStoredEntry>, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::list_moderation_queue(pool, tenant_id).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::list_moderation_queue(pool, tenant_id).await
-            }
-        }
+        super::postgres_queries::list_moderation_queue(self.postgres_pool(), tenant_id).await
     }
 
     pub async fn rebuild_recommendations(&self, tenant_id: &str) -> Result<i64, sqlx::Error> {
-        match &self.pool {
-            DatabasePool::Sqlite(pool, _) => {
-                super::sqlite_queries::rebuild_recommendations(pool, tenant_id).await
-            }
-            DatabasePool::Postgres(pool, _) => {
-                super::postgres_queries::rebuild_recommendations(pool, tenant_id).await
-            }
-        }
+        super::postgres_queries::rebuild_recommendations(self.postgres_pool(), tenant_id).await
     }
 }

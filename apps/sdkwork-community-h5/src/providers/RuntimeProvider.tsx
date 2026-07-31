@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import { createRuntime, type Runtime } from '../bootstrap/runtime';
+import { getRuntime, type Runtime } from '../bootstrap/runtime';
 
 const RuntimeContext = createContext<Runtime | null>(null);
 
@@ -8,7 +8,7 @@ interface RuntimeProviderProps {
 }
 
 export function RuntimeProvider({ children }: RuntimeProviderProps) {
-  const runtime = createRuntime();
+  const runtime = getRuntime();
   return (
     <RuntimeContext.Provider value={runtime}>
       {children}

@@ -39,8 +39,11 @@
     "publicExports": [
       "."
     ],
-    "runtimeEntrypoints": [],
-    "routeManifest": null,
+    "runtimeEntrypoints": [
+      "assemble_api_router",
+      "assemble_api_router_with_pool"
+    ],
+    "routeManifest": "assembly-manifest.json",
     "sdkClients": [],
     "events": [],
     "configKeys": [],

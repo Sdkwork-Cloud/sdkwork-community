@@ -22,3 +22,4 @@ serde_json.workspace = true
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tower = { workspace = true }
 sdkwork-community-service-host.workspace = true
+sdkwork-community-storage-sqlx-rust = { workspace = true, features = ["test-support"] }

@@ -1,0 +1,154 @@
+name: Package Application
+
+on:
+  push:
+    tags:
+      - v*
+      - '*.*.*'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag or source ref to package.
+        required: true
+        default: v0.1.0
+      package_version:
+        description: Package version used in artifact names and manifests.
+        required: true
+        default: 0.1.0
+      deployment_profile:
+        description: Deployment profile filter.
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - standalone
+          - cloud
+      runtime_target:
+        description: Runtime target filter.
+        required: true
+        default: server
+        type: choice
+        options:
+          - server
+      platform:
+        description: Platform filter.
+        required: true
+        default: linux
+        type: choice
+        options:
+          - linux
+      architecture:
+        description: Architecture filter.
+        required: true
+        default: x64
+        type: choice
+        options:
+          - x64
+      profile:
+        description: Package profile filter.
+        required: true
+        default: server
+        type: choice
+        options:
+          - server
+      variant:
+        description: Package variant filter.
+        required: true
+        default: all
+      format:
+        description: Package format filter.
+        required: true
+        default: tar.gz
+        type: choice
+        options:
+          - tar.gz
+      sdkwork_appbase_ref:
+        description: sdkwork-appbase commit/ref.
+        required: false
+        default: main
+      sdkwork_core_ref:
+        description: sdkwork-core commit/ref.
+        required: false
+        default: main
+      sdkwork_web_framework_ref:
+        description: sdkwork-web-framework commit/ref.
+        required: false
+        default: main
+      sdkwork_database_ref:
+        description: sdkwork-database commit/ref.
+        required: false
+        default: main
+      sdkwork_utils_ref:
+        description: sdkwork-utils commit/ref.
+        required: false
+        default: main
+      sdkwork_iam_ref:
+        description: sdkwork-iam commit/ref.
+        required: false
+        default: main
+      sdkwork_sdk_generator_ref:
+        description: sdkwork-sdk-generator commit/ref.
+        required: false
+        default: main
+      sdkwork_sdk_commons_ref:
+        description: sdkwork-sdk-commons commit/ref.
+        required: false
+        default: main
+      sdkwork_ui_ref:
+        description: sdkwork-ui commit/ref.
+        required: false
+        default: main
+      sdkwork_specs_ref:
+        description: sdkwork-specs commit/ref.
+        required: false
+        default: main
+      sdkwork_app_topology_ref:
+        description: sdkwork-app-topology commit/ref.
+        required: false
+        default: main
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  package:
+    uses: Sdkwork-Cloud/sdkwork-github-workflow/.github/workflows/sdkwork-package.yml@b0829529b9277a3da32b90c2d36ff34ff09fa832
+    with:
+      config_path: sdkwork.workflow.json
+      tag: ${{ github.event.inputs.tag || github.event.release.tag_name || github.ref_name }}
+      package_version: ${{ github.event.inputs.package_version || github.event.release.tag_name || github.ref_name }}
+      deployment_profile: ${{ github.event.inputs.deployment_profile || 'all' }}
+      runtime_target: ${{ github.event.inputs.runtime_target || 'server' }}
+      platform: ${{ github.event.inputs.platform || 'linux' }}
+      architecture: ${{ github.event.inputs.architecture || 'x64' }}
+      profile: ${{ github.event.inputs.profile || 'server' }}
+      variant: ${{ github.event.inputs.variant || 'all' }}
+      format: ${{ github.event.inputs.format || 'tar.gz' }}
+      publish_release: false
+      upload_artifact: true
+      deploy: false
+      retention_days: 30
+      framework_ref: b0829529b9277a3da32b90c2d36ff34ff09fa832
+      dependency_refs_json: >-
+        {
+          "SDKWORK_APPBASE_REF": "${{ github.event.inputs.sdkwork_appbase_ref || vars.SDKWORK_APPBASE_REF }}",
+          "SDKWORK_CORE_REF": "${{ github.event.inputs.sdkwork_core_ref || vars.SDKWORK_CORE_REF }}",
+          "SDKWORK_WEB_FRAMEWORK_REF": "${{ github.event.inputs.sdkwork_web_framework_ref || vars.SDKWORK_WEB_FRAMEWORK_REF }}",
+          "SDKWORK_DATABASE_REF": "${{ github.event.inputs.sdkwork_database_ref || vars.SDKWORK_DATABASE_REF }}",
+          "SDKWORK_UTILS_REF": "${{ github.event.inputs.sdkwork_utils_ref || vars.SDKWORK_UTILS_REF }}",
+          "SDKWORK_IAM_REF": "${{ github.event.inputs.sdkwork_iam_ref || vars.SDKWORK_IAM_REF }}",
+          "SDKWORK_SDK_GENERATOR_REF": "${{ github.event.inputs.sdkwork_sdk_generator_ref || vars.SDKWORK_SDK_GENERATOR_REF }}",
+          "SDKWORK_SDK_COMMONS_REF": "${{ github.event.inputs.sdkwork_sdk_commons_ref || vars.SDKWORK_SDK_COMMONS_REF }}",
+          "SDKWORK_UI_REF": "${{ github.event.inputs.sdkwork_ui_ref || vars.SDKWORK_UI_REF }}",
+          "SDKWORK_SPECS_REF": "${{ github.event.inputs.sdkwork_specs_ref || vars.SDKWORK_SPECS_REF }}",
+          "SDKWORK_APP_TOPOLOGY_REF": "${{ github.event.inputs.sdkwork_app_topology_ref || vars.SDKWORK_APP_TOPOLOGY_REF }}"
+        }
+    secrets: inherit

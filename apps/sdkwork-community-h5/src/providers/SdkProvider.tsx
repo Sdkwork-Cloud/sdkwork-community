@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import { createSdkClients, type SdkClients } from '../bootstrap/sdkClients';
+import { getRuntime } from '../bootstrap/runtime';
+import type { SdkClients } from '../bootstrap/sdkClients';
 
 const SdkContext = createContext<SdkClients | null>(null);
 
@@ -8,7 +9,7 @@ interface SdkProviderProps {
 }
 
 export function SdkProvider({ children }: SdkProviderProps) {
-  const sdkClients = createSdkClients();
+  const sdkClients = getRuntime().sdkClients;
   return (
     <SdkContext.Provider value={sdkClients}>
       {children}

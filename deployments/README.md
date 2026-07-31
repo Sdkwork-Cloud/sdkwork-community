@@ -38,7 +38,7 @@ See [docker/README.md](docker/README.md) for environment variables and health pr
 - `APPLICATION_GATEWAY_SPEC.md`
 - `SDKWORK_DEPLOY_SPEC.md`
 
-Deploy manifest: `deployments/deploy.yaml` (default profile `standalone.unified-process.development`).
+Deploy manifest: `deployments/deploy.yaml` (default profile `standalone.production`).
 
 Plan a deployment handoff:
 

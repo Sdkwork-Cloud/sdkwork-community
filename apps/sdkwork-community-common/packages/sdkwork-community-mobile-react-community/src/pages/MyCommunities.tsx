@@ -1,0 +1,19 @@
+import { Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
+
+import { CapabilityUnavailablePage } from "@sdkwork/ui-mobile-react";
+
+export function MyCommunities() {
+  const { t } = useTranslation("community");
+  const navigate = useNavigate();
+
+  return (
+    <CapabilityUnavailablePage
+      icon={Users}
+      message={t("unavailable")}
+      onBack={() => navigate(-1)}
+      title={t("title")}
+    />
+  );
+}

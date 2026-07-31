@@ -1,0 +1,85 @@
+use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest};
+
+const ROUTES: &[HttpRoute] = &[
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/community/categories",
+        "community",
+        "categories.management.list",
+    )
+    .with_required_permission("community.categories.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/community/categories",
+        "community",
+        "categories.create",
+    )
+    .with_required_permission("community.categories.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/backend/v3/api/community/categories/{categoryId}",
+        "community",
+        "categories.update",
+    )
+    .with_required_permission("community.categories.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/backend/v3/api/community/categories/{categoryId}",
+        "community",
+        "categories.delete",
+    )
+    .with_required_permission("community.categories.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/community/entries",
+        "community",
+        "entries.management.list",
+    )
+    .with_required_permission("community.moderation.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/community/entries/{entryId}/moderation",
+        "community",
+        "entries.moderation.create",
+    )
+    .with_required_permission("community.moderation.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/community/entries/{entryId}/feature",
+        "community",
+        "entries.feature",
+    )
+    .with_required_permission("community.moderation.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/community/entries/{entryId}/pin",
+        "community",
+        "entries.pin",
+    )
+    .with_required_permission("community.moderation.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/backend/v3/api/community/entries/{entryId}",
+        "community",
+        "entries.delete",
+    )
+    .with_required_permission("community.moderation.manage"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/backend/v3/api/community/moderation/queue",
+        "community",
+        "moderation.queue.list",
+    )
+    .with_required_permission("community.moderation.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/backend/v3/api/community/recommendations/rebuild",
+        "community",
+        "recommendations.rebuild",
+    )
+    .with_required_permission("community.recommendations.manage"),
+];
+
+pub fn gateway_route_manifest() -> HttpRouteManifest {
+    HttpRouteManifest::new(ROUTES)
+}

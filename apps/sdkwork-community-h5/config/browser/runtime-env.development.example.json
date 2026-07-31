@@ -1,8 +1,22 @@
 {
-  "sdkBaseUrl": "http://localhost:8080",
-  "appApiBaseUrl": "http://localhost:8080/app/v3/api",
-  "openApiBaseUrl": "http://localhost:8080/community/v3/api",
+  "appApiBaseUrl": "/app/v3/api",
+  "appKey": "sdkwork-community",
+  "browserOriginMode": "same-origin",
+  "deploymentProfile": "standalone",
+  "environment": "development",
   "featureFlags": {
     "community": true
+  },
+  "openApiBaseUrl": "/community/v3/api",
+  "profileId": "standalone.development",
+  "runtimeTarget": "browser",
+  "sdkBaseUrls": {
+    "appApiBaseUrl": "/app/v3/api",
+    "dependencySdkBaseUrls": {
+      "sdkwork-iam-app-sdk": {
+        "appApiBaseUrl": "/app/v3/api"
+      }
+    },
+    "openApiBaseUrl": "/community/v3/api"
   }
 }

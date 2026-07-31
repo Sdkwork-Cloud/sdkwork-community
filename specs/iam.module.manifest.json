@@ -2,8 +2,167 @@
   "schemaVersion": 1,
   "kind": "sdkwork.iam.module",
   "moduleId": "community",
+  "catalogVersion": "1.0.0",
   "domain": "community",
+  "owner": "sdkwork-community",
+  "displayName": "SDKWork Community Module",
   "permissions": {
-    "catalog": []
+    "catalog": [
+      {
+        "code": "community.categories.read",
+        "name": "Read community categories",
+        "resource": "categories",
+        "action": "read",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.categories.manage",
+        "name": "Manage community categories",
+        "resource": "categories",
+        "action": "manage",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.entries.read",
+        "name": "Read community entries",
+        "resource": "entries",
+        "action": "read",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.entries.write",
+        "name": "Write community entries",
+        "resource": "entries",
+        "action": "write",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.comments.read",
+        "name": "Read community comments",
+        "resource": "comments",
+        "action": "read",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.comments.write",
+        "name": "Write community comments",
+        "resource": "comments",
+        "action": "write",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.reactions.write",
+        "name": "Write community reactions",
+        "resource": "reactions",
+        "action": "write",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.moderation.read",
+        "name": "Read community moderation state",
+        "resource": "moderation",
+        "action": "read",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.moderation.manage",
+        "name": "Manage community moderation state",
+        "resource": "moderation",
+        "action": "manage",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.recommendations.read",
+        "name": "Read community recommendations",
+        "resource": "recommendations",
+        "action": "read",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.recommendations.manage",
+        "name": "Manage community recommendations",
+        "resource": "recommendations",
+        "action": "manage",
+        "status": "active",
+        "since": "1.0.0",
+        "replacementCode": null
+      }
+    ],
+    "openapiAuthorities": [
+      {
+        "apiAuthority": "sdkwork-community-app-api",
+        "operationPermissions": [
+          { "operationId": "categories.list", "permission": "community.categories.read" },
+          { "operationId": "feed.list", "permission": "community.entries.read" },
+          { "operationId": "entries.create", "permission": "community.entries.write" },
+          { "operationId": "entries.retrieve", "permission": "community.entries.read" },
+          { "operationId": "entries.update", "permission": "community.entries.write" },
+          { "operationId": "entries.delete", "permission": "community.entries.write" },
+          { "operationId": "entries.recommendations.list", "permission": "community.recommendations.read" },
+          { "operationId": "entries.publicationReadiness.retrieve", "permission": "community.entries.read" },
+          { "operationId": "reactions.create", "permission": "community.reactions.write" },
+          { "operationId": "comments.list", "permission": "community.comments.read" },
+          { "operationId": "comments.create", "permission": "community.comments.write" }
+        ]
+      },
+      {
+        "apiAuthority": "sdkwork-community-backend-api",
+        "operationPermissions": [
+          { "operationId": "categories.management.list", "permission": "community.categories.read" },
+          { "operationId": "categories.create", "permission": "community.categories.manage" },
+          { "operationId": "categories.update", "permission": "community.categories.manage" },
+          { "operationId": "categories.delete", "permission": "community.categories.manage" },
+          { "operationId": "entries.management.list", "permission": "community.moderation.read" },
+          { "operationId": "entries.moderation.create", "permission": "community.moderation.manage" },
+          { "operationId": "entries.feature", "permission": "community.moderation.manage" },
+          { "operationId": "entries.pin", "permission": "community.moderation.manage" },
+          { "operationId": "entries.delete", "permission": "community.moderation.manage" },
+          { "operationId": "moderation.queue.list", "permission": "community.moderation.read" },
+          { "operationId": "recommendations.rebuild", "permission": "community.recommendations.manage" }
+        ]
+      }
+    ]
+  },
+  "roles": {
+    "domainStandardRoles": [],
+    "roleGrantExtensions": [],
+    "roleExclusions": [],
+    "assignability": [],
+    "bootstrapDefaults": []
+  },
+  "directory": {
+    "organizationTemplates": [],
+    "departmentTemplates": [],
+    "positionTemplates": [],
+    "membershipTemplates": []
+  },
+  "policyConditions": {
+    "supportedAttributes": []
+  },
+  "oauthScopeMappings": [],
+  "dependencies": {
+    "requiresModules": [
+      "iam-kernel"
+    ]
   }
 }

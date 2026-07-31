@@ -4,6 +4,14 @@ import type { CommunityRuntimeConfig } from "./community-app-sdk-client";
 
 export { createGeneratedCommunityAppSdkPort } from "./generated-app-sdk-port";
 export {
+  resolveCommunityBrowserEnvironment,
+  type CommunityBrowserEnvironment,
+  type CommunityBrowserRuntimeConfigInput,
+  type CommunityDeploymentProfile,
+  type CommunityEnvironmentName,
+  type ResolveCommunityBrowserEnvironmentInput,
+} from "./browser-environment";
+export {
   COMMUNITY_APP_SDK_FAMILY_ID,
   createCommunityAppSdkClient,
   type CommunityAppSdkClient,

@@ -1,0 +1,15 @@
+{
+  "category": "Categories",
+  "allFiles": "All Files",
+  "docs": "Docs",
+  "images": "Images",
+  "videos": "Videos",
+  "others": "Others",
+  "searchPlaceholder": "Search files...",
+  "upload": "Upload",
+  "noFiles": "No matching files found",
+  "totalFiles": "{{count}} files total",
+  "uploadedBy": "{{uploader}} uploaded at {{time}}",
+  "prev": "Previous",
+  "next": "Next"
+}

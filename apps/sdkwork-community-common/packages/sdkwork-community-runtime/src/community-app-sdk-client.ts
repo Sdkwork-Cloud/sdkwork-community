@@ -48,15 +48,15 @@ export function createCommunityAppSdkClient({
   const clientConfig: SdkworkAppConfig = {
     authMode: "dual-token",
     baseUrl: normalizeGeneratedSdkBaseUrl(resolveCommunityAppApiBaseUrl(config), APP_API_PREFIX),
-    tokenManager: tokenManager as never,
+    tokenManager,
   };
   const generatedClient = sdkClient ?? createCommunityAppClient(clientConfig);
-  generatedClient.setTokenManager(tokenManager as never);
+  generatedClient.setTokenManager(tokenManager);
 
   return {
     client: generatedClient,
     setTokenManager(manager) {
-      generatedClient.setTokenManager(manager as never);
+      generatedClient.setTokenManager(manager);
     },
   };
 }

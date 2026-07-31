@@ -5,6 +5,7 @@ use axum::http::{HeaderName, Method, Request, StatusCode};
 use axum::Extension;
 use sdkwork_community_service::CommunityCategoryCommand;
 use sdkwork_community_service_host::CommunityServiceHost;
+use sdkwork_community_storage_sqlx::PostgresTestDatabase;
 use sdkwork_iam_context_service::{AuthLevel, DeploymentMode, Environment, IamAppContext};
 use sdkwork_routes_community_backend_api::build_backend_router;
 use serde_json::Value;
@@ -25,11 +26,35 @@ fn test_iam_context(tenant_id: &str, user_id: &str) -> IamAppContext {
     )
 }
 
-async fn seeded_host() -> Arc<CommunityServiceHost> {
+struct SeededHost {
+    host: Arc<CommunityServiceHost>,
+    database: PostgresTestDatabase,
+}
+
+impl SeededHost {
+    async fn close(self) {
+        drop(self.host);
+        self.database
+            .close()
+            .await
+            .expect("clean isolated PostgreSQL test schema");
+    }
+}
+
+async fn seeded_host() -> Option<SeededHost> {
     std::env::set_var("COMMUNITY_DEFAULT_TENANT_ID", "100001");
-    let host = CommunityServiceHost::from_sqlite_memory()
+    let Some(database) = PostgresTestDatabase::from_env()
         .await
-        .expect("sqlite community host");
+        .expect("create isolated PostgreSQL test database")
+    else {
+        eprintln!(
+            "skipping Community PostgreSQL route test; set SDKWORK_DATABASE_TEST_POSTGRES_URL"
+        );
+        return None;
+    };
+    let host = CommunityServiceHost::from_database_pool(database.pool())
+        .await
+        .expect("PostgreSQL community host");
     host.service()
         .create_category(
             "100001",
@@ -43,7 +68,7 @@ async fn seeded_host() -> Arc<CommunityServiceHost> {
         )
         .await
         .expect("seed category");
-    host
+    Some(SeededHost { host, database })
 }
 
 async fn response_json(response: axum::response::Response) -> Value {
@@ -55,8 +80,10 @@ async fn response_json(response: axum::response::Response) -> Value {
 
 #[tokio::test]
 async fn backend_missing_iam_context_returns_401_problem_detail() {
-    let host = seeded_host().await;
-    let app = build_backend_router(host);
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_backend_router(fixture.host.clone());
     let response = app
         .oneshot(
             Request::builder()
@@ -70,12 +97,16 @@ async fn backend_missing_iam_context_returns_401_problem_detail() {
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     let json = response_json(response).await;
     assert_eq!(json["code"], 40101);
+    fixture.close().await;
 }
 
 #[tokio::test]
 async fn backend_categories_returns_sdkwork_v3_success_envelope() {
-    let host = seeded_host().await;
-    let app = build_backend_router(host).layer(Extension(test_iam_context("100001", "admin_1")));
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_backend_router(fixture.host.clone())
+        .layer(Extension(test_iam_context("100001", "admin_1")));
     let response = app
         .oneshot(
             Request::builder()
@@ -93,6 +124,7 @@ async fn backend_categories_returns_sdkwork_v3_success_envelope() {
     assert!(payload["traceId"].is_string());
     assert!(payload["data"]["items"].is_array());
     assert_eq!(payload["data"]["pageInfo"]["mode"], "offset");
+    fixture.close().await;
 }
 
 #[tokio::test]
@@ -101,8 +133,11 @@ async fn backend_router_mounts_every_openapi_operation_path() {
         "../../../apis/backend-api/community/openapi.json"
     ))
     .expect("backend api spec");
-    let host = seeded_host().await;
-    let app = build_backend_router(host).layer(Extension(test_iam_context("100001", "admin_1")));
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_backend_router(fixture.host.clone())
+        .layer(Extension(test_iam_context("100001", "admin_1")));
 
     for (template_path, methods) in spec["paths"].as_object().expect("paths") {
         for method_name in methods.as_object().expect("methods").keys() {
@@ -122,6 +157,8 @@ async fn backend_router_mounts_every_openapi_operation_path() {
             assert_route_mounted(&response, method_name, template_path);
         }
     }
+    drop(app);
+    fixture.close().await;
 }
 
 fn assert_route_mounted(response: &axum::http::Response<Body>, method: &str, path: &str) {

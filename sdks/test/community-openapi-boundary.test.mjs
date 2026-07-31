@@ -16,9 +16,9 @@ function operations(document) {
 
 test("community OpenAPI documents are owner-only sdkwork-v3 compatible inputs", () => {
   for (const [surface, document, prefix, authority] of [
-    ["app", app, "/app/v3/api/community", "sdkwork-community.app"],
-    ["backend", backend, "/backend/v3/api/community", "sdkwork-community.backend"],
-    ["open", open, "/community/v3/api", "sdkwork-community.open"],
+    ["app", app, "/app/v3/api/community", "sdkwork-community-app-api"],
+    ["backend", backend, "/backend/v3/api/community", "sdkwork-community-backend-api"],
+    ["open", open, "/community/v3/api", "sdkwork-community-open-api"],
   ]) {
     assert.equal(document.openapi, "3.1.2", surface);
     assert.equal(document["x-sdkwork-owner"], "sdkwork-community", surface);
@@ -56,9 +56,22 @@ test("community OpenAPI documents are owner-only sdkwork-v3 compatible inputs", 
 
       if (surface === "app" || surface === "backend") {
         assert.deepEqual(operation.security, [{ AuthToken: [], AccessToken: [] }], `${surface} security ${path}`);
+        assert.equal(operation["x-sdkwork-auth-mode"], "dual-token", `${surface} auth mode ${path}`);
       }
       if (surface === "open") {
-        assert.deepEqual(operation.security, [{ ApiKey: [] }], `${surface} open security ${path}`);
+        assert.deepEqual(operation.security, [], `${surface} public security ${path}`);
+        assert.equal(operation["x-sdkwork-auth-mode"], "anonymous", `${surface} auth mode ${path}`);
+      }
+      const parameters = operation.parameters ?? [];
+      assert.ok(parameters.every((parameter) => parameter !== null), `${surface} parameters ${path}`);
+      for (const match of path.matchAll(/\{([^}]+)\}/gu)) {
+        assert.ok(
+          parameters.some((parameter) =>
+            parameter.name === match[1]
+              && parameter.in === "path"
+              && parameter.required === true),
+          `${surface} path parameter ${match[1]} ${path}`,
+        );
       }
     }
   }

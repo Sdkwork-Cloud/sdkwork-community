@@ -1,7 +1,9 @@
 {
   "name": "sdkwork-community-sdk-generated-typescript",
   "version": "0.1.0",
-  "description": "sdkwork-community-sdk",
+  "private": true,
+  "sdkworkRole": "transport",
+  "description": "Generator-owned TypeScript transport SDK for sdkwork-community-sdk.",
   "author": "SDKWork Team",
   "license": "MIT",
   "type": "module",

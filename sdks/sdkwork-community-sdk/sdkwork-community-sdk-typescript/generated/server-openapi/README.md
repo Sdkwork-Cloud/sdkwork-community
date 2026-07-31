@@ -1,6 +1,6 @@
 # sdkwork-community-sdk
 
-Professional TypeScript SDK for SDKWork API.
+Generated SDKWork v3 API-key open-api transport SDK.
 
 ## Installation
 
@@ -22,37 +22,24 @@ const client = new SdkworkCustomClient({
   timeout: 30000,
 });
 
-// Mode A: API Key (recommended for server-to-server calls)
 client.setApiKey('your-api-key');
 
 // Use the SDK
-const result = await client.category.public.list();
+const result = await client.community.categories.public.list();
 ```
 
-## Authentication Modes (Mutually Exclusive)
+## Authentication
 
-Choose exactly one mode for the same client instance.
+```text
+X-API-Key: <apiKey>
+```
 
-### Mode A: API Key
+Configure API key credentials through the generated client API:
 
 ```typescript
-const client = new SdkworkCustomClient({ baseUrl: 'http://127.0.0.1:18082' });
 client.setApiKey('your-api-key');
-// Sends: X-API-Key: <apiKey>
 ```
 
-### Mode B: Dual Token
-
-```typescript
-const client = new SdkworkCustomClient({ baseUrl: 'http://127.0.0.1:18082' });
-client.setAuthToken('your-auth-token');
-client.setAccessToken('your-access-token');
-// Sends:
-// Authorization: Bearer <authToken>
-// Access-Token: <accessToken>
-```
-
-> Do not call `setApiKey(...)` together with `setAuthToken(...)` + `setAccessToken(...)` on the same client.
 
 ## Configuration (Non-Auth)
 
@@ -70,41 +57,15 @@ const client = new SdkworkCustomClient({
 
 ## API Modules
 
-- `client.category` - category API
-- `client.feed` - feed API
-- `client.entry` - entry API
+- `client.community` - community API
 
 ## Usage Examples
 
-### category
+### community
 
 ```typescript
 // Community categories.public.list
-const result = await client.category.public.list();
-```
-
-### feed
-
-```typescript
-// Community feed.public.list
-const params = {
-  categoryId: 'categoryId',
-  kind: 'kind',
-  q: 'q',
-  reviewState: 'reviewState',
-  tag: 'tag',
-  page: 6,
-  page_size: 7,
-};
-const result = await client.feed.public.list(params);
-```
-
-### entry
-
-```typescript
-// Community entries.public.retrieve
-const entryId = '1';
-const result = await client.entry.public.retrieve(entryId);
+const result = await client.community.categories.public.list();
 ```
 
 ## Error Handling
@@ -113,7 +74,7 @@ const result = await client.entry.public.retrieve(entryId);
 import { SdkworkCustomClient, NetworkError, TimeoutError, AuthenticationError } from 'sdkwork-community-sdk-generated-typescript';
 
 try {
-  const result = await client.category.public.list();
+  const result = await client.community.categories.public.list();
 } catch (error) {
   if (error instanceof AuthenticationError) {
     console.error('Authentication failed:', error.message);

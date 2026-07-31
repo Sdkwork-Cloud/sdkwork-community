@@ -16,6 +16,20 @@
   },
   "dependencies": [
     {
+      "id": "sdkwork-appbase",
+      "repository": "Sdkwork-Cloud/sdkwork-appbase",
+      "ref": "main",
+      "refInput": "SDKWORK_APPBASE_REF",
+      "tokenSecret": "SDKWORK_RELEASE_TOKEN"
+    },
+    {
+      "id": "sdkwork-core",
+      "repository": "Sdkwork-Cloud/sdkwork-core",
+      "ref": "main",
+      "refInput": "SDKWORK_CORE_REF",
+      "tokenSecret": "SDKWORK_RELEASE_TOKEN"
+    },
+    {
       "id": "sdkwork-web-framework",
       "repository": "Sdkwork-Cloud/sdkwork-web-framework",
       "ref": "main",
@@ -51,6 +65,13 @@
       "tokenSecret": "SDKWORK_RELEASE_TOKEN"
     },
     {
+      "id": "sdkwork-sdk-commons",
+      "repository": "Sdkwork-Cloud/sdkwork-sdk-commons",
+      "ref": "main",
+      "refInput": "SDKWORK_SDK_COMMONS_REF",
+      "tokenSecret": "SDKWORK_RELEASE_TOKEN"
+    },
+    {
       "id": "sdkwork-ui",
       "repository": "Sdkwork-Cloud/sdkwork-ui",
       "ref": "main",
@@ -62,6 +83,13 @@
       "repository": "Sdkwork-Cloud/sdkwork-specs",
       "ref": "main",
       "refInput": "SDKWORK_SPECS_REF",
+      "tokenSecret": "SDKWORK_RELEASE_TOKEN"
+    },
+    {
+      "id": "sdkwork-app-topology",
+      "repository": "Sdkwork-Cloud/sdkwork-app-topology",
+      "ref": "main",
+      "refInput": "SDKWORK_APP_TOPOLOGY_REF",
       "tokenSecret": "SDKWORK_RELEASE_TOKEN"
     }
   ],
@@ -87,9 +115,9 @@
     ],
     "package": [
       {
-        "name": "Build release gateway binary",
+        "name": "Build selected Community server artifact",
         "shell": "pwsh",
-        "run": "cargo build --release -p sdkwork-api-community-standalone-gateway"
+        "run": "if ($env:SDKWORK_DEPLOYMENT_PROFILE -eq 'standalone') { cargo build --release -p sdkwork-api-community-standalone-gateway } else { cargo check -p sdkwork-api-community-assembly }"
       }
     ],
     "validate": [
@@ -109,8 +137,26 @@
       "formats": ["tar.gz"],
       "runner": "ubuntu-24.04",
       "outputGlobs": ["target/release/sdkwork-api-community-standalone-gateway"],
+      "profileBinding": "fixed",
       "deploymentProfile": "standalone",
       "runtimeTarget": "server"
+    },
+    {
+      "id": "linux-x64-cloud-server-assembly-tar-gz",
+      "profile": "server",
+      "platform": "linux",
+      "architecture": "x64",
+      "formats": ["tar.gz"],
+      "runner": "ubuntu-24.04",
+      "outputGlobs": [
+        "crates/sdkwork-api-community-assembly/Cargo.toml",
+        "crates/sdkwork-api-community-assembly/src/**/*.rs",
+        "crates/sdkwork-api-community-assembly/specs/**"
+      ],
+      "profileBinding": "fixed",
+      "deploymentProfile": "cloud",
+      "runtimeTarget": "server",
+      "variant": "assembly"
     }
   ],
   "security": {

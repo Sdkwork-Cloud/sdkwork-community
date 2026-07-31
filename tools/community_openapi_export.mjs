@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -18,6 +18,14 @@ const apiAuthorityTargets = [
 ];
 const OWNER = "sdkwork-community";
 const DOMAIN = "community";
+const HTTP_METHODS = new Set(["delete", "get", "patch", "post", "put"]);
+const iamModuleManifest = JSON.parse(readFileSync(
+  path.join(workspaceRoot, "specs", "iam.module.manifest.json"),
+  "utf8",
+));
+const permissionCatalog = new Set(
+  (iamModuleManifest.permissions?.catalog ?? []).map((entry) => entry.code),
+);
 
 const domainSchemas = {
   CommunityCategory: {
@@ -240,11 +248,11 @@ function envelopeSchemaRef(method, operationId) {
 }
 
 function pathParam(name) {
-  const document = {
+  return {
     name,
     in: "path",
     required: true,
-    schema: { type: "string" },
+    schema: { type: "string", minLength: 1 },
   };
 }
 
@@ -269,7 +277,7 @@ function listParams() {
   ];
 }
 
-function route(method, pathKey, operationId, usesApiKey, parameters = [], bodySchemaName = null) {
+function route(method, pathKey, operationId, isPublic, parameters = [], bodySchemaName = null) {
   const apiSurface = pathKey.startsWith("/community/v3/api")
     ? "open-api"
     : pathKey.startsWith("/backend/v3/api")
@@ -305,12 +313,13 @@ function route(method, pathKey, operationId, usesApiKey, parameters = [], bodySc
         400: problemResponse(),
         401: problemResponse(),
       },
-      security: usesApiKey ? [{ ApiKey: [] }] : [{ AuthToken: [], AccessToken: [] }],
+      security: isPublic ? [] : [{ AuthToken: [], AccessToken: [] }],
       "x-sdkwork-owner": OWNER,
       "x-sdkwork-api-authority": "",
       "x-sdkwork-domain": DOMAIN,
       "x-sdkwork-resource": operationId.split(".")[0],
-      "x-sdkwork-public": usesApiKey,
+      "x-sdkwork-public": isPublic,
+      "x-sdkwork-auth-mode": isPublic ? "anonymous" : "dual-token",
       "x-sdkwork-request-context": "WebRequestContext",
       "x-sdkwork-api-surface": apiSurface,
       "x-sdkwork-standard-profile": "sdkwork-v3",
@@ -348,23 +357,30 @@ function documentFor({ authority, routes, serverUrl, title }) {
     tags: [{ name: "community", description: "Community API resources.", "x-sdk-nested-resource-surface": true }],
     paths,
     components: {
-      securitySchemes: {
-        AuthToken: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-        AccessToken: {
-          type: "apiKey",
-          in: "header",
-          name: "Access-Token",
-        },
-        ApiKey: {
-          type: "apiKey",
-          in: "header",
-          name: "X-API-Key",
-        },
-      },
+      ...(routes.some((item) => !item.operation["x-sdkwork-public"])
+        ? {
+          securitySchemes: {
+            AuthToken: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+            AccessToken: {
+              type: "apiKey",
+              in: "header",
+              name: "Access-Token",
+            },
+          },
+        }
+        : {
+          securitySchemes: {
+            ApiKey: {
+              type: "apiKey",
+              in: "header",
+              name: "X-API-Key",
+            },
+          },
+        }),
       schemas,
     },
     "x-sdkwork-owner": OWNER,
@@ -372,7 +388,53 @@ function documentFor({ authority, routes, serverUrl, title }) {
     "x-sdkwork-domain": DOMAIN,
     "x-sdkwork-standard-profile": "sdkwork-v3",
   };
-  return alignOpenApiOperationPatterns(document).document;
+  return applyPermissionContract(
+    alignOpenApiOperationPatterns(document).document,
+    authority,
+  );
+}
+
+function applyPermissionContract(document, authority) {
+  const authorityContract = (iamModuleManifest.permissions?.openapiAuthorities ?? [])
+    .find((entry) => entry.apiAuthority === authority);
+  const permissionsByOperation = new Map();
+  for (const mapping of authorityContract?.operationPermissions ?? []) {
+    if (permissionsByOperation.has(mapping.operationId)) {
+      throw new Error(`${authority} duplicates permission mapping for ${mapping.operationId}`);
+    }
+    if (!permissionCatalog.has(mapping.permission)) {
+      throw new Error(`${authority} maps ${mapping.operationId} to unknown permission ${mapping.permission}`);
+    }
+    permissionsByOperation.set(mapping.operationId, mapping.permission);
+  }
+
+  const seenOperations = new Set();
+  for (const pathItem of Object.values(document.paths ?? {})) {
+    for (const [method, operation] of Object.entries(pathItem ?? {})) {
+      if (!HTTP_METHODS.has(method)) {
+        continue;
+      }
+      const permission = permissionsByOperation.get(operation.operationId);
+      if (operation["x-sdkwork-public"] === true) {
+        if (permission) {
+          throw new Error(`${authority} public operation ${operation.operationId} must not require ${permission}`);
+        }
+        continue;
+      }
+      if (!permission) {
+        throw new Error(`${authority} protected operation ${operation.operationId} lacks an IAM permission mapping`);
+      }
+      operation["x-sdkwork-permission"] = permission;
+      seenOperations.add(operation.operationId);
+    }
+  }
+
+  for (const operationId of permissionsByOperation.keys()) {
+    if (!seenOperations.has(operationId)) {
+      throw new Error(`${authority} permission mapping references missing operation ${operationId}`);
+    }
+  }
+  return document;
 }
 
 function parseArgs(argv) {
@@ -383,9 +445,9 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const docs = [
-  ["community-open-api.openapi.json", documentFor({ authority: "sdkwork-community.open", routes: openRoutes, serverUrl: "http://127.0.0.1:18082", title: "SDKWork Community Open API" })],
-  ["community-app-api.openapi.json", documentFor({ authority: "sdkwork-community.app", routes: appRoutes, serverUrl: "http://127.0.0.1:18080", title: "SDKWork Community App API" })],
-  ["community-backend-api.openapi.json", documentFor({ authority: "sdkwork-community.backend", routes: backendRoutes, serverUrl: "http://127.0.0.1:18080", title: "SDKWork Community Backend API" })],
+  ["community-open-api.openapi.json", documentFor({ authority: "sdkwork-community-open-api", routes: openRoutes, serverUrl: "http://127.0.0.1:18082", title: "SDKWork Community Open API" })],
+  ["community-app-api.openapi.json", documentFor({ authority: "sdkwork-community-app-api", routes: appRoutes, serverUrl: "http://127.0.0.1:18080", title: "SDKWork Community App API" })],
+  ["community-backend-api.openapi.json", documentFor({ authority: "sdkwork-community-backend-api", routes: backendRoutes, serverUrl: "http://127.0.0.1:18080", title: "SDKWork Community Backend API" })],
 ];
 
 if (!args.check) {

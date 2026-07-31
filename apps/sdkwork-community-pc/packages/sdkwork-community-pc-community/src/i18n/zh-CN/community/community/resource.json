@@ -1,0 +1,15 @@
+{
+  "category": "资源分类",
+  "allFiles": "全部文件",
+  "docs": "文档",
+  "images": "图片",
+  "videos": "视频",
+  "others": "其他",
+  "searchPlaceholder": "在当前分类中搜索文件...",
+  "upload": "上传资料",
+  "noFiles": "未找到匹配的文件",
+  "totalFiles": "共 {{count}} 个文件",
+  "uploadedBy": "{{uploader}} 上传于 {{time}}",
+  "prev": "上一页",
+  "next": "下一页"
+}

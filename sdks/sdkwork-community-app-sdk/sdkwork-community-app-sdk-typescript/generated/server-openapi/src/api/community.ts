@@ -13,12 +13,12 @@ export class CommunityCommentsApi {
 
 
 /** Community comments.list */
-  async list(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+  async list(entryId: string, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     return this.client.request<SdkWorkPageData>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/comments`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 
 /** Community comments.create */
-  async create(entryId: string | number, body: CommunityCommentCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async create(entryId: string, body: CommunityCommentCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/comments`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
@@ -32,7 +32,7 @@ export class CommunityReactionsApi {
 
 
 /** Community reactions.set */
-  async create(entryId: string | number, body: CommunityReactionCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async create(entryId: string, body: CommunityReactionCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/reactions`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
@@ -46,7 +46,7 @@ export class CommunityEntriesPublicationReadinessApi {
 
 
 /** Community entries.publicationReadiness.retrieve */
-  async retrieve(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async retrieve(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/publication_readiness`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 }
@@ -60,7 +60,7 @@ export class CommunityEntriesRecommendationsApi {
 
 
 /** Community entries.recommendations.list */
-  async list(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+  async list(entryId: string, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     return this.client.request<SdkWorkPageData>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/recommendations`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
   }
 }
@@ -78,17 +78,17 @@ export class CommunityEntriesApi {
 
 
 /** Community entries.retrieve */
-  async retrieve(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async retrieve(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Community entries.update */
-  async update(entryId: string | number, body: CommunityEntryCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async update(entryId: string, body: CommunityEntryCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Community entries.delete */
-  async delete(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<void> {
+  async delete(entryId: string, requestOptions?: ApiRequestOptions): Promise<void> {
     return this.client.request<void>(appApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
   }
 

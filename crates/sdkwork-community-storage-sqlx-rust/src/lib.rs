@@ -1,7 +1,8 @@
 mod bootstrap;
 mod community_sqlx_store;
 mod postgres_queries;
-mod sqlite_queries;
+#[cfg(feature = "test-support")]
+mod postgres_test_support;
 
 pub use bootstrap::{
     bootstrap_community_database, bootstrap_community_database_from_env,
@@ -12,6 +13,8 @@ pub use community_sqlx_store::{
     CommunityCategoryPatch, CommunityEntryPatch, CommunityFeedQuery, CommunityModerationPatch,
     CommunitySqlxStore,
 };
+#[cfg(feature = "test-support")]
+pub use postgres_test_support::PostgresTestDatabase;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CommunityRepositoryBinding {
@@ -190,7 +193,7 @@ pub fn community_migration_names() -> Vec<&'static str> {
 }
 
 pub fn community_initial_migration_sql() -> &'static str {
-    include_str!("../../../tests/fixtures/database/sqlite/ddl/baseline/0001_community_baseline.sql")
+    include_str!("../../../database/ddl/baseline/postgres/0001_community_baseline.sql")
 }
 
 pub fn community_migration_plan() -> Vec<CommunityStorageMigration> {
@@ -198,7 +201,7 @@ pub fn community_migration_plan() -> Vec<CommunityStorageMigration> {
         1,
         "0001_community_baseline.sql",
         "community",
-        "tests/fixtures/database/sqlite/ddl/baseline/0001_community_baseline.sql",
+        "database/ddl/baseline/postgres/0001_community_baseline.sql",
         community_initial_migration_sql(),
         community_database_tables(),
     )]

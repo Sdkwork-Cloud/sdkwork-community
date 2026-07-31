@@ -1,38 +1,118 @@
 {
-  "name": "sdkwork-community-h5",
-  "version": "0.1.0",
-  "description": "SDKWork Community H5 Application",
+  "schemaVersion": 3,
+  "kind": "sdkwork.app",
+  "app": {
+    "key": "sdkwork-community-h5",
+    "name": "SDKWork Community H5",
+    "displayName": "SDKWork Community H5",
+    "description": "SDKWork Community React H5 client.",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-community",
+    "appType": "APP_REACT",
+    "versionSource": "package.json",
+    "identifiers": {
+      "packageName": "com.sdkwork.community.h5",
+      "bundleId": "com.sdkwork.community.h5"
+    }
+  },
+  "backend": {
+    "profileKey": "backend-root-admin",
+    "ownerMode": "tenant",
+    "grantMode": "current",
+    "platform": "H5",
+    "appId": "sdkwork-community",
+    "organizationId": "0",
+    "tenantId": "100001",
+    "accessTokenPermissionScope": [
+      "community.categories.read",
+      "community.entries.read",
+      "community.entries.write",
+      "community.comments.read",
+      "community.comments.write",
+      "community.reactions.write",
+      "community.recommendations.read"
+    ]
+  },
   "runtime": {
     "family": "mobile",
     "framework": "react-h5",
     "runtimes": [
-      "WEB",
-      "CAPACITOR_IOS",
-      "CAPACITOR_ANDROID"
+      "H5"
     ],
+    "deliveryModes": [
+      "WEB_URL"
+    ],
+    "defaultPlatform": "H5",
+    "defaultArchitecture": "universal",
     "supportedDeploymentProfiles": [
-      "cloud",
-      "standalone"
+      "standalone",
+      "cloud"
     ],
-    "defaultDeploymentProfile": "cloud"
+    "defaultDeploymentProfile": "standalone"
+  },
+  "media": {
+    "icons": {
+      "primary": {
+        "id": "sdkwork-community-h5-primary-icon",
+        "type": "ICON",
+        "purpose": "PRIMARY",
+        "platform": "H5",
+        "format": "PNG",
+        "width": 1024,
+        "height": 1024,
+        "enabled": false,
+        "resource": {
+          "kind": "catalog-media-deferred"
+        }
+      },
+      "platform": []
+    },
+    "screenshots": [],
+    "previews": []
   },
   "publish": {
+    "status": "DRAFT",
     "platforms": [
-      "H5",
-      "H5_WEIXIN",
-      "APP_IOS",
-      "APP_ANDROID"
-    ]
-  },
-  "app": {
-    "identifiers": {
-      "bundleId": "com.sdkwork.community.h5",
-      "packageName": "com.sdkwork.community.h5"
-    }
+      "H5"
+    ],
+    "installPlatforms": [
+      "H5"
+    ],
+    "installSkill": false
   },
   "artifacts": {
     "installConfig": {
-      "packages": []
+      "packages": [],
+      "metadata": {
+        "workspaceRoot": "apps/sdkwork-community-h5",
+        "framework": "react-h5",
+        "packageManager": "pnpm"
+      }
     }
+  },
+  "release": {
+    "currentVersion": "0.1.0",
+    "defaultChannel": "BETA",
+    "latest": {
+      "BETA": "0.1.0"
+    },
+    "notes": [
+      {
+        "version": "0.1.0",
+        "channel": "BETA",
+        "current": true,
+        "summary": "Initial SDKWork App Standard v3 Community H5 declaration.",
+        "packageIds": []
+      }
+    ]
+  },
+  "security": {
+    "checksumRequired": true,
+    "signatureRequired": true,
+    "sbomRequired": true
+  },
+  "metadata": {
+    "standardOwner": "sdkwork-community",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json",
+    "releaseAuthority": "../../sdkwork.workflow.json"
   }
 }

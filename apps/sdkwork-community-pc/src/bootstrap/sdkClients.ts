@@ -5,7 +5,7 @@ import {
 } from '@sdkwork/community-pc-core/sdk';
 import { createGeneratedCommunityAppSdkPort } from '@sdkwork/community-runtime';
 import type { SdkworkCommunityAppSdkPort } from '@sdkwork/community-sdk-ports';
-import { createIamRuntime } from './iamRuntime';
+import type { AuthTokenManager } from '@sdkwork/sdk-common';
 
 export interface SdkClients {
   appApiBaseUrl: string;
@@ -14,14 +14,13 @@ export interface SdkClients {
   communityAppSdkPort: SdkworkCommunityAppSdkPort;
 }
 
-export function createSdkClients(): SdkClients {
+export function createSdkClients(tokenManager: AuthTokenManager): SdkClients {
   const env = getEnvironment();
-  const iam = createIamRuntime();
   const communityAppSdk = createCommunityAppSdkClient({
     config: {
       appApiBaseUrl: env.appApiBaseUrl,
     },
-    tokenManager: iam.tokenManager as never,
+    tokenManager,
   });
 
   return {

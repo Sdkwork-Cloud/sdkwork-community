@@ -52,7 +52,7 @@ export class CommunityEntriesModerationApi {
 
 
 /** Community entries.moderation.update */
-  async create(entryId: string | number, body: CommunityModerationCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async create(entryId: string, body: CommunityModerationCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/moderation`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
@@ -103,17 +103,17 @@ export class CommunityEntriesApi {
 
 
 /** Community entries.feature */
-  async feature(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async feature(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/feature`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Community entries.pin */
-  async pin(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async pin(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/pin`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Community entries.delete */
-  async delete(entryId: string | number, requestOptions?: ApiRequestOptions): Promise<void> {
+  async delete(entryId: string, requestOptions?: ApiRequestOptions): Promise<void> {
     return this.client.request<void>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
   }
 }
@@ -148,12 +148,12 @@ export class CommunityCategoriesApi {
   }
 
 /** Community categories.update */
-  async update(categoryId: string | number, body: CommunityCategoryCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+  async update(categoryId: string, body: CommunityCategoryCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(backendApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Community categories.delete */
-  async delete(categoryId: string | number, requestOptions?: ApiRequestOptions): Promise<void> {
+  async delete(categoryId: string, requestOptions?: ApiRequestOptions): Promise<void> {
     return this.client.request<void>(backendApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
   }
 }

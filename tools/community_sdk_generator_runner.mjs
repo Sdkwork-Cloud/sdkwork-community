@@ -120,7 +120,7 @@ function operations(document) {
 }
 
 function standardProfileFor(family) {
-  return family.standardProfile ?? (family.sdkType === "custom" ? null : STANDARD_PROFILE);
+  return family.standardProfile ?? STANDARD_PROFILE;
 }
 
 function writeSdkManifest({ family, inputPath, baseUrl, languages }) {

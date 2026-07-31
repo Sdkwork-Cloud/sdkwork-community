@@ -17,6 +17,9 @@
   "dependencies": {
     "@sdkwork/sdk-common": "workspace:*"
   },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

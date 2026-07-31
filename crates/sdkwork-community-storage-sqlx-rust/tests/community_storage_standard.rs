@@ -1,28 +1,28 @@
+#[cfg(feature = "test-support")]
 use sdkwork_community_storage_sqlx::{
-    community_database_tables, community_initial_migration_sql, community_migration_names,
-    community_storage_capability_manifest, CommunityFeedQuery, CommunityModerationPatch,
-    CommunitySqlxStore, NewCommunityCategory, NewCommunityEntry,
+    bootstrap_community_database, CommunityFeedQuery, CommunityModerationPatch, CommunitySqlxStore,
+    NewCommunityCategory, NewCommunityEntry, PostgresTestDatabase,
 };
-use sdkwork_database_config::{DatabaseConfig, DatabaseEngine};
-use sdkwork_database_sqlx::{DatabasePool, PoolContext};
-use sqlx::sqlite::SqlitePoolOptions;
+use sdkwork_community_storage_sqlx::{
+    community_database_tables, community_migration_names, community_storage_capability_manifest,
+};
 
-async fn sqlite_memory_store() -> CommunitySqlxStore {
-    let pool = SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
+#[cfg(feature = "test-support")]
+async fn postgres_store() -> Option<(PostgresTestDatabase, CommunitySqlxStore)> {
+    let Some(database) = PostgresTestDatabase::from_env()
         .await
-        .expect("sqlite pool");
-    sqlx::raw_sql(community_initial_migration_sql())
-        .execute(&pool)
-        .await
-        .expect("community migration");
-    let config = DatabaseConfig {
-        engine: DatabaseEngine::Sqlite,
-        url: "sqlite::memory:".to_owned(),
-        ..Default::default()
+        .expect("create isolated PostgreSQL test database")
+    else {
+        eprintln!(
+            "skipping Community PostgreSQL repository test; set SDKWORK_DATABASE_TEST_POSTGRES_URL"
+        );
+        return None;
     };
-    CommunitySqlxStore::new(DatabasePool::Sqlite(pool, PoolContext { config }))
+    let host = bootstrap_community_database(database.pool())
+        .await
+        .expect("bootstrap Community PostgreSQL schema");
+    let store = CommunitySqlxStore::new(host.pool().clone());
+    Some((database, store))
 }
 
 #[test]
@@ -85,8 +85,11 @@ fn community_storage_repositories_bind_to_community_tables() {
 }
 
 #[tokio::test]
+#[cfg(feature = "test-support")]
 async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
-    let store = sqlite_memory_store().await;
+    let Some((database, store)) = postgres_store().await else {
+        return;
+    };
 
     store
         .create_category(NewCommunityCategory {
@@ -229,13 +232,20 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
             .body_markdown,
         "Community SDK body",
     );
+    database
+        .close()
+        .await
+        .expect("clean isolated PostgreSQL test schema");
 }
 
 #[tokio::test]
+#[cfg(feature = "test-support")]
 async fn community_sqlx_store_sets_and_unsets_reactions() {
     use sdkwork_community_storage_sqlx::SetCommunityReaction;
 
-    let store = sqlite_memory_store().await;
+    let Some((database, store)) = postgres_store().await else {
+        return;
+    };
 
     store
         .create_category(NewCommunityCategory {
@@ -310,4 +320,8 @@ async fn community_sqlx_store_sets_and_unsets_reactions() {
         .await
         .expect("unset reaction");
     assert_eq!(unliked, 0);
+    database
+        .close()
+        .await
+        .expect("clean isolated PostgreSQL test schema");
 }

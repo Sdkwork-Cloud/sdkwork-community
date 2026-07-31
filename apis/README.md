@@ -17,9 +17,9 @@ apis/
 
 | Surface | Prefix | Authority |
 |---------|--------|-----------|
-| Open API | `/community/v3/api` | `sdkwork-community.open` |
-| App API | `/app/v3/api/community` | `sdkwork-community.app` |
-| Backend API | `/backend/v3/api/community` | `sdkwork-community.backend` |
+| Open API | `/community/v3/api` | `sdkwork-community-open-api` |
+| App API | `/app/v3/api/community` | `sdkwork-community-app-api` |
+| Backend API | `/backend/v3/api/community` | `sdkwork-community-backend-api` |
 
 ## Standards
 

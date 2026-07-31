@@ -24,6 +24,12 @@ impl CommunityDatabaseHost {
 pub async fn bootstrap_community_database(
     pool: DatabasePool,
 ) -> Result<CommunityDatabaseHost, String> {
+    if pool.as_postgres().is_none() {
+        return Err(
+            "community authoritative-server database requires PostgreSQL; SQLite is client-local only"
+                .to_owned(),
+        );
+    }
     let app_root = resolve_app_root();
     let module = Arc::new(
         DefaultDatabaseModule::from_app_root(&app_root)

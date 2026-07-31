@@ -4,7 +4,7 @@
     "title": "SDKWork Community Backend API",
     "version": "1.0.0",
     "x-sdkwork-owner": "sdkwork-community",
-    "x-sdkwork-api-authority": "sdkwork-community.backend"
+    "x-sdkwork-api-authority": "sdkwork-community-backend-api"
   },
   "servers": [
     {
@@ -66,13 +66,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.categories.read"
       },
       "post": {
         "tags": [
@@ -130,13 +132,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.categories.manage"
       }
     },
     "/backend/v3/api/community/categories/{categoryId}": {
@@ -147,7 +151,15 @@
         "summary": "Community categories.update",
         "operationId": "categories.update",
         "parameters": [
-          null
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -198,13 +210,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.categories.manage"
       },
       "delete": {
         "tags": [
@@ -213,7 +227,15 @@
         "summary": "Community categories.delete",
         "operationId": "categories.delete",
         "parameters": [
-          null
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "responses": {
           "204": {
@@ -247,13 +269,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "categories",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.categories.manage"
       }
     },
     "/backend/v3/api/community/entries": {
@@ -365,13 +389,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.moderation.read"
       }
     },
     "/backend/v3/api/community/entries/{entryId}/moderation": {
@@ -382,7 +408,15 @@
         "summary": "Community entries.moderation.update",
         "operationId": "entries.moderation.create",
         "parameters": [
-          null
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "requestBody": {
           "required": true,
@@ -433,13 +467,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.moderation.manage"
       }
     },
     "/backend/v3/api/community/entries/{entryId}/feature": {
@@ -450,7 +486,15 @@
         "summary": "Community entries.feature",
         "operationId": "entries.feature",
         "parameters": [
-          null
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -491,13 +535,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.moderation.manage"
       }
     },
     "/backend/v3/api/community/entries/{entryId}/pin": {
@@ -508,7 +554,15 @@
         "summary": "Community entries.pin",
         "operationId": "entries.pin",
         "parameters": [
-          null
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -549,13 +603,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.moderation.manage"
       }
     },
     "/backend/v3/api/community/entries/{entryId}": {
@@ -566,7 +622,15 @@
         "summary": "Community entries.delete",
         "operationId": "entries.delete",
         "parameters": [
-          null
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         ],
         "responses": {
           "204": {
@@ -600,13 +664,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "entries",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.moderation.manage"
       }
     },
     "/backend/v3/api/community/moderation/queue": {
@@ -656,13 +722,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "moderation",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.moderation.read"
       }
     },
     "/backend/v3/api/community/recommendations/rebuild": {
@@ -712,13 +780,15 @@
           }
         ],
         "x-sdkwork-owner": "sdkwork-community",
-        "x-sdkwork-api-authority": "sdkwork-community.backend",
+        "x-sdkwork-api-authority": "sdkwork-community-backend-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "recommendations",
         "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "backend-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.recommendations.manage"
       }
     }
   },
@@ -733,11 +803,6 @@
         "type": "apiKey",
         "in": "header",
         "name": "Access-Token"
-      },
-      "ApiKey": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key"
       }
     },
     "schemas": {
@@ -1388,7 +1453,7 @@
     }
   },
   "x-sdkwork-owner": "sdkwork-community",
-  "x-sdkwork-api-authority": "sdkwork-community.backend",
+  "x-sdkwork-api-authority": "sdkwork-community-backend-api",
   "x-sdkwork-domain": "community",
   "x-sdkwork-standard-profile": "sdkwork-v3"
 }

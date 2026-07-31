@@ -52,6 +52,9 @@
       "@sdkwork/community-h5-community": [
         "apps/sdkwork-community-h5/packages/sdkwork-community-h5-community/src/index.ts"
       ],
+      "@sdkwork/community-mobile-react-community": [
+        "apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src/index.ts"
+      ],
       "@sdkwork/sdk-common": [
         "../sdkwork-sdk-commons/sdkwork-sdk-common-typescript/src/index.ts"
       ],

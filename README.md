@@ -2,7 +2,7 @@
 
 repository-kind: application
 
-`sdkwork-community` is the owner workspace for SDKWork community capabilities: domain contracts, OpenAPI authorities, generated SDK families, TypeScript runtime layers, multi-client application roots, Rust HTTP services, and PostgreSQL/SQLite persistence through `sdkwork-database`.
+`sdkwork-community` is the owner workspace for SDKWork community capabilities: domain contracts, OpenAPI authorities, generated SDK families, TypeScript runtime layers, multi-client application roots, Rust HTTP services, and PostgreSQL authoritative persistence through `sdkwork-database`.
 
 The workspace is independent from `sdkwork-appbase`. Community source, database assets, API definitions, and SDK generation are owned here.
 
@@ -19,9 +19,9 @@ The workspace is independent from `sdkwork-appbase`. Community source, database 
 
 | Surface | Prefix | Authority | Operations |
 | --- | --- | --- | --- |
-| Open API | `/community/v3/api` | `sdkwork-community.open` | 4 |
-| App API | `/app/v3/api/community` | `sdkwork-community.app` | 9 |
-| Backend API | `/backend/v3/api/community` | `sdkwork-community.backend` | 11 |
+| Open API | `/community/v3/api` | `sdkwork-community-open-api` | 4 |
+| App API | `/app/v3/api/community` | `sdkwork-community-app-api` | 11 |
+| Backend API | `/backend/v3/api/community` | `sdkwork-community-backend-api` | 11 |
 
 All HTTP surfaces use the SDKWork v3 envelope (`SdkWorkApiResponse` + numeric `ProblemDetail`) and are served through `sdkwork-web-framework` route crates.
 
@@ -37,9 +37,9 @@ Authority copies live under `apis/{open-api,app-api,backend-api}/community/opena
 
 | SDK family | API authority | Operations |
 | --- | --- | --- |
-| `sdks/sdkwork-community-sdk` | `sdkwork-community.open` | 4 |
-| `sdks/sdkwork-community-app-sdk` | `sdkwork-community.app` | 9 |
-| `sdks/sdkwork-community-backend-sdk` | `sdkwork-community.backend` | 11 |
+| `sdks/sdkwork-community-sdk` | `sdkwork-community-open-api` | 4 |
+| `sdks/sdkwork-community-app-sdk` | `sdkwork-community-app-api` | 11 |
+| `sdks/sdkwork-community-backend-sdk` | `sdkwork-community-backend-api` | 11 |
 
 PC and H5 application roots consume `sdkwork-community-app-sdk` through `@sdkwork/community-runtime`.
 
@@ -67,7 +67,7 @@ PC application package:
 | --- | --- |
 | `sdkwork-community-core-rust` | Domain model and publication readiness |
 | `sdkwork-community-http-rust` | Canonical route catalog metadata |
-| `sdkwork-community-storage-sqlx-rust` | SQLx repositories (PostgreSQL + SQLite) |
+| `sdkwork-community-storage-sqlx-rust` | PostgreSQL SQLx repositories |
 | `sdkwork-community-database-host` | `sdkwork-database` lifecycle bootstrap |
 | `sdkwork-community-service` | Business use-cases |
 | `sdkwork-routes-community-{open,app,backend}-api` | Axum routers on `sdkwork-web-framework` |
@@ -100,7 +100,7 @@ tools/                        # OpenAPI export and SDK generation
 
 - Node.js with `pnpm@10.33.0`
 - Rust toolchain with `cargo`
-- PostgreSQL for production-style local development (SQLite supported for tests)
+- PostgreSQL for authoritative runtime and integration testing
 
 ## Install
 

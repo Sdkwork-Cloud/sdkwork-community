@@ -1,19 +1,8 @@
 version: 1
-defaultProfile: standalone.unified-process.development
+defaultProfile: standalone.production
 
 profiles:
-  standalone.unified-process.development:
-    expose:
-      - domain: localhost
-        tls: off
-        mode: api
-    packages: []
-
-  standalone.unified-process.production:
+  standalone.production:
     install:
       layout: binary-package
-    expose:
-      - domain: localhost
-        tls: off
-        mode: api
     packages: []

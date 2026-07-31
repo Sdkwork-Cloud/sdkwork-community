@@ -85,9 +85,9 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
   assert.equal(pcPackage.sdkwork.workspace, "sdkwork-community");
 
   for (const [family, authority] of [
-    ["sdks/sdkwork-community-sdk", "sdkwork-community.open"],
-    ["sdks/sdkwork-community-app-sdk", "sdkwork-community.app"],
-    ["sdks/sdkwork-community-backend-sdk", "sdkwork-community.backend"],
+    ["sdks/sdkwork-community-sdk", "sdkwork-community-open-api"],
+    ["sdks/sdkwork-community-app-sdk", "sdkwork-community-app-api"],
+    ["sdks/sdkwork-community-backend-sdk", "sdkwork-community-backend-api"],
   ]) {
     const manifest = readJson(`${family}/sdk-manifest.json`);
     const spec = readJson(`${family}/specs/component.spec.json`);

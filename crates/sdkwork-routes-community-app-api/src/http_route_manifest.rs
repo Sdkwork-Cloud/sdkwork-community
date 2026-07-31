@@ -1,0 +1,85 @@
+use sdkwork_web_core::{HttpMethod, HttpRoute, HttpRouteManifest};
+
+const ROUTES: &[HttpRoute] = &[
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/categories",
+        "community",
+        "categories.list",
+    )
+    .with_required_permission("community.categories.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/feed",
+        "community",
+        "feed.list",
+    )
+    .with_required_permission("community.entries.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/entries",
+        "community",
+        "entries.create",
+    )
+    .with_required_permission("community.entries.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/entries/{entryId}",
+        "community",
+        "entries.retrieve",
+    )
+    .with_required_permission("community.entries.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/app/v3/api/community/entries/{entryId}",
+        "community",
+        "entries.update",
+    )
+    .with_required_permission("community.entries.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/community/entries/{entryId}",
+        "community",
+        "entries.delete",
+    )
+    .with_required_permission("community.entries.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/entries/{entryId}/recommendations",
+        "community",
+        "entries.recommendations.list",
+    )
+    .with_required_permission("community.recommendations.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/entries/{entryId}/publication_readiness",
+        "community",
+        "entries.publicationReadiness.retrieve",
+    )
+    .with_required_permission("community.entries.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/entries/{entryId}/reactions",
+        "community",
+        "reactions.create",
+    )
+    .with_required_permission("community.reactions.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/entries/{entryId}/comments",
+        "community",
+        "comments.list",
+    )
+    .with_required_permission("community.comments.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/entries/{entryId}/comments",
+        "community",
+        "comments.create",
+    )
+    .with_required_permission("community.comments.write"),
+];
+
+pub fn gateway_route_manifest() -> HttpRouteManifest {
+    HttpRouteManifest::new(ROUTES)
+}

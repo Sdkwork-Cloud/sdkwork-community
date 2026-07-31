@@ -5,15 +5,40 @@ use axum::http::response::Response;
 use axum::http::{HeaderName, Method, Request, StatusCode};
 use sdkwork_community_service::CommunityCategoryCommand;
 use sdkwork_community_service_host::CommunityServiceHost;
+use sdkwork_community_storage_sqlx::PostgresTestDatabase;
 use sdkwork_routes_community_open_api::build_open_router;
 use serde_json::Value;
 use tower::util::ServiceExt;
 
-async fn seeded_host() -> Arc<CommunityServiceHost> {
+struct SeededHost {
+    host: Arc<CommunityServiceHost>,
+    database: PostgresTestDatabase,
+}
+
+impl SeededHost {
+    async fn close(self) {
+        drop(self.host);
+        self.database
+            .close()
+            .await
+            .expect("clean isolated PostgreSQL test schema");
+    }
+}
+
+async fn seeded_host() -> Option<SeededHost> {
     std::env::set_var("COMMUNITY_DEFAULT_TENANT_ID", "100001");
-    let host = CommunityServiceHost::from_sqlite_memory()
+    let Some(database) = PostgresTestDatabase::from_env()
         .await
-        .expect("sqlite community host");
+        .expect("create isolated PostgreSQL test database")
+    else {
+        eprintln!(
+            "skipping Community PostgreSQL route test; set SDKWORK_DATABASE_TEST_POSTGRES_URL"
+        );
+        return None;
+    };
+    let host = CommunityServiceHost::from_database_pool(database.pool())
+        .await
+        .expect("PostgreSQL community host");
     host.service()
         .create_category(
             "100001",
@@ -27,7 +52,7 @@ async fn seeded_host() -> Arc<CommunityServiceHost> {
         )
         .await
         .expect("seed category");
-    host
+    Some(SeededHost { host, database })
 }
 
 #[tokio::test]
@@ -36,8 +61,10 @@ async fn open_router_mounts_every_openapi_operation_path() {
         "../../../apis/open-api/community/openapi.json"
     ))
     .expect("open api spec");
-    let host = seeded_host().await;
-    let app = build_open_router(host);
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_open_router(fixture.host.clone());
 
     for (template_path, methods) in spec["paths"].as_object().expect("paths") {
         for method_name in methods.as_object().expect("methods").keys() {
@@ -59,6 +86,8 @@ async fn open_router_mounts_every_openapi_operation_path() {
             assert_route_mounted(&response, method_name, template_path);
         }
     }
+    drop(app);
+    fixture.close().await;
 }
 
 fn assert_route_mounted(response: &Response<Body>, method: &str, path: &str) {
@@ -72,8 +101,10 @@ fn assert_route_mounted(response: &Response<Body>, method: &str, path: &str) {
 
 #[tokio::test]
 async fn open_categories_returns_sdkwork_v3_success_envelope() {
-    let host = seeded_host().await;
-    let app = build_open_router(host);
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_open_router(fixture.host.clone());
     let response = app
         .oneshot(
             Request::builder()
@@ -94,6 +125,7 @@ async fn open_categories_returns_sdkwork_v3_success_envelope() {
     assert!(payload["traceId"].is_string());
     assert!(payload["data"]["items"].is_array());
     assert_eq!(payload["data"]["pageInfo"]["mode"], "offset");
+    fixture.close().await;
 }
 
 fn method_from_openapi(method_name: &str) -> Method {

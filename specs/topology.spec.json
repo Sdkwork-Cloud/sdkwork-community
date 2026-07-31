@@ -2,8 +2,9 @@
   "schemaVersion": 5,
   "kind": "sdkwork.app.topology",
   "appId": "sdkwork-community",
+  "applicationCode": "community",
   "archetype": "application-http-gateway",
-  "profileRoot": "configs/topology",
+  "profileRoot": "etc/topology",
   "profilePattern": "{deploymentProfile}.{environment}.env",
   "vocabulary": {
     "deploymentProfile": {
@@ -21,15 +22,15 @@
   },
   "defaults": {
     "developmentProfileId": "standalone.development",
-    "productionProfileId": "cloud.production",
+    "productionProfileId": "standalone.production",
     "gatewayBind": "0.0.0.0:18094",
     "desktopBuildProfileId": "standalone.production"
   },
   "profileFiles": {
-    "standalone.development": "configs/topology/standalone.development.env",
-    "standalone.production": "configs/topology/standalone.production.env",
-    "cloud.production": "configs/topology/cloud.production.env",
-    "cloud.development": "configs/topology/cloud.development.env"
+    "standalone.development": "etc/topology/standalone.development.env",
+    "standalone.production": "etc/topology/standalone.production.env",
+    "cloud.production": "etc/topology/cloud.production.env",
+    "cloud.development": "etc/topology/cloud.development.env"
   },
   "envKeys": {
     "deploymentProfile": "SDKWORK_COMMUNITY_DEPLOYMENT_PROFILE",
@@ -57,9 +58,6 @@
       "httpUrlEnv": "SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL",
       "clientHttpEnv": "VITE_SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL"
     }
-  },
-  "database": {
-    "appPrefix": "SDKWORK_COMMUNITY"
   },
   "components": {
     "applicationServer": {
@@ -143,39 +141,12 @@
         ]
       },
       "cloud.production": {
-        "processes": [
-          {
-            "id": "application.public-ingress",
-            "crate": "sdkwork-api-community-standalone-gateway",
-            "binary": "sdkwork-api-community-standalone-gateway",
-            "required": true,
-            "role": "api-standalone-gateway"
-          }
-        ],
+        "processes": [],
         "healthSurfaces": [
           "application.public-ingress",
           "platform.api-gateway"
         ]
       }
     }
-  },
-  "packaging": {
-    "cloudConfigFiles": [],
-    "targets": [
-      {
-        "id": "container-noarch-cloud-container-config-bundle-tar-gz",
-        "profile": "container",
-        "platform": "container",
-        "architecture": "noarch",
-        "formats": [
-          "tar.gz"
-        ],
-        "runner": "ubuntu-24.04",
-        "outputGlob": "dist/cloud-config/sdkwork-community-api-gateway-config-*.tar.gz",
-        "deploymentProfile": "cloud",
-        "runtimeTarget": "container",
-        "variant": "config-bundle"
-      }
-    ]
   }
 }

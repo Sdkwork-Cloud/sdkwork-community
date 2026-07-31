@@ -68,7 +68,7 @@
   ],
   "contracts": {
     "apiAuthority": {
-      "name": "sdkwork-community.open",
+      "name": "sdkwork-community-open-api",
       "prefix": "/community/v3/api",
       "authorityOpenApi": "../../generated/openapi/community-open-api.openapi.json",
       "owner": "sdkwork-community"

@@ -3,8 +3,7 @@ import {
   configureCommunityPcHost,
   type CommunityPcAvatarProps,
 } from "@sdkwork/community-pc-community";
-import { createIamRuntime } from "./iamRuntime";
-import { createSdkClients } from "./sdkClients";
+import { getRuntime } from "./runtime";
 
 function CommunityAvatar({ alt, className, fallback, src }: CommunityPcAvatarProps) {
   if (src) {
@@ -17,14 +16,9 @@ function CommunityAvatar({ alt, className, fallback, src }: CommunityPcAvatarPro
   );
 }
 
-let sdkClients: ReturnType<typeof createSdkClients> | null = null;
-
-function getSdkClients() {
-  sdkClients ??= createSdkClients();
-  return sdkClients;
-}
-
 export function bootstrapCommunityPcHost(): void {
+  const runtime = getRuntime();
+  void runtime.initialize();
   configureCommunityPcHost({
     Avatar: CommunityAvatar as ComponentType<CommunityPcAvatarProps>,
     toast(message, variant = "info") {
@@ -35,12 +29,12 @@ export function bootstrapCommunityPcHost(): void {
       console.info(message);
     },
     readSessionTokens() {
-      const token = createIamRuntime().tokenManager.getToken();
-      if (!token) {
+      const user = runtime.getCurrentUser();
+      if (!user) {
         return null;
       }
-      return { user: { name: "Community User" } };
+      return { user };
     },
-    createAppSdkPort: () => getSdkClients().communityAppSdkPort,
+    createAppSdkPort: () => runtime.sdkClients.communityAppSdkPort,
   });
 }

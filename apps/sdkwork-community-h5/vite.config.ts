@@ -5,18 +5,21 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, path.dirname(fileURLToPath(import.meta.url)), '');
+  const bootstrapAccessToken = mode === 'development'
+    ? process.env.SDKWORK_ACCESS_TOKEN ?? env.SDKWORK_ACCESS_TOKEN ?? ''
+    : '';
   return {
     define: {
-      'process.env.SDKWORK_ACCESS_TOKEN': JSON.stringify(env.SDKWORK_ACCESS_TOKEN ?? ''),
+      'process.env.SDKWORK_ACCESS_TOKEN': JSON.stringify(bootstrapAccessToken),
     },
-          plugins: [react()],
-  server: {
-    port: 3000,
-    host: true
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true
-  }
+    plugins: [react()],
+    server: {
+      port: 3000,
+      host: true
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: true
+    }
   };
 });

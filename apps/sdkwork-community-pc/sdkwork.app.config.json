@@ -1,33 +1,118 @@
 {
-  "name": "sdkwork-community-pc",
-  "version": "0.1.0",
-  "description": "SDKWork Community PC Application",
-  "runtime": {
-    "family": "pc",
-    "framework": "react-pc",
-    "supportedDeploymentProfiles": [
-      "cloud",
-      "standalone"
-    ],
-    "defaultDeploymentProfile": "cloud"
+  "schemaVersion": 3,
+  "kind": "sdkwork.app",
+  "app": {
+    "key": "sdkwork-community-pc",
+    "name": "SDKWork Community PC",
+    "displayName": "SDKWork Community",
+    "description": "SDKWork Community React web client.",
+    "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-community",
+    "appType": "APP_REACT",
+    "versionSource": "package.json",
+    "identifiers": {
+      "packageName": "com.sdkwork.community.pc",
+      "bundleId": "com.sdkwork.community.pc"
+    }
   },
-  "publish": {
-    "platforms": [
-      "WEB",
-      "DESKTOP_WINDOWS",
-      "DESKTOP_MACOS",
-      "DESKTOP_LINUX"
+  "backend": {
+    "profileKey": "backend-root-admin",
+    "ownerMode": "tenant",
+    "grantMode": "current",
+    "platform": "WEB",
+    "appId": "sdkwork-community",
+    "organizationId": "0",
+    "tenantId": "100001",
+    "accessTokenPermissionScope": [
+      "community.categories.read",
+      "community.entries.read",
+      "community.entries.write",
+      "community.comments.read",
+      "community.comments.write",
+      "community.reactions.write",
+      "community.recommendations.read"
     ]
   },
-  "app": {
-    "identifiers": {
-      "bundleId": "com.sdkwork.community.pc",
-      "packageName": "com.sdkwork.community.pc"
-    }
+  "runtime": {
+    "family": "web",
+    "framework": "react",
+    "runtimes": [
+      "WEB"
+    ],
+    "deliveryModes": [
+      "WEB_URL"
+    ],
+    "defaultPlatform": "WEB",
+    "defaultArchitecture": "universal",
+    "supportedDeploymentProfiles": [
+      "standalone",
+      "cloud"
+    ],
+    "defaultDeploymentProfile": "standalone"
+  },
+  "media": {
+    "icons": {
+      "primary": {
+        "id": "sdkwork-community-pc-primary-icon",
+        "type": "ICON",
+        "purpose": "PRIMARY",
+        "platform": "WEB",
+        "format": "PNG",
+        "width": 1024,
+        "height": 1024,
+        "enabled": false,
+        "resource": {
+          "kind": "catalog-media-deferred"
+        }
+      },
+      "platform": []
+    },
+    "screenshots": [],
+    "previews": []
+  },
+  "publish": {
+    "status": "DRAFT",
+    "platforms": [
+      "WEB"
+    ],
+    "installPlatforms": [
+      "WEB"
+    ],
+    "installSkill": false
   },
   "artifacts": {
     "installConfig": {
-      "packages": []
+      "packages": [],
+      "metadata": {
+        "workspaceRoot": "apps/sdkwork-community-pc",
+        "framework": "react",
+        "packageManager": "pnpm"
+      }
     }
+  },
+  "release": {
+    "currentVersion": "0.1.0",
+    "defaultChannel": "BETA",
+    "latest": {
+      "BETA": "0.1.0"
+    },
+    "notes": [
+      {
+        "version": "0.1.0",
+        "channel": "BETA",
+        "current": true,
+        "summary": "Initial SDKWork App Standard v3 Community PC declaration.",
+        "packageIds": []
+      }
+    ]
+  },
+  "security": {
+    "checksumRequired": true,
+    "signatureRequired": true,
+    "sbomRequired": true
+  },
+  "metadata": {
+    "standardOwner": "sdkwork-community",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json",
+    "releaseAuthority": "../../sdkwork.workflow.json"
   }
 }

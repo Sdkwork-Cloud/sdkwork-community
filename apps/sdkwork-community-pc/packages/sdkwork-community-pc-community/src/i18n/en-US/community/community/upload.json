@@ -1,0 +1,17 @@
+{
+  "title": "Upload Resource",
+  "fileName": "File Name",
+  "fileNamePlaceholder": "Enter or auto-detect after upload",
+  "fileType": "File Type",
+  "pdfDoc": "PDF Document",
+  "wordDoc": "Word Document",
+  "markdownDoc": "Markdown Document",
+  "imageFile": "Image (PNG/JPG etc.)",
+  "videoFile": "Video File",
+  "otherFile": "Other File",
+  "selectFile": "Select File",
+  "dragDrop": "Click or drag file here",
+  "formatHint": "All common formats supported, max 100MB",
+  "cancel": "Cancel",
+  "confirmUpload": "Upload"
+}

@@ -6,7 +6,7 @@ import {
 
 runCommunitySdkGenerator(
   {
-    apiAuthority: "sdkwork-community.open",
+    apiAuthority: "sdkwork-community-open-api",
     apiPrefix: "/community/v3/api",
     defaultBaseUrl: "http://127.0.0.1:18082",
     defaultOpenapiFile: "community-open-api.openapi.json",

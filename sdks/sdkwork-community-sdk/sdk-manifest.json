@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sdkName": "sdkwork-community-sdk",
   "sdkOwner": "sdkwork-community",
-  "apiAuthority": "sdkwork-community.open",
+  "apiAuthority": "sdkwork-community-open-api",
   "sdkFamily": "sdkwork-community-sdk",
   "sdkType": "custom",
   "apiPrefix": "/community/v3/api",
@@ -18,7 +18,7 @@
   "generatorName": "@sdkwork/sdk-generator",
   "generatorPath": "E:\\sdkwork-space\\sdkwork-sdk-generator\\bin\\sdkgen.js",
   "baseUrl": "http://127.0.0.1:18082",
-  "standardProfile": null,
+  "standardProfile": "sdkwork-v3",
   "fixedSdkVersion": "0.1.0",
   "ownerOnlyOperationCount": 4,
   "operations": [

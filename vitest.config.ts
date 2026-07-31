@@ -40,6 +40,12 @@ export default defineConfig({
           import.meta.url,
         ),
       ),
+      "@sdkwork/community-mobile-react-community": fileURLToPath(
+        new URL(
+          "./apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src/index.ts",
+          import.meta.url,
+        ),
+      ),
       "@sdkwork/utils": fileURLToPath(
         new URL("../sdkwork-utils/packages/sdkwork-utils-typescript/src/index.ts", import.meta.url),
       ),

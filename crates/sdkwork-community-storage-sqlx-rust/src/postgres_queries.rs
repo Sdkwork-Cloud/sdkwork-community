@@ -1,4 +1,4 @@
-//! PostgreSQL query implementations mirroring `sqlite_queries`.
+//! PostgreSQL query implementations for Community authoritative persistence.
 
 use sqlx::{PgPool, Row};
 

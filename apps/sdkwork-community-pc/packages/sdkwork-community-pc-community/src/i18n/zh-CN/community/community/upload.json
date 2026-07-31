@@ -1,0 +1,17 @@
+{
+  "title": "上传资料",
+  "fileName": "文件名称",
+  "fileNamePlaceholder": "输入或上传后自动获取名称",
+  "fileType": "文件类型",
+  "pdfDoc": "PDF 文档",
+  "wordDoc": "Word 文档",
+  "markdownDoc": "Markdown 文档",
+  "imageFile": "图片 (PNG/JPG等)",
+  "videoFile": "视频文件",
+  "otherFile": "其他文件",
+  "selectFile": "选择文件",
+  "dragDrop": "点击或将文件拖曳至此",
+  "formatHint": "支持所有常见格式，最大 100MB",
+  "cancel": "取消",
+  "confirmUpload": "确认上传"
+}

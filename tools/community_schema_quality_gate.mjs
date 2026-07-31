@@ -7,6 +7,10 @@ const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete"]);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(scriptDir, "..");
 const generatedOpenapiDir = path.join(workspaceRoot, "generated", "openapi");
+const iamModuleManifest = readJson(path.join(workspaceRoot, "specs", "iam.module.manifest.json"));
+const permissionCatalog = new Set(
+  (iamModuleManifest.permissions?.catalog ?? []).map((entry) => entry.code),
+);
 
 function fail(message) {
   process.stderr.write(`[community_schema_quality_gate] ${message}\n`);
@@ -30,6 +34,13 @@ function operations(document) {
 
 function checkDocument(filePath, authority, prefix, expectedSecurity) {
   const document = readJson(filePath);
+  const permissionMappings = new Map(
+    (iamModuleManifest.permissions?.openapiAuthorities ?? [])
+      .find((entry) => entry.apiAuthority === authority)
+      ?.operationPermissions
+      ?.map((entry) => [entry.operationId, entry.permission]) ?? [],
+  );
+  const seenPermissionMappings = new Set();
   if (document.openapi !== "3.1.2") {
     fail(`${filePath} must use OpenAPI 3.1.2`);
   }
@@ -41,6 +52,12 @@ function checkDocument(filePath, authority, prefix, expectedSecurity) {
   }
   if (document["x-sdkwork-domain"] !== "community") {
     fail(`${filePath} domain drift`);
+  }
+  if (expectedSecurity.length === 0) {
+    const apiKey = document.components?.securitySchemes?.ApiKey;
+    if (apiKey?.type !== "apiKey" || apiKey.in !== "header" || apiKey.name !== "X-API-Key") {
+      fail(`${filePath} must declare the standard optional open-api ApiKey scheme`);
+    }
   }
   for (const { operation, pathKey } of operations(document)) {
     if (!pathKey.startsWith(prefix)) {
@@ -64,6 +81,45 @@ function checkDocument(filePath, authority, prefix, expectedSecurity) {
     if (JSON.stringify(operation.security) !== JSON.stringify(expectedSecurity)) {
       fail(`${filePath} invalid security ${pathKey}`);
     }
+    const expectedAuthMode = expectedSecurity.length === 0 ? "anonymous" : "dual-token";
+    if (operation["x-sdkwork-auth-mode"] !== expectedAuthMode) {
+      fail(`${filePath} invalid auth mode ${pathKey}`);
+    }
+    const permission = operation["x-sdkwork-permission"];
+    if (expectedSecurity.length === 0) {
+      if (permission !== undefined) {
+        fail(`${filePath} anonymous operation must not declare permission ${pathKey}`);
+      }
+    } else {
+      const expectedPermission = permissionMappings.get(operation.operationId);
+      if (!expectedPermission) {
+        fail(`${filePath} IAM manifest lacks permission mapping for ${operation.operationId}`);
+      }
+      if (permission !== expectedPermission) {
+        fail(`${filePath} permission drift for ${operation.operationId}`);
+      }
+      if (!permissionCatalog.has(permission)) {
+        fail(`${filePath} uses permission absent from IAM catalog: ${permission}`);
+      }
+      seenPermissionMappings.add(operation.operationId);
+    }
+    const parameters = operation.parameters ?? [];
+    if (!Array.isArray(parameters) || parameters.some((parameter) => parameter === null)) {
+      fail(`${filePath} has invalid parameters ${pathKey}`);
+    }
+    const pathParameterNames = [...pathKey.matchAll(/\{([^}]+)\}/gu)].map((match) => match[1]);
+    for (const name of pathParameterNames) {
+      const parameter = parameters.find((candidate) =>
+        candidate?.name === name && candidate.in === "path");
+      if (!parameter || parameter.required !== true) {
+        fail(`${filePath} is missing required path parameter ${name} for ${pathKey}`);
+      }
+    }
+  }
+  for (const operationId of permissionMappings.keys()) {
+    if (!seenPermissionMappings.has(operationId)) {
+      fail(`${filePath} IAM manifest maps missing operation ${operationId}`);
+    }
   }
   return operations(document).length;
 }
@@ -82,9 +138,9 @@ const backend = getArg(args, "--backend-openapi", path.join(generatedOpenapiDir,
 const open = getArg(args, "--open-openapi", path.join(generatedOpenapiDir, "community-open-api.openapi.json"));
 
 const counts = {
-  app: checkDocument(app, "sdkwork-community.app", "/app/v3/api/community", [{ AuthToken: [], AccessToken: [] }]),
-  backend: checkDocument(backend, "sdkwork-community.backend", "/backend/v3/api/community", [{ AuthToken: [], AccessToken: [] }]),
-  open: checkDocument(open, "sdkwork-community.open", "/community/v3/api", [{ ApiKey: [] }]),
+  app: checkDocument(app, "sdkwork-community-app-api", "/app/v3/api/community", [{ AuthToken: [], AccessToken: [] }]),
+  backend: checkDocument(backend, "sdkwork-community-backend-api", "/backend/v3/api/community", [{ AuthToken: [], AccessToken: [] }]),
+  open: checkDocument(open, "sdkwork-community-open-api", "/community/v3/api", []),
 };
 
 if (counts.app !== 11 || counts.backend !== 11 || counts.open !== 4) {

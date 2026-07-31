@@ -204,7 +204,7 @@ export function createGeneratedCommunityAppSdkPort(
       },
       reactions: {
         async set(entryId: string, command: SdkworkCommunityReactionCommand) {
-          const item = await client.community.reactions.set(entryId, {
+          const item = await client.community.reactions.create(entryId, {
             reactionType: command.reactionType,
             active: command.active,
           });
