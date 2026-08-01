@@ -18,7 +18,9 @@ OpenAPI authorities (apis/)
   -> sdkwork-database module (database/)
 ```
 
-HTTP traffic enters through `sdkwork-api-community-standalone-gateway`, which mounts open, app, and backend community routers assembled by `sdkwork-api-community-assembly`.
+HTTP traffic enters through `sdkwork-api-community-standalone-gateway`. The host consumes the
+indivisible open/app/backend contribution and process-shared PostgreSQL pool exported by
+`sdkwork-api-community-assembly`, then applies one Web Framework pipeline.
 
 ## 2. Technology Choices
 
@@ -26,6 +28,7 @@ HTTP traffic enters through `sdkwork-api-community-standalone-gateway`, which mo
 | --- | --- |
 | HTTP runtime | Rust + Axum + `sdkwork-web-framework` |
 | Persistence | PostgreSQL for runtime and integration tests via `sdkwork-database` + SQLx |
+| Distributed request state | Redis for production rate limits, idempotency, and concurrent admission |
 | Clients | PC React, H5 React, Flutter mobile |
 | SDK contract | OpenAPI 3.1.2, `sdkwork-v3` envelope profile |
 | Shared utilities | `sdkwork-utils-rust` / `@sdkwork/utils` where applicable |
@@ -51,13 +54,17 @@ See repository [README.md](../../../README.md) for the current directory diction
 - OpenAPI authorities are owner-only and dependency-free
 - Generated SDK families mirror the three API surfaces
 - Database tables use the `community_` prefix and are declared in `database/database.manifest.json`
-- Legacy crate-local migrations are removed; `database/ddl/baseline/` is authoritative
+- `database/ddl/baseline/` is the database DDL authority
 
 ## 6. Security, Privacy, And Observability
 
-- App and backend routes require IAM-resolved request context
+- App and backend routes use an audience-bound IAM resolver backed by the process-shared database pool
+- Production token validation enforces tenant signing keys, issuer/audience policy, session status, and revocation
 - Success responses use `SdkWorkApiResponse`; errors use numeric `ProblemDetail`
-- Gateway exposes standard health/readiness through `sdkwork-web-bootstrap`
+- Production requests use IAM-backed audit/security event emitters and Redis-backed rate-limit,
+  idempotency, and concurrent-admission stores
+- `/readyz` combines PostgreSQL and Redis probes; `/healthz` remains process liveness
+- Framework tracing emits structured, redacted request telemetry without a duplicate Tower trace layer
 - No secrets or manual auth headers in client packages; TokenManager owns credentials
 
 ## 7. Deployment And Runtime Topology
@@ -66,6 +73,12 @@ See repository [README.md](../../../README.md) for the current directory diction
 
 - `pnpm dev:desktop` — gateway on `:18094` + PC Vite
 - `pnpm dev:browser` — gateway on `:18094` + H5 Vite
+- `pnpm gateway:run:standalone` — server-target standalone gateway using the resolved source profile
+
+Production server profiles require PostgreSQL and Redis. Structured Redis fields are primary;
+`SDKWORK_COMMUNITY_REDIS_URL` is reserved for managed endpoints. Secret files take precedence over
+direct password values. Cloud production injects approved managed database and Redis endpoints from
+the platform runtime rather than committing placeholder hosts.
 
 Deployment handoff:
 
@@ -73,6 +86,7 @@ Deployment handoff:
 - `pnpm deploy:plan` / `pnpm deploy:validate` — deployctl alignment checks
 - `sdkwork.workflow.json` — CI/release lifecycle and sibling dependency materialization
 - `.github/workflows/governance.yml` — runs `pnpm verify` on push/PR
+- [Community production gateway runbook](../../runbooks/RUNBOOK-community-production-gateway.md)
 
 Docker handoff examples live under `deployments/docker/`.
 

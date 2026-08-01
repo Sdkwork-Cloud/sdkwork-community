@@ -18,7 +18,7 @@ deployments/
 Run the standalone community API gateway locally:
 
 ```powershell
-pnpm gateway:run
+pnpm gateway:run:standalone
 ```
 
 Start gateway plus a client dev surface:
@@ -28,7 +28,8 @@ pnpm dev:desktop
 pnpm dev:browser
 ```
 
-Default API bind: `0.0.0.0:18094` (`COMMUNITY_API_BIND`).
+The selected `etc/topology/<profile-id>.env` owns the API bind through
+`SDKWORK_COMMUNITY_SERVER_BIND`.
 
 See [docker/README.md](docker/README.md) for environment variables and health probes.
 

@@ -87,6 +87,14 @@ export function resolveCommunityBrowserEnvironment(
   const platformOrigin = optionalString(
     stringValue(vite.VITE_SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL),
   );
+  if (deploymentProfile === "standalone" && platformOrigin) {
+    throw new Error(
+      "Community standalone runtime must not configure a platform API gateway URL.",
+    );
+  }
+  const dependencyOrigin = deploymentProfile === "cloud"
+    ? platformOrigin
+    : applicationOrigin;
   const appApiBaseUrl = resolvePublicApiBaseUrl(
     runtimeConfig.appApiBaseUrl,
     applicationOrigin,
@@ -103,7 +111,7 @@ export function resolveCommunityBrowserEnvironment(
   );
   const appbaseAppApiBaseUrl = resolvePublicApiBaseUrl(
     runtimeConfig.sdkBaseUrls?.dependencySdkBaseUrls?.[IAM_APP_SDK_FAMILY_ID]?.appApiBaseUrl,
-    platformOrigin,
+    dependencyOrigin,
     "/app/v3/api",
     input.isProductionBuild,
     `sdkBaseUrls.dependencySdkBaseUrls.${IAM_APP_SDK_FAMILY_ID}.appApiBaseUrl`,
@@ -183,12 +191,13 @@ function resolvePublicApiBaseUrl(
 }
 
 function joinOriginAndPath(origin: string, path: string): string {
-  const normalizedOrigin = trim(origin).replace(/\/+$/u, "");
+  const trimmedOrigin = trim(origin);
+  if (trimmedOrigin === "/") {
+    return path;
+  }
+  const normalizedOrigin = trimmedOrigin.replace(/\/+$/u, "");
   if (!normalizedOrigin) {
     return "";
-  }
-  if (normalizedOrigin === "/") {
-    return path;
   }
   return `${normalizedOrigin}${path}`;
 }

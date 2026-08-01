@@ -4,5 +4,11 @@ repository: community
 canon:
   prd: docs/product/prd/PRD.md
   techArchitecture: docs/architecture/tech/TECH_ARCHITECTURE.md
-entries: []
+entries:
+  - id: RUNBOOK-community-production-gateway
+    kind: runbook
+    path: docs/runbooks/RUNBOOK-community-production-gateway.md
+  - id: CHANGELOG-community
+    kind: changelog
+    path: docs/changelogs/CHANGELOG.md
 domains: []

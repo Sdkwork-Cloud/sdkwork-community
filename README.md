@@ -101,6 +101,7 @@ tools/                        # OpenAPI export and SDK generation
 - Node.js with `pnpm@10.33.0`
 - Rust toolchain with `cargo`
 - PostgreSQL for authoritative runtime and integration testing
+- Redis for standalone/cloud production server runtimes
 
 ## Install
 
@@ -140,7 +141,7 @@ pnpm build:browser
 Run the standalone community API server only:
 
 ```powershell
-pnpm gateway:run
+pnpm gateway:run:standalone
 ```
 
 Database lifecycle:
@@ -179,10 +180,10 @@ pnpm build:flutter-ios
 
 | Framework | Status |
 | --- | --- |
-| `sdkwork-web-framework` | Integrated in route crates and standalone gateway |
+| `sdkwork-web-framework` | One gateway pipeline with production security, audit, Redis stores, and readiness |
 | `sdkwork-database` | Integrated via `database/` module and lifecycle CLI |
-| `sdkwork-utils` | Used in Rust storage/service/route layers |
-| `sdkwork-iam-web-adapter` | Integrated for app/backend request context |
+| `sdkwork-utils` | Used in Rust storage, service, route, and gateway configuration layers |
+| `sdkwork-iam-web-adapter` | Audience-bound IAM resolution with database session revocation and event persistence |
 | `sdkwork-discovery` | Not required (no RPC services yet) |
 | `sdkwork-drive` | Not required until file upload features ship |
 

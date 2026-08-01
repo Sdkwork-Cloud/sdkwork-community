@@ -77,7 +77,8 @@ test("community workspace owns complete source, rust, openapi, and sdk families"
   const rootPackage = readJson("package.json");
   assert.equal(rootPackage.name, "sdkwork-community-workspace");
   assert.ok(rootPackage.scripts.verify);
-  assert.ok(rootPackage.scripts["gateway:run"]);
+  assert.ok(rootPackage.scripts["gateway:run:standalone"]);
+  assert.ok(rootPackage.scripts["gateway:validate:standalone"]);
   assert.ok(rootPackage.scripts["check:api-envelope"]);
 
   const pcPackage = readJson("apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/package.json");

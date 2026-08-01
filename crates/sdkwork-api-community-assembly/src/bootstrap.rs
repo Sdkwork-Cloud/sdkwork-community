@@ -10,9 +10,24 @@ use std::sync::Arc;
 
 pub type ApiAssembly = ApiAssemblyContribution;
 
-pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
+/// Host-neutral Community API contribution plus its process-shared database pool.
+pub struct CommunityApiRuntime {
+    pub contribution: ApiAssembly,
+    pub database_pool: DatabasePool,
+}
+
+pub async fn assemble_api_router_runtime() -> Result<CommunityApiRuntime, String> {
     let host = Arc::new(CommunityServiceHost::from_env().await?);
-    assemble_api_router_with_host(host)
+    let database_pool = host.database_pool().clone();
+    let contribution = assemble_api_router_with_host(host)?;
+    Ok(CommunityApiRuntime {
+        contribution,
+        database_pool,
+    })
+}
+
+pub async fn assemble_api_router() -> Result<ApiAssembly, String> {
+    Ok(assemble_api_router_runtime().await?.contribution)
 }
 
 pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAssembly, String> {

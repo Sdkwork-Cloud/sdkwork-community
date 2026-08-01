@@ -20,3 +20,8 @@ sdkwork-community-service-host.workspace = true
 sdkwork-routes-community-app-api.workspace = true
 sdkwork-routes-community-backend-api.workspace = true
 sdkwork-routes-community-open-api.workspace = true
+
+[dev-dependencies]
+sdkwork-web-contract.workspace = true
+sdkwork_iam_context_service.workspace = true
+tower.workspace = true

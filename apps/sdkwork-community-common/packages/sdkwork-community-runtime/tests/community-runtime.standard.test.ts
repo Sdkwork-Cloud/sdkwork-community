@@ -72,6 +72,37 @@ describe("@sdkwork/community-runtime", () => {
       .toEqual({ appApiBaseUrl: "/app/v3/api" });
   });
 
+  it("derives embedded IAM from application ingress in standalone profiles", () => {
+    const environment = resolveCommunityBrowserEnvironment({
+      isProductionBuild: false,
+      vite: {
+        VITE_SDKWORK_COMMUNITY_APPLICATION_PUBLIC_HTTP_URL: "/",
+        VITE_SDKWORK_COMMUNITY_DEPLOYMENT_PROFILE: "standalone",
+        VITE_SDKWORK_COMMUNITY_ENVIRONMENT: "development",
+        VITE_SDKWORK_COMMUNITY_PROFILE_ID: "standalone.development",
+        VITE_SDKWORK_COMMUNITY_RUNTIME_TARGET: "browser",
+      },
+    });
+
+    expect(environment.sdkBaseUrls.dependencySdkBaseUrls["sdkwork-iam-app-sdk"].appApiBaseUrl)
+      .toBe("/app/v3/api");
+    expect(environment.browserOriginMode).toBe("same-origin");
+  });
+
+  it("rejects platform gateway URLs in standalone profiles", () => {
+    expect(() => resolveCommunityBrowserEnvironment({
+      isProductionBuild: false,
+      vite: {
+        VITE_SDKWORK_COMMUNITY_APPLICATION_PUBLIC_HTTP_URL: "/",
+        VITE_SDKWORK_COMMUNITY_DEPLOYMENT_PROFILE: "standalone",
+        VITE_SDKWORK_COMMUNITY_ENVIRONMENT: "development",
+        VITE_SDKWORK_COMMUNITY_PLATFORM_API_GATEWAY_HTTP_URL: "/",
+        VITE_SDKWORK_COMMUNITY_PROFILE_ID: "standalone.development",
+        VITE_SDKWORK_COMMUNITY_RUNTIME_TARGET: "browser",
+      },
+    })).toThrow("must not configure a platform API gateway URL");
+  });
+
   it("keeps application and platform SDK origins separate in cloud profiles", () => {
     const environment = resolveCommunityBrowserEnvironment({
       isProductionBuild: true,

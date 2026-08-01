@@ -1,5 +1,5 @@
-# runbooks
+# Community Runbooks
 
-See `DOCUMENTATION_SPEC.md` section 2.
+- [Production gateway](RUNBOOK-community-production-gateway.md)
 
-See `DOCUMENTATION_SPEC.md` section 2.
+Runbooks are operational evidence governed by `DOCUMENTATION_SPEC.md` section 7.

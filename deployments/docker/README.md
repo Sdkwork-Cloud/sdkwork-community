@@ -3,22 +3,26 @@
 Local development and standalone deployment use the Rust gateway binary:
 
 ```powershell
-pnpm gateway:run
+pnpm gateway:run:standalone
 ```
 
-Default bind address: `0.0.0.0:18094` (`COMMUNITY_API_BIND`).
+The selected source profile owns the bind through `SDKWORK_COMMUNITY_SERVER_BIND`.
 
 ## Environment
 
 | Variable | Purpose |
 | --- | --- |
-| `COMMUNITY_API_BIND` | HTTP listen address |
-| `SDKWORK_DATABASE_URL` | PostgreSQL connection (production) |
-| `SDKWORK_DATABASE_ENGINE` | `postgres` or `sqlite` |
+| `SDKWORK_COMMUNITY_SERVER_BIND` | HTTP listen address from the resolved runtime plan |
+| `SDKWORK_DATABASE_*` | Structured PostgreSQL connection and pool configuration |
+| `SDKWORK_COMMUNITY_REDIS_ENABLED` | Must be `true` for production server/container runtimes |
+| `SDKWORK_COMMUNITY_REDIS_HOST` / `SDKWORK_COMMUNITY_REDIS_URL` | Structured Redis host or managed endpoint override |
+| `SDKWORK_COMMUNITY_REDIS_PASSWORD_FILE` | Preferred mounted Redis credential source |
+| `SDKWORK_COMMUNITY_REDIS_KEY_PREFIX` | Application-owned Redis namespace |
 
 ## Health
 
-- Liveness/readiness: framework `service_router` health endpoints
-- Database readiness probe executes `SELECT 1` against the active pool
+- Liveness: `GET /healthz`
+- Readiness: `GET /readyz` checks the process-shared PostgreSQL pool and production Redis
+- Metrics: `GET /metrics`
 
 Authority: `DEPLOYMENT_SPEC.md`, `APPLICATION_GATEWAY_SPEC.md`.

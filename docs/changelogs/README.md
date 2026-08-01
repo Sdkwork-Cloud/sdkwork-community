@@ -1,5 +1,5 @@
-# changelogs
+# Community Changelogs
 
-See `DOCUMENTATION_SPEC.md` section 2.
+- [CHANGELOG.md](CHANGELOG.md)
 
-See `DOCUMENTATION_SPEC.md` section 2.
+Changelog evidence is governed by `DOCUMENTATION_SPEC.md` section 9.

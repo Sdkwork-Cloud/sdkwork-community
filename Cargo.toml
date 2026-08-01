@@ -11,7 +11,6 @@ members = [
     "crates/sdkwork-routes-community-app-api",
     "crates/sdkwork-routes-community-backend-api",
     "crates/sdkwork-community-service-host",
-    "crates/sdkwork-api-community-assembly",
     "crates/sdkwork-api-community-standalone-gateway",
 ]
 resolver = "2"
@@ -30,12 +29,12 @@ serde_json = "1"
 sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
 tower = "0.5"
-tower-http = { version = "0.5", features = ["cors", "trace"] }
 tracing = "0.1"
-tracing-subscriber = "0.3"
 dotenvy = "0.15"
 thiserror = "1"
 async-trait = "0.1"
+url = "2"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 sdkwork-community-core-rust = { path = "crates/sdkwork-community-core-rust" }
 sdkwork-community-database-host = { path = "crates/sdkwork-community-database-host" }
 sdkwork-community-storage-sqlx-rust = { path = "crates/sdkwork-community-storage-sqlx-rust" }

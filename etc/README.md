@@ -9,8 +9,11 @@ Supported profiles are `standalone.development`, `standalone.production`, `cloud
 materialized by `sdkwork-app`; generated runtime files and local overrides are not source authority.
 
 Files matching `*.local.*`, `.sdkwork/local/`, and `.sdkwork/secrets/` are private and ignored. Keep
-passwords, tokens, keys, and certificates out of this directory. PostgreSQL credentials must be
-provided through the referenced local or mounted secret file.
+passwords, tokens, keys, and certificates out of this directory. PostgreSQL and Redis credentials
+must be provided through referenced local files, mounted secret files, or protected process
+environment values. `standalone.production` requires PostgreSQL and Redis before serving traffic.
+`cloud.production` intentionally omits managed database and Redis hosts; the platform runtime must
+inject the approved host or advanced URL, and missing values fail closed.
 
 Validate after any change:
 

@@ -6,7 +6,7 @@
   "description": "SDKWork Community PC Application",
   "scripts": {
     "dev": "vite",
-    "dev:server": "pnpm --dir ../.. gateway:run",
+    "dev:server": "pnpm --dir ../.. gateway:run:standalone",
     "build": "vite build",
     "build:staging": "vite build --mode staging",
     "build:prod": "vite build --mode production",

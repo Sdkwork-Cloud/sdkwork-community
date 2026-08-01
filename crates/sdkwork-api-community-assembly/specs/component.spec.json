@@ -40,6 +40,7 @@
       "."
     ],
     "runtimeEntrypoints": [
+      "assemble_api_router_runtime",
       "assemble_api_router",
       "assemble_api_router_with_pool"
     ],
@@ -51,7 +52,9 @@
   },
   "verification": {
     "commands": [
-      "cargo test"
+      "cargo test",
+      "pnpm api:runtime-parity:generate:check",
+      "pnpm check:api-runtime-parity"
     ]
   }
 }

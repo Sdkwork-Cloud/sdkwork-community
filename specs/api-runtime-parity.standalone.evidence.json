@@ -1,0 +1,763 @@
+{
+  "apiMode": "served",
+  "application": "sdkwork-community",
+  "inventories": {
+    "boundManifest": [
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories",
+        "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/publication_readiness",
+        "operationId": "entries.publicationReadiness.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/recommendations",
+        "operationId": "entries.recommendations.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/feed",
+        "operationId": "feed.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries",
+        "operationId": "entries.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/reactions",
+        "operationId": "reactions.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/entries",
+        "operationId": "entries.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/moderation/queue",
+        "operationId": "moderation.queue.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.update",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/feature",
+        "operationId": "entries.feature",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/moderation",
+        "operationId": "entries.moderation.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/pin",
+        "operationId": "entries.pin",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/recommendations/rebuild",
+        "operationId": "recommendations.rebuild",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/categories",
+        "operationId": "categories.public.list",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/by_slug/{slug}",
+        "operationId": "entries.publicBySlug.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/{entryId}",
+        "operationId": "entries.public.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/feed",
+        "operationId": "feed.public.list",
+        "surface": "open-api"
+      }
+    ],
+    "executableRouter": [
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories",
+        "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/publication_readiness",
+        "operationId": "entries.publicationReadiness.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/recommendations",
+        "operationId": "entries.recommendations.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/feed",
+        "operationId": "feed.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries",
+        "operationId": "entries.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/reactions",
+        "operationId": "reactions.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/entries",
+        "operationId": "entries.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/moderation/queue",
+        "operationId": "moderation.queue.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.update",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/feature",
+        "operationId": "entries.feature",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/moderation",
+        "operationId": "entries.moderation.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/pin",
+        "operationId": "entries.pin",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/recommendations/rebuild",
+        "operationId": "recommendations.rebuild",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/categories",
+        "operationId": "categories.public.list",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/by_slug/{slug}",
+        "operationId": "entries.publicBySlug.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/{entryId}",
+        "operationId": "entries.public.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/feed",
+        "operationId": "feed.public.list",
+        "surface": "open-api"
+      }
+    ],
+    "sdkAuthority": [
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories",
+        "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/publication_readiness",
+        "operationId": "entries.publicationReadiness.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/recommendations",
+        "operationId": "entries.recommendations.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/feed",
+        "operationId": "feed.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries",
+        "operationId": "entries.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/reactions",
+        "operationId": "reactions.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/entries",
+        "operationId": "entries.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/moderation/queue",
+        "operationId": "moderation.queue.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.update",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/feature",
+        "operationId": "entries.feature",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/moderation",
+        "operationId": "entries.moderation.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/pin",
+        "operationId": "entries.pin",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/recommendations/rebuild",
+        "operationId": "recommendations.rebuild",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/categories",
+        "operationId": "categories.public.list",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/by_slug/{slug}",
+        "operationId": "entries.publicBySlug.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/{entryId}",
+        "operationId": "entries.public.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/feed",
+        "operationId": "feed.public.list",
+        "surface": "open-api"
+      }
+    ],
+    "servedOpenapi": [
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories",
+        "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/publication_readiness",
+        "operationId": "entries.publicationReadiness.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/recommendations",
+        "operationId": "entries.recommendations.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/feed",
+        "operationId": "feed.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}",
+        "operationId": "entries.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries",
+        "operationId": "entries.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/comments",
+        "operationId": "comments.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/entries/{entryId}/reactions",
+        "operationId": "reactions.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}",
+        "operationId": "entries.delete",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/entries",
+        "operationId": "entries.management.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/backend/v3/api/community/moderation/queue",
+        "operationId": "moderation.queue.list",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
+        "normalizedPath": "/backend/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.update",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/categories",
+        "operationId": "categories.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/feature",
+        "operationId": "entries.feature",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/moderation",
+        "operationId": "entries.moderation.create",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/entries/{entryId}/pin",
+        "operationId": "entries.pin",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/backend/v3/api/community/recommendations/rebuild",
+        "operationId": "recommendations.rebuild",
+        "surface": "backend-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/categories",
+        "operationId": "categories.public.list",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/by_slug/{slug}",
+        "operationId": "entries.publicBySlug.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/entries/{entryId}",
+        "operationId": "entries.public.retrieve",
+        "surface": "open-api"
+      },
+      {
+        "authProfile": "anonymous",
+        "method": "GET",
+        "normalizedPath": "/community/v3/api/feed",
+        "operationId": "feed.public.list",
+        "surface": "open-api"
+      }
+    ]
+  },
+  "kind": "sdkwork.api-runtime-parity-evidence",
+  "profile": "standalone",
+  "schemaVersion": 1,
+  "sources": {
+    "boundManifest": {
+      "kind": "framework-bound-manifest",
+      "location": "crates/sdkwork-api-community-assembly:combined-route-manifest"
+    },
+    "executableRouter": {
+      "kind": "runtime-probe",
+      "location": "cargo:test/runtime_parity_evidence"
+    },
+    "sdkAuthority": {
+      "kind": "sdk-generation-authority",
+      "location": "apis/{app-api,backend-api,open-api}/community/openapi.json"
+    },
+    "servedOpenapi": {
+      "kind": "runtime-http-openapi",
+      "location": "http://127.0.0.1:18094/openapi.json"
+    }
+  }
+}
