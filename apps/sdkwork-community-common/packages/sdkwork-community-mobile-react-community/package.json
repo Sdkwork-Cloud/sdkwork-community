@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@sdkwork/ui-mobile-react": "workspace:*",
+    "@sdkwork/utils": "workspace:*",
     "i18next": "catalog:",
     "lucide-react": "catalog:",
     "motion": "catalog:",

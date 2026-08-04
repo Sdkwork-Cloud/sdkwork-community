@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import { cn, IconButton } from "@sdkwork/ui-mobile-react";
 import { MessageSquare, Check, X, Lock } from "lucide-react";
+import { formatMoney } from "@sdkwork/utils/money";
 import { getCommunityCurrentUser } from "../services/communityAuthSessionPort";
 import { useNavigate, useLocation } from "react-router";
 
@@ -20,7 +21,8 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage || "zh-CN";
 const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
   const [isAlipay, setIsAlipay] = useState(false);
@@ -96,7 +98,15 @@ const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(n
               <span className="text-[16px] font-semibold text-text-main mb-1 line-clamp-1">{communityName}</span>
               <span className="text-[13px] text-text-sub line-clamp-1">{t('community.auto_n150cf9c5', '付费圈子买断（永久有效）')}</span>
             </div>
-            <div className="text-[20px] font-bold text-text-main">¥{communityPrice}</div>
+            <div className="text-[20px] font-bold text-text-main">
+              {formatMoney(communityPrice, {
+                currency: "CNY",
+                locale,
+                mode: "symbol",
+                minFractionDigits: 0,
+                maxFractionDigits: 2,
+              }) ?? "--"}
+            </div>
           </div>
 
           {!isWeChat && !isAlipay && (
@@ -137,7 +147,15 @@ const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(n
 
           <div className="flex items-center justify-between mb-8 px-1">
             <span className="text-[15px] text-text-main font-medium">{t('community.auto_2c3862b0', '应付金额')}</span>
-            <span className="text-[28px] font-bold text-red-500 leading-none">¥{communityPrice}</span>
+            <span className="text-[28px] font-bold text-red-500 leading-none">
+              {formatMoney(communityPrice, {
+                currency: "CNY",
+                locale,
+                mode: "symbol",
+                minFractionDigits: 0,
+                maxFractionDigits: 2,
+              }) ?? "--"}
+            </span>
           </div>
         </div>
 
