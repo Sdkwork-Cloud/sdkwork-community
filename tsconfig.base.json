@@ -18,58 +18,6 @@
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "paths": {
-      "@sdkwork/community-contracts": [
-        "apps/sdkwork-community-common/packages/sdkwork-community-contracts/src/index.ts"
-      ],
-      "@sdkwork/community-sdk-ports": [
-        "apps/sdkwork-community-common/packages/sdkwork-community-sdk-ports/src/index.ts"
-      ],
-      "@sdkwork/community-service": [
-        "apps/sdkwork-community-common/packages/sdkwork-community-service/src/index.ts"
-      ],
-      "@sdkwork/community-runtime": [
-        "apps/sdkwork-community-common/packages/sdkwork-community-runtime/src/index.ts"
-      ],
-      "@sdkwork/community-pc-core": [
-        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-core/src/index.ts"
-      ],
-      "@sdkwork/community-pc-core/sdk": [
-        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-core/src/sdk/index.ts"
-      ],
-      "@sdkwork/community-h5-core": [
-        "apps/sdkwork-community-h5/packages/sdkwork-community-h5-core/src/index.ts"
-      ],
-      "@sdkwork/community-h5-core/sdk": [
-        "apps/sdkwork-community-h5/packages/sdkwork-community-h5-core/src/sdk/index.ts"
-      ],
-      "@sdkwork/community-pc-community": [
-        "apps/sdkwork-community-pc/packages/sdkwork-community-pc-community/src/index.ts"
-      ],
-      "@sdkwork/community-h5-community": [
-        "apps/sdkwork-community-h5/packages/sdkwork-community-h5-community/src/index.ts"
-      ],
-      "@sdkwork/community-mobile-react-community": [
-        "apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src/index.ts"
-      ],
-      "@sdkwork/sdk-common": [
-        "../sdkwork-sdk-commons/sdkwork-sdk-common-typescript/src/index.ts"
-      ],
-      "@sdkwork/community-sdk": [
-        "sdks/sdkwork-community-sdk/sdkwork-community-sdk-typescript/src/index.ts"
-      ],
-      "@sdkwork/community-app-sdk": [
-        "sdks/sdkwork-community-app-sdk/sdkwork-community-app-sdk-typescript/src/index.ts"
-      ],
-      "@sdkwork/community-backend-sdk": [
-        "sdks/sdkwork-community-backend-sdk/sdkwork-community-backend-sdk-typescript/src/index.ts"
-      ],
-      "@sdkwork/utils": [
-        "../sdkwork-utils/packages/sdkwork-utils-typescript/src/index.ts"
-      ]
-    }
+    "jsx": "react-jsx"
   }
 }
