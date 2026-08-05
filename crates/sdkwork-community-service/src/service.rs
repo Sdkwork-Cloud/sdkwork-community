@@ -368,12 +368,22 @@ impl CommunityService {
         &self,
         tenant_id: &str,
         entry_id: &str,
-    ) -> Result<Vec<CommunityCommentView>, CommunityServiceError> {
-        self.store
-            .list_comments(tenant_id, entry_id)
+        page: i64,
+        page_size: i64,
+    ) -> Result<(Vec<CommunityCommentView>, i64), CommunityServiceError> {
+        let offset = (page - 1).max(0) * page_size;
+        let items = self
+            .store
+            .list_comments(tenant_id, entry_id, page_size, offset)
             .await
             .map(|items| items.into_iter().map(map_comment).collect())
-            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        let total = self
+            .store
+            .count_comments(tenant_id, entry_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        Ok((items, total))
     }
 
     pub async fn create_comment(
@@ -405,11 +415,9 @@ impl CommunityService {
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
         self.store
-            .list_comments(tenant_id, entry_id)
+            .retrieve_comment(tenant_id, comment_id.as_str())
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
-            .into_iter()
-            .find(|comment| comment.id == comment_id)
             .map(map_comment)
             .ok_or_else(|| CommunityServiceError::Storage("created comment not found".to_owned()))
     }

@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use axum::extract::{Extension, Path, Query, State};
@@ -287,6 +288,7 @@ async fn publication_readiness(
 async fn list_comments(
     State(state): State<AppState>,
     Path(entry_id): Path<String>,
+    Query(query): Query<BTreeMap<String, String>>,
     context: Option<Extension<WebRequestContext>>,
     iam: Option<Extension<IamAppContext>>,
 ) -> Response {
@@ -299,19 +301,28 @@ async fn list_comments(
             )
         }
     };
+    let page = query
+        .get("page")
+        .and_then(|value| value.parse::<i64>().ok())
+        .filter(|value| *value >= 1)
+        .unwrap_or(1);
+    let page_size = query
+        .get("page_size")
+        .and_then(|value| value.parse::<i64>().ok())
+        .filter(|value| (1..=200).contains(value))
+        .unwrap_or(20);
     match state
         .service
-        .list_comments(&subject.tenant_id, &entry_id)
+        .list_comments(&subject.tenant_id, &entry_id, page, page_size)
         .await
     {
-        Ok(items) => {
-            let count = items.len() as i64;
+        Ok((items, total)) => {
             success_items(
                 context.as_ref().map(|Extension(ctx)| ctx),
                 items.into_iter().map(map_comment).collect(),
-                1,
-                count,
-                Some(count),
+                page,
+                page_size,
+                Some(total),
             )
         }
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),

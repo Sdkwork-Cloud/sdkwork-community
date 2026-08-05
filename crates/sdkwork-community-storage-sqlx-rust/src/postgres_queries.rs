@@ -37,6 +37,57 @@ pub async fn list_categories(
         .collect())
 }
 
+pub async fn count_comments(
+    pool: &PgPool,
+    tenant_id: &str,
+    entry_id: &str,
+) -> Result<i64, sqlx::Error> {
+    let total = sqlx::query_scalar(
+        r#"
+        SELECT COUNT(*)
+        FROM community_comment
+        WHERE tenant_id = $1 AND entry_id = $2
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(entry_id)
+    .fetch_one(pool)
+    .await?;
+    Ok(total)
+}
+
+pub async fn retrieve_comment(
+    pool: &PgPool,
+    tenant_id: &str,
+    comment_id: &str,
+) -> Result<Option<CommunityStoredComment>, sqlx::Error> {
+    let row = sqlx::query(
+        r#"
+        SELECT id, tenant_id, entry_id, author_id, author_name, body_markdown, review_state,
+               is_accepted_answer, created_at, updated_at
+        FROM community_comment
+        WHERE tenant_id = $1 AND id = $2
+        LIMIT 1
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(comment_id)
+    .fetch_optional(pool)
+    .await?;
+    Ok(row.map(|row| CommunityStoredComment {
+        id: string_cell(&row, "id"),
+        tenant_id: string_cell(&row, "tenant_id"),
+        entry_id: string_cell(&row, "entry_id"),
+        author_id: string_cell(&row, "author_id"),
+        author_name: string_cell(&row, "author_name"),
+        body_markdown: string_cell(&row, "body_markdown"),
+        review_state: string_cell(&row, "review_state"),
+        is_accepted_answer: bool_cell(&row, "is_accepted_answer"),
+        created_at: string_cell(&row, "created_at"),
+        updated_at: optional_string_cell(&row, "updated_at"),
+    }))
+}
+
 pub async fn create_category(
     pool: &PgPool,
     input: NewCommunityCategory,
@@ -376,6 +427,8 @@ pub async fn list_comments(
     pool: &PgPool,
     tenant_id: &str,
     entry_id: &str,
+    page_size: i64,
+    offset: i64,
 ) -> Result<Vec<CommunityStoredComment>, sqlx::Error> {
     let rows = sqlx::query(
         r#"
@@ -384,10 +437,13 @@ pub async fn list_comments(
         FROM community_comment
         WHERE tenant_id = $1 AND entry_id = $2
         ORDER BY created_at ASC
+        LIMIT $3 OFFSET $4
         "#,
     )
     .bind(tenant_id)
     .bind(entry_id)
+    .bind(page_size)
+    .bind(offset)
     .fetch_all(pool)
     .await?;
     Ok(rows

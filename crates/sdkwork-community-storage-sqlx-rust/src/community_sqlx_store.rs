@@ -158,8 +158,34 @@ impl CommunitySqlxStore {
         &self,
         tenant_id: &str,
         entry_id: &str,
+        page_size: i64,
+        offset: i64,
     ) -> Result<Vec<super::CommunityStoredComment>, sqlx::Error> {
-        super::postgres_queries::list_comments(self.postgres_pool(), tenant_id, entry_id).await
+        super::postgres_queries::list_comments(
+            self.postgres_pool(),
+            tenant_id,
+            entry_id,
+            page_size,
+            offset,
+        )
+        .await
+    }
+
+    pub async fn count_comments(
+        &self,
+        tenant_id: &str,
+        entry_id: &str,
+    ) -> Result<i64, sqlx::Error> {
+        super::postgres_queries::count_comments(self.postgres_pool(), tenant_id, entry_id).await
+    }
+
+    pub async fn retrieve_comment(
+        &self,
+        tenant_id: &str,
+        comment_id: &str,
+    ) -> Result<Option<super::CommunityStoredComment>, sqlx::Error> {
+        super::postgres_queries::retrieve_comment(self.postgres_pool(), tenant_id, comment_id)
+            .await
     }
 
     pub async fn create_comment(
