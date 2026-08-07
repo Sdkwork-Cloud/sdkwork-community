@@ -53,6 +53,18 @@ pub async fn bootstrap_community_database(
             .map_err(|error| format!("community database migrate failed: {error}"))?;
     }
 
+    if options.seed_on_boot {
+        orchestrator
+            .seed(&options.seed_locale, &options.seed_profile)
+            .await
+            .map_err(|error| {
+                format!(
+                    "community database module {} seed failed: {error}",
+                    manifest.module_id
+                )
+            })?;
+    }
+
     Ok(CommunityDatabaseHost { pool, module })
 }
 

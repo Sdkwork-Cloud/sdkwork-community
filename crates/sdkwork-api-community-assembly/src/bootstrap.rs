@@ -35,6 +35,26 @@ pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAsse
     assemble_api_router_with_host(host)
 }
 
+/// Builds the unwrapped Community App API for a gateway that owns the single
+/// Web Framework layer (API_ASSEMBLY_SPEC §3 federated contribution entrypoint).
+///
+/// The App surface (`/app/v3/api/community/*`) is composed from the
+/// process-shared database pool so the host gateway reuses its own IAM/web
+/// framework wiring; handlers resolve `IamAppContext` from the host-injected
+/// domain context and do not install a framework of their own.
+pub async fn assemble_app_api_contribution(pool: DatabasePool) -> Result<ApiAssembly, String> {
+    let host = CommunityServiceHost::from_database_pool(pool.clone()).await?;
+    let router = sdkwork_routes_community_app_api::build_app_router(host);
+    ApiAssemblyContribution::from_manifest(
+        "sdkwork-community",
+        "SDKWork Community App API",
+        router,
+        sdkwork_routes_community_app_api::gateway_route_manifest(),
+        Vec::new(),
+        Arc::new(DatabasePoolReadinessCheck::new(pool)),
+    )
+}
+
 pub fn assemble_api_router_with_host(
     host: Arc<CommunityServiceHost>,
 ) -> Result<ApiAssembly, String> {
@@ -91,6 +111,35 @@ fn authored_openapi_documents() -> Result<Vec<Value>, String> {
 mod tests {
     use super::*;
     use sdkwork_web_core::HttpMethod;
+
+    #[test]
+    fn app_api_contribution_uses_app_surface_entrypoints() {
+        let source = include_str!("bootstrap.rs");
+
+        assert!(source.contains("pub async fn assemble_app_api_contribution("));
+        assert!(source.contains("sdkwork_routes_community_app_api::build_app_router("));
+        assert!(source.contains("sdkwork_routes_community_app_api::gateway_route_manifest()"));
+        assert!(source.contains("ApiAssemblyContribution::from_manifest("));
+        // The app-surface entrypoint body must not mount the backend/open
+        // surfaces (those belong to the host-neutral all-surface assembly).
+        let assembly_index = source
+            .find("pub async fn assemble_app_api_contribution(")
+            .expect("app contribution entrypoint");
+        let body_end = source[assembly_index..]
+            .find("\npub fn assemble_api_router_with_host")
+            .map(|offset| assembly_index + offset)
+            .unwrap_or(source.len());
+        let assembled = &source[assembly_index..body_end];
+        for forbidden in [
+            "sdkwork_routes_community_backend_api::build_backend_router",
+            "sdkwork_routes_community_open_api::build_open_router",
+        ] {
+            assert!(
+                !assembled.contains(forbidden),
+                "app contribution must not mount {forbidden}"
+            );
+        }
+    }
 
     #[test]
     fn authored_openapi_matches_typed_route_permissions() {
