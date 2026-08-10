@@ -184,6 +184,178 @@ async fn app_router_mounts_every_openapi_operation_path() {
     fixture.close().await;
 }
 
+#[tokio::test]
+async fn app_circle_flow_creates_joins_manages_members_and_groups() {
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_app_router(fixture.host.clone())
+        .layer(Extension(test_iam_context("100001", "user_1")));
+
+    // Create a circle (owner membership is created implicitly).
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri("/app/v3/api/community/categories")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"title":"AI 开发者联盟","description":"AI 交流","tags":["AI"]}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .expect("create circle response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    assert_eq!(payload["code"], 0);
+    let category_id = payload["data"]["id"]
+        .as_str()
+        .expect("circle id")
+        .to_owned();
+    assert_eq!(payload["data"]["memberCount"], 1);
+    assert_eq!(payload["data"]["ownerId"], "user_1");
+
+    // Current member is the owner.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/members/current"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("current member response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["role"], "owner");
+
+    // Join as another member.
+    let second_app = build_app_router(fixture.host.clone())
+        .layer(Extension(test_iam_context("100001", "user_2")));
+    let response = second_app
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/join"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("join circle response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    let member_id = payload["data"]["id"]
+        .as_str()
+        .expect("member id")
+        .to_owned();
+
+    // Member list has both members.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/members"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("members response");
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["items"].as_array().expect("items").len(), 2);
+
+    // Owner promotes the member to admin.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::PATCH)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/members/{member_id}"
+                ))
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"role":"admin"}"#))
+                .unwrap(),
+        )
+        .await
+        .expect("update member response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["role"], "admin");
+
+    // Create and list groups.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!("/app/v3/api/community/categories/{category_id}/groups"))
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"name":"交流群","platform":"wechat","qrCodes":[{"url":"https://example.test/qr.png","description":"扫码加入"}]}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .expect("create group response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["name"], "交流群");
+    assert_eq!(
+        payload["data"]["qrCodes"][0]["url"],
+        "https://example.test/qr.png"
+    );
+
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/groups"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("groups response");
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["items"].as_array().expect("items").len(), 1);
+
+    // Circle member count reflects the join.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri("/app/v3/api/community/categories")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("categories response");
+    let payload = response_json(response).await;
+    let created = payload["data"]["items"]
+        .as_array()
+        .expect("items")
+        .iter()
+        .find(|item| item["id"] == category_id)
+        .expect("created circle");
+    assert_eq!(created["memberCount"], 2);
+
+    fixture.close().await;
+}
+
 fn assert_route_mounted(response: &axum::http::Response<Body>, method: &str, path: &str) {
     assert!(
         response
@@ -208,6 +380,9 @@ fn concrete_uri(template_path: &str) -> String {
     template_path
         .replace("{entryId}", "entry-1")
         .replace("{slug}", "product-update")
+        .replace("{categoryId}", "category-1")
+        .replace("{memberId}", "member-1")
+        .replace("{groupId}", "group-1")
 }
 
 fn openapi_request(method: Method, template_path: &str, uri: &str) -> Request<Body> {
@@ -238,6 +413,18 @@ fn sample_body(method: &Method, template_path: &str) -> String {
     if template_path.contains("/entries/{entryId}") && *method == Method::PATCH {
         return r#"{"categoryId":"category_product","kind":"discussion","title":"Updated title","tags":[]}"#
             .to_owned();
+    }
+    if template_path.ends_with("/categories") && *method == Method::POST {
+        return r#"{"title":"New circle","tags":[]}"#.to_owned();
+    }
+    if template_path.contains("/categories/{categoryId}") && *method == Method::PATCH {
+        return r#"{"title":"Updated circle","tags":[]}"#.to_owned();
+    }
+    if template_path.contains("/members/{memberId}") && *method == Method::PATCH {
+        return r#"{"role":"admin"}"#.to_owned();
+    }
+    if template_path.contains("/groups") && (*method == Method::POST || *method == Method::PATCH) {
+        return r#"{"name":"Group","platform":"wechat"}"#.to_owned();
     }
     "{}".to_owned()
 }

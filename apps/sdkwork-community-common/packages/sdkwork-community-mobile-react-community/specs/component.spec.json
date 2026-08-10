@@ -4,13 +4,13 @@
   "component": {
     "name": "@sdkwork/community-mobile-react-community",
     "displayName": "SDKWork Community Mobile React",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "type": "react-package",
     "root": "sdkwork-community/apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community",
     "domain": "community",
     "declaredDomain": "community",
     "capability": "community",
-    "status": "planned",
+    "status": "implemented",
     "languages": [
       "typescript",
       "react"
@@ -23,7 +23,8 @@
   },
   "contracts": {
     "publicExports": [
-      "."
+      ".",
+      "./i18n"
     ],
     "runtimeEntrypoints": [
       "package.json#scripts.typecheck",
@@ -34,13 +35,16 @@
     "configKeys": [
       "package.json#sdkwork"
     ],
-    "sdkDependencies": [],
+    "sdkDependencies": [
+      "@sdkwork/community-contracts",
+      "@sdkwork/community-sdk-ports"
+    ],
     "routeManifest": null
   },
   "integration": {
     "authority": "The canonical Community App API and composed app SDK remain the only authority for remote Community capabilities.",
-    "dependencyPolicy": "Consumers integrate through this package public export only after its planned capability model is represented by owner App API operations.",
-    "sdkPolicy": "The package fails closed for unavailable capabilities and must not add raw HTTP, manual auth headers, local DTO transport forks, or generated SDK edits."
+    "dependencyPolicy": "Consumers integrate through this package public export only; hosts inject the community App SDK port through configureCommunityRuntimePort.",
+    "sdkPolicy": "The package must not add raw HTTP, manual auth headers, local DTO transport forks, or generated SDK edits; all remote data flows through the injected community App SDK port."
   },
   "verification": {
     "commands": [

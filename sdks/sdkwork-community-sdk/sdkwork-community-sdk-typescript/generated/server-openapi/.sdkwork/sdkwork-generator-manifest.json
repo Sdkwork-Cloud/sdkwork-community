@@ -40,7 +40,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "e86b70189da8423beec5747854f0df9a0aaca32adbd75b4b700f09dbe436b9cc"
+      "sha256": "9273cc06ec654e065805ec504a10c597cac7c281559381073ced81cbddea0119"
     },
     {
       "path": "README.md",
@@ -72,7 +72,7 @@
     },
     {
       "path": "src/http/client.ts",
-      "sha256": "703617f015f375c3da14f021edfb827e14cede027981a24d3da2c215556c241c"
+      "sha256": "0c64271b8ca183e491099beafbd1026b3f40c8131fdd21793a44dfac3fe7438d"
     },
     {
       "path": "src/http/index.ts",
@@ -100,7 +100,11 @@
     },
     {
       "path": "src/types/community-category.ts",
-      "sha256": "946ea8dfd6917cbca8c8a4a86746077e2bf8ce792b237a0d8253b3886c7123ac"
+      "sha256": "b7d30114a21f8902b8b07fecc082d544677d710d04e6f1c42b32110e322538b2"
+    },
+    {
+      "path": "src/types/community-circle-command.ts",
+      "sha256": "bf8ae5edd31ad27d863912dcc06b3bffe5a9112c6940045d0603d4075090cad1"
     },
     {
       "path": "src/types/community-comment-command.ts",
@@ -121,6 +125,26 @@
     {
       "path": "src/types/community-entry.ts",
       "sha256": "58030a2fa1171b9fdef8d312ffd9abb443c1122419d5d859ff58aef49023bf45"
+    },
+    {
+      "path": "src/types/community-group-command.ts",
+      "sha256": "f2c4b47443b16ce113c880a6046d653a4ef1e5936a66cbad70208019b50a2e4f"
+    },
+    {
+      "path": "src/types/community-group-qr.ts",
+      "sha256": "00d8d485d3be0f038b82ac59504b8c74d7b9d2b8730084e122142aa4fbcc8eed"
+    },
+    {
+      "path": "src/types/community-group-response.ts",
+      "sha256": "c98e29c4e7b360ecd92ca588b51fec91599683b6071e1ec6dd0e5bbf3115b5cf"
+    },
+    {
+      "path": "src/types/community-member-patch-command.ts",
+      "sha256": "37e11d60ff30a936eae10800e00709a756abc49760f477365f718d6c81395b9f"
+    },
+    {
+      "path": "src/types/community-member-response.ts",
+      "sha256": "9acd30feb88a197ba0afe0a34b2a8bc41c4bd0267d71e8f819e75fad5a45547f"
     },
     {
       "path": "src/types/community-moderation-command.ts",
@@ -152,7 +176,7 @@
     },
     {
       "path": "src/types/index.ts",
-      "sha256": "18f5a6d0bdff0f28b05ff16f708654e6bf3170e8e5cadf15696f888091e2350e"
+      "sha256": "1a03f75060f049881c59b76e6be377c5117ca76bf2c285a7f8edacf34399421e"
     },
     {
       "path": "src/types/page-info.ts",

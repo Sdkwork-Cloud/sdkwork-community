@@ -12,36 +12,36 @@
   "mode": "apply",
   "hasChanges": true,
   "hasDestructiveChanges": false,
-  "changeFingerprint": "f85f9d8a776767c8a6c63c8a7141e6872a250e4a1603581ae18e6904b6f997b5",
+  "changeFingerprint": "b0390d967ad772ec0edfb252d07dbdaf01a2c84da2bbe8a440dbb3231e4711c6",
   "changeImpact": {
     "schemaVersion": 1,
     "areas": [
       "api-surface",
-      "runtime",
-      "build-metadata"
+      "models"
     ],
     "details": [
       {
         "area": "api-surface",
         "paths": [
-          "src/http/client.ts"
+          "src/api/community.ts"
         ]
       },
       {
-        "area": "runtime",
+        "area": "models",
         "paths": [
-          "src/http/client.ts"
-        ]
-      },
-      {
-        "area": "build-metadata",
-        "paths": [
-          "package.json"
+          "src/types/community-category.ts",
+          "src/types/community-circle-command.ts",
+          "src/types/community-group-command.ts",
+          "src/types/community-group-qr.ts",
+          "src/types/community-group-response.ts",
+          "src/types/community-member-patch-command.ts",
+          "src/types/community-member-response.ts",
+          "src/types/index.ts"
         ]
       }
     ],
     "requiresVerification": true,
-    "summary": "Detected impact areas: api-surface, runtime, build-metadata. Verification is required."
+    "summary": "Detected impact areas: api-surface, models. Verification is required."
   },
   "executionDecision": {
     "schemaVersion": 1,
@@ -62,7 +62,7 @@
         "id": "verify-check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, runtime, build-metadata.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-app-sdk\\sdkwork-community-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -80,7 +80,7 @@
         "id": "verify-build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, runtime, build-metadata.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-app-sdk\\sdkwork-community-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -99,13 +99,13 @@
   "verificationPlan": {
     "shouldRun": true,
     "runPhase": "now",
-    "summary": "Detected impact areas: api-surface, runtime, build-metadata. Verification is required. Run the required verification commands now against the generated SDK output.",
+    "summary": "Detected impact areas: api-surface, models. Verification is required. Run the required verification commands now against the generated SDK output.",
     "steps": [
       {
         "id": "check",
         "title": "Unified package check",
         "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, runtime, build-metadata.",
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-app-sdk\\sdkwork-community-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -123,7 +123,7 @@
         "id": "build",
         "title": "Unified package build",
         "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, runtime, build-metadata.",
+        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models.",
         "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-app-sdk\\sdkwork-community-app-sdk-typescript\\generated\\server-openapi",
         "command": "node",
         "args": [
@@ -153,26 +153,34 @@
     "localVersions": []
   },
   "stats": {
-    "totalFiles": 49,
-    "models": 25,
+    "totalFiles": 55,
+    "models": 31,
     "apis": 1,
-    "types": 27
+    "types": 33
   },
   "warnings": [],
   "syncSummary": {
     "dryRun": false,
     "controlPlaneEnabled": true,
-    "writtenFiles": 2,
+    "writtenFiles": 9,
     "skippedScaffoldFiles": 2,
-    "skippedUnchangedGeneratedFiles": 45,
+    "skippedUnchangedGeneratedFiles": 44,
     "deletedGeneratedFiles": 0,
     "changeSummaryPath": ".sdkwork/sdkwork-generator-changes.json",
-    "changeFingerprint": "f85f9d8a776767c8a6c63c8a7141e6872a250e4a1603581ae18e6904b6f997b5",
+    "changeFingerprint": "b0390d967ad772ec0edfb252d07dbdaf01a2c84da2bbe8a440dbb3231e4711c6",
     "changes": {
-      "createdGeneratedFiles": [],
+      "createdGeneratedFiles": [
+        "src/types/community-circle-command.ts",
+        "src/types/community-group-command.ts",
+        "src/types/community-group-qr.ts",
+        "src/types/community-group-response.ts",
+        "src/types/community-member-patch-command.ts",
+        "src/types/community-member-response.ts"
+      ],
       "updatedGeneratedFiles": [
-        "package.json",
-        "src/http/client.ts"
+        "src/api/community.ts",
+        "src/types/community-category.ts",
+        "src/types/index.ts"
       ],
       "unchangedGeneratedFiles": [
         "bin/publish-core.mjs",
@@ -182,20 +190,20 @@
         "bin/sdk-gen.sh",
         "CHANGELOG.md",
         "LICENSE",
+        "package.json",
         "README.md",
         "sdkwork-sdk.json",
         "src/api/base.ts",
-        "src/api/community.ts",
         "src/api/index.ts",
         "src/api/paths.ts",
         "src/auth/index.ts",
+        "src/http/client.ts",
         "src/http/index.ts",
         "src/index.ts",
         "src/sdk.ts",
         "src/types/common.ts",
         "src/types/community-author.ts",
         "src/types/community-category-command.ts",
-        "src/types/community-category.ts",
         "src/types/community-comment-command.ts",
         "src/types/community-comment.ts",
         "src/types/community-entry-command.ts",
@@ -208,7 +216,6 @@
         "src/types/community-review-state.ts",
         "src/types/community-stats.ts",
         "src/types/field-error.ts",
-        "src/types/index.ts",
         "src/types/page-info.ts",
         "src/types/problem-detail.ts",
         "src/types/sdk-work-api-response.ts",
@@ -233,42 +240,42 @@
       "schemaVersion": 1,
       "areas": [
         "api-surface",
-        "runtime",
-        "build-metadata"
+        "models"
       ],
       "details": [
         {
           "area": "api-surface",
           "paths": [
-            "src/http/client.ts"
+            "src/api/community.ts"
           ]
         },
         {
-          "area": "runtime",
+          "area": "models",
           "paths": [
-            "src/http/client.ts"
-          ]
-        },
-        {
-          "area": "build-metadata",
-          "paths": [
-            "package.json"
+            "src/types/community-category.ts",
+            "src/types/community-circle-command.ts",
+            "src/types/community-group-command.ts",
+            "src/types/community-group-qr.ts",
+            "src/types/community-group-response.ts",
+            "src/types/community-member-patch-command.ts",
+            "src/types/community-member-response.ts",
+            "src/types/index.ts"
           ]
         }
       ],
       "requiresVerification": true,
-      "summary": "Detected impact areas: api-surface, runtime, build-metadata. Verification is required."
+      "summary": "Detected impact areas: api-surface, models. Verification is required."
     },
     "verificationPlan": {
       "shouldRun": true,
       "runPhase": "now",
-      "summary": "Detected impact areas: api-surface, runtime, build-metadata. Verification is required. Run the required verification commands now against the generated SDK output.",
+      "summary": "Detected impact areas: api-surface, models. Verification is required. Run the required verification commands now against the generated SDK output.",
       "steps": [
         {
           "id": "check",
           "title": "Unified package check",
           "required": true,
-          "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, runtime, build-metadata.",
+          "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models.",
           "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-app-sdk\\sdkwork-community-app-sdk-typescript\\generated\\server-openapi",
           "command": "node",
           "args": [
@@ -286,7 +293,7 @@
           "id": "build",
           "title": "Unified package build",
           "required": true,
-          "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, runtime, build-metadata.",
+          "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models.",
           "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-app-sdk\\sdkwork-community-app-sdk-typescript\\generated\\server-openapi",
           "command": "node",
           "args": [

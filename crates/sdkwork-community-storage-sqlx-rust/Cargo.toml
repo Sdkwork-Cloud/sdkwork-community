@@ -17,7 +17,8 @@ sdkwork-community-database-host.workspace = true
 sdkwork-database-config.workspace = true
 sdkwork-database-sqlx.workspace = true
 sdkwork-utils-rust.workspace = true
-sqlx = { workspace = true, features = ["runtime-tokio", "postgres"] }
+serde.workspace = true
+sqlx = { workspace = true, features = ["json", "runtime-tokio", "postgres"] }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

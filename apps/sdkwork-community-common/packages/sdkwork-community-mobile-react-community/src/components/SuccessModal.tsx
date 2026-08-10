@@ -4,7 +4,7 @@ import { cn } from "@sdkwork/ui-mobile-react";
 import { Check } from "lucide-react";
 
 interface SuccessModalProps {
-  isPaid: boolean;
+  isPaid?: boolean;
   communityName: string;
   hasGroups: boolean;
   onClose: () => void;

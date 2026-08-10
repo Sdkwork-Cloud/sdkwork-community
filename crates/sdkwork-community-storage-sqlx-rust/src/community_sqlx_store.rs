@@ -42,6 +42,14 @@ pub struct CommunityCategoryPatch {
     pub slug: Option<String>,
     pub title: Option<String>,
     pub description: Option<String>,
+    pub cover_image: Option<String>,
+    pub avatar: Option<String>,
+    pub owner_id: Option<String>,
+    pub member_count: Option<i64>,
+    pub post_count: Option<i64>,
+    pub is_paid: Option<bool>,
+    pub price: Option<f64>,
+    pub tags: Option<Vec<String>>,
     pub priority: Option<i64>,
     pub enabled: Option<bool>,
 }
@@ -184,8 +192,7 @@ impl CommunitySqlxStore {
         tenant_id: &str,
         comment_id: &str,
     ) -> Result<Option<super::CommunityStoredComment>, sqlx::Error> {
-        super::postgres_queries::retrieve_comment(self.postgres_pool(), tenant_id, comment_id)
-            .await
+        super::postgres_queries::retrieve_comment(self.postgres_pool(), tenant_id, comment_id).await
     }
 
     pub async fn create_comment(
@@ -251,5 +258,108 @@ impl CommunitySqlxStore {
 
     pub async fn rebuild_recommendations(&self, tenant_id: &str) -> Result<i64, sqlx::Error> {
         super::postgres_queries::rebuild_recommendations(self.postgres_pool(), tenant_id).await
+    }
+
+    pub async fn list_members(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<Vec<super::CommunityStoredMember>, sqlx::Error> {
+        super::postgres_queries::list_members(self.postgres_pool(), tenant_id, category_id).await
+    }
+
+    pub async fn current_member(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+    ) -> Result<Option<super::CommunityStoredMember>, sqlx::Error> {
+        super::postgres_queries::current_member(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            user_id,
+        )
+        .await
+    }
+
+    pub async fn create_member(&self, input: super::NewCommunityMember) -> Result<(), sqlx::Error> {
+        super::postgres_queries::create_member(self.postgres_pool(), input).await
+    }
+
+    pub async fn update_member(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        member_id: &str,
+        patch: &super::CommunityMemberPatch,
+    ) -> Result<(), sqlx::Error> {
+        super::postgres_queries::update_member(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            member_id,
+            patch,
+        )
+        .await
+    }
+
+    pub async fn delete_member(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        member_id: &str,
+    ) -> Result<bool, sqlx::Error> {
+        super::postgres_queries::delete_member(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            member_id,
+        )
+        .await
+    }
+
+    pub async fn list_groups(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<Vec<super::CommunityStoredGroup>, sqlx::Error> {
+        super::postgres_queries::list_groups(self.postgres_pool(), tenant_id, category_id).await
+    }
+
+    pub async fn create_group(&self, input: super::NewCommunityGroup) -> Result<(), sqlx::Error> {
+        super::postgres_queries::create_group(self.postgres_pool(), input).await
+    }
+
+    pub async fn update_group(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        group_id: &str,
+        patch: &super::CommunityGroupPatch,
+    ) -> Result<(), sqlx::Error> {
+        super::postgres_queries::update_group(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            group_id,
+            patch,
+        )
+        .await
+    }
+
+    pub async fn delete_group(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        group_id: &str,
+    ) -> Result<bool, sqlx::Error> {
+        super::postgres_queries::delete_group(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            group_id,
+        )
+        .await
     }
 }

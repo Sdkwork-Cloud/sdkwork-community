@@ -2,9 +2,10 @@ use std::sync::Arc;
 
 use chrono::Utc;
 use sdkwork_community_storage_sqlx::{
-    CommunityFeedQuery, CommunitySqlxStore, CommunityStoredCategory, CommunityStoredComment,
-    CommunityStoredEntry, NewCommunityCategory, NewCommunityComment, NewCommunityEntry,
-    SetCommunityReaction,
+    CommunityFeedQuery, CommunityGroupPatch, CommunityMemberPatch, CommunitySqlxStore,
+    CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry, CommunityStoredGroup,
+    CommunityStoredGroupQr, CommunityStoredMember, NewCommunityCategory, NewCommunityComment,
+    NewCommunityEntry, NewCommunityGroup, NewCommunityMember, SetCommunityReaction,
 };
 use sdkwork_utils_rust::{slugify, uuid, validated_offset_list_params};
 
@@ -17,8 +18,49 @@ pub struct CommunityCategoryView {
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
+    pub cover_image: Option<String>,
+    pub avatar: Option<String>,
+    pub owner_id: Option<String>,
+    pub member_count: i64,
+    pub post_count: i64,
+    pub is_paid: bool,
+    pub price: Option<f64>,
+    pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct CommunityMemberView {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub user_id: String,
+    pub user_name: String,
+    pub role: String,
+    pub status: String,
+    pub bio: Option<String>,
+    pub joined_at: String,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct CommunityGroupQrView {
+    pub url: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct CommunityGroupView {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub platform: String,
+    pub description: Option<String>,
+    pub member_count: i64,
+    pub qr_codes: Vec<CommunityGroupQrView>,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Clone)]
@@ -89,6 +131,37 @@ pub struct CommunityCategoryCommand {
     pub description: Option<String>,
     pub priority: Option<i64>,
     pub enabled: Option<bool>,
+}
+
+/// App-facing circle (圈子) creation/update command. `slug` is derived from
+/// the title by the service.
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityCircleCommand {
+    pub title: String,
+    pub description: Option<String>,
+    pub cover_image: Option<String>,
+    pub avatar: Option<String>,
+    pub is_paid: Option<bool>,
+    pub price: Option<f64>,
+    pub tags: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityMemberPatchCommand {
+    pub role: Option<String>,
+    pub status: Option<String>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityGroupCommand {
+    pub name: String,
+    pub platform: String,
+    pub description: Option<String>,
+    pub member_count: Option<i64>,
+    pub qr_codes: Option<Vec<CommunityGroupQrView>>,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -228,6 +301,7 @@ impl CommunityService {
         let now = Utc::now().to_rfc3339();
         let entry_id = uuid();
         let slug = slugify(&command.title);
+        let category_id = command.category_id.clone();
         let input = NewCommunityEntry {
             id: entry_id.clone(),
             tenant_id: tenant_id.to_owned(),
@@ -246,6 +320,8 @@ impl CommunityService {
             .create_entry(input)
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.adjust_category_counts(tenant_id, &category_id, 0, 1)
+            .await?;
         self.retrieve_entry(tenant_id, &entry_id, false).await
     }
 
@@ -492,6 +568,12 @@ impl CommunityService {
                 slug: slugify(&command.slug),
                 title: command.title,
                 description: command.description,
+                cover_image: None,
+                avatar: None,
+                owner_id: None,
+                is_paid: false,
+                price: None,
+                tags: Vec::new(),
                 priority: command.priority.unwrap_or(0),
                 enabled: command.enabled.unwrap_or(true),
                 now,
@@ -522,6 +604,14 @@ impl CommunityService {
                     slug: (!command.slug.trim().is_empty()).then_some(slugify(&command.slug)),
                     title: (!command.title.trim().is_empty()).then_some(command.title),
                     description: command.description,
+                    cover_image: None,
+                    avatar: None,
+                    owner_id: None,
+                    member_count: None,
+                    post_count: None,
+                    is_paid: None,
+                    price: None,
+                    tags: None,
                     priority: command.priority,
                     enabled: command.enabled,
                 },
@@ -560,6 +650,422 @@ impl CommunityService {
             resource_id: Some(category_id.to_owned()),
             status: Some("deleted".to_owned()),
         })
+    }
+
+    /// Creates a circle (圈子): a category owned by the creator with an owner
+    /// membership row.
+    pub async fn create_circle(
+        &self,
+        tenant_id: &str,
+        user_id: &str,
+        display_name: &str,
+        command: CommunityCircleCommand,
+    ) -> Result<CommunityCategoryView, CommunityServiceError> {
+        if command.title.trim().is_empty() {
+            return Err(CommunityServiceError::Validation(
+                "circle title is required".to_owned(),
+            ));
+        }
+        let now = Utc::now().to_rfc3339();
+        let category_id = uuid();
+        self.store
+            .create_category(NewCommunityCategory {
+                id: category_id.clone(),
+                tenant_id: tenant_id.to_owned(),
+                slug: slugify(&command.title),
+                title: command.title,
+                description: command.description,
+                cover_image: command.cover_image,
+                avatar: command.avatar,
+                owner_id: Some(user_id.to_owned()),
+                is_paid: command.is_paid.unwrap_or(false),
+                price: command.price,
+                tags: command.tags.unwrap_or_default(),
+                priority: 0,
+                enabled: true,
+                now: now.clone(),
+            })
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.store
+            .create_member(NewCommunityMember {
+                id: uuid(),
+                tenant_id: tenant_id.to_owned(),
+                category_id: category_id.clone(),
+                user_id: user_id.to_owned(),
+                user_name: display_name.to_owned(),
+                role: "owner".to_owned(),
+                bio: None,
+                now,
+            })
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.adjust_category_counts(tenant_id, &category_id, 1, 0)
+            .await?;
+        self.retrieve_category(tenant_id, &category_id).await
+    }
+
+    pub async fn update_circle(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        command: CommunityCircleCommand,
+    ) -> Result<CommunityCategoryView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        self.store
+            .update_category(
+                tenant_id,
+                category_id,
+                &sdkwork_community_storage_sqlx::CommunityCategoryPatch {
+                    slug: None,
+                    title: (!command.title.trim().is_empty()).then_some(command.title),
+                    description: command.description,
+                    cover_image: command.cover_image,
+                    avatar: command.avatar,
+                    owner_id: None,
+                    member_count: None,
+                    post_count: None,
+                    is_paid: command.is_paid,
+                    price: command.price,
+                    tags: command.tags,
+                    priority: None,
+                    enabled: None,
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.retrieve_category(tenant_id, category_id).await
+    }
+
+    pub async fn retrieve_category(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<CommunityCategoryView, CommunityServiceError> {
+        self.store
+            .list_categories(tenant_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
+            .into_iter()
+            .find(|category| category.id == category_id)
+            .map(map_category)
+            .ok_or_else(|| {
+                CommunityServiceError::NotFound(format!("category {category_id} not found"))
+            })
+    }
+
+    pub async fn list_members(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<Vec<CommunityMemberView>, CommunityServiceError> {
+        self.store
+            .list_members(tenant_id, category_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+            .map(|items| items.into_iter().map(map_member).collect())
+    }
+
+    pub async fn current_member(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+    ) -> Result<Option<CommunityMemberView>, CommunityServiceError> {
+        self.store
+            .current_member(tenant_id, category_id, user_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+            .map(|member| member.map(map_member))
+    }
+
+    pub async fn join_category(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+        display_name: &str,
+    ) -> Result<CommunityMemberView, CommunityServiceError> {
+        self.retrieve_category(tenant_id, category_id).await?;
+        if let Some(member) = self.current_member(tenant_id, category_id, user_id).await? {
+            return Ok(member);
+        }
+        let now = Utc::now().to_rfc3339();
+        let member_id = uuid();
+        self.store
+            .create_member(NewCommunityMember {
+                id: member_id.clone(),
+                tenant_id: tenant_id.to_owned(),
+                category_id: category_id.to_owned(),
+                user_id: user_id.to_owned(),
+                user_name: display_name.to_owned(),
+                role: "member".to_owned(),
+                bio: None,
+                now,
+            })
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.adjust_category_counts(tenant_id, category_id, 1, 0)
+            .await?;
+        self.current_member(tenant_id, category_id, user_id)
+            .await?
+            .ok_or_else(|| CommunityServiceError::Storage("joined membership not found".to_owned()))
+    }
+
+    pub async fn update_member(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        member_id: &str,
+        command: CommunityMemberPatchCommand,
+    ) -> Result<CommunityMemberView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        let member = self
+            .list_members(tenant_id, category_id)
+            .await?
+            .into_iter()
+            .find(|member| member.id == member_id)
+            .ok_or_else(|| {
+                CommunityServiceError::NotFound(format!("member {member_id} not found"))
+            })?;
+        if member.role == "owner" && command.role.as_deref() == Some("member") {
+            return Err(CommunityServiceError::Validation(
+                "the owner role cannot be demoted".to_owned(),
+            ));
+        }
+        self.store
+            .update_member(
+                tenant_id,
+                category_id,
+                member_id,
+                &CommunityMemberPatch {
+                    role: command.role,
+                    status: command.status,
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.list_members(tenant_id, category_id)
+            .await?
+            .into_iter()
+            .find(|member| member.id == member_id)
+            .ok_or_else(|| CommunityServiceError::NotFound(format!("member {member_id} not found")))
+    }
+
+    pub async fn remove_member(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        member_id: &str,
+    ) -> Result<CommunityCommandAccepted, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        let deleted = self
+            .store
+            .delete_member(tenant_id, category_id, member_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        if !deleted {
+            return Err(CommunityServiceError::NotFound(format!(
+                "member {member_id} not found"
+            )));
+        }
+        self.adjust_category_counts(tenant_id, category_id, -1, 0)
+            .await?;
+        Ok(CommunityCommandAccepted {
+            accepted: true,
+            resource_id: Some(member_id.to_owned()),
+            status: Some("removed".to_owned()),
+        })
+    }
+
+    pub async fn list_groups(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<Vec<CommunityGroupView>, CommunityServiceError> {
+        self.store
+            .list_groups(tenant_id, category_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+            .map(|items| items.into_iter().map(map_group).collect())
+    }
+
+    pub async fn create_group(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        command: CommunityGroupCommand,
+    ) -> Result<CommunityGroupView, CommunityServiceError> {
+        self.require_member(tenant_id, category_id, actor_user_id)
+            .await?;
+        if command.name.trim().is_empty() {
+            return Err(CommunityServiceError::Validation(
+                "group name is required".to_owned(),
+            ));
+        }
+        let now = Utc::now().to_rfc3339();
+        let group_id = uuid();
+        self.store
+            .create_group(NewCommunityGroup {
+                id: group_id.clone(),
+                tenant_id: tenant_id.to_owned(),
+                category_id: category_id.to_owned(),
+                name: command.name,
+                platform: command.platform,
+                description: command.description,
+                member_count: command.member_count.unwrap_or(0),
+                qr_codes: command
+                    .qr_codes
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|qr| CommunityStoredGroupQr {
+                        url: qr.url,
+                        description: qr.description,
+                    })
+                    .collect(),
+                now,
+            })
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.list_groups(tenant_id, category_id)
+            .await?
+            .into_iter()
+            .find(|group| group.id == group_id)
+            .ok_or_else(|| CommunityServiceError::Storage("created group not found".to_owned()))
+    }
+
+    pub async fn update_group(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        group_id: &str,
+        command: CommunityGroupCommand,
+    ) -> Result<CommunityGroupView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        self.store
+            .update_group(
+                tenant_id,
+                category_id,
+                group_id,
+                &CommunityGroupPatch {
+                    name: (!command.name.trim().is_empty()).then_some(command.name),
+                    platform: (!command.platform.trim().is_empty()).then_some(command.platform),
+                    description: command.description,
+                    member_count: command.member_count,
+                    qr_codes: command.qr_codes.map(|qrs| {
+                        qrs.into_iter()
+                            .map(|qr| CommunityStoredGroupQr {
+                                url: qr.url,
+                                description: qr.description,
+                            })
+                            .collect()
+                    }),
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.list_groups(tenant_id, category_id)
+            .await?
+            .into_iter()
+            .find(|group| group.id == group_id)
+            .ok_or_else(|| CommunityServiceError::NotFound(format!("group {group_id} not found")))
+    }
+
+    pub async fn delete_group(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        group_id: &str,
+    ) -> Result<CommunityCommandAccepted, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        let deleted = self
+            .store
+            .delete_group(tenant_id, category_id, group_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        if !deleted {
+            return Err(CommunityServiceError::NotFound(format!(
+                "group {group_id} not found"
+            )));
+        }
+        Ok(CommunityCommandAccepted {
+            accepted: true,
+            resource_id: Some(group_id.to_owned()),
+            status: Some("deleted".to_owned()),
+        })
+    }
+
+    async fn adjust_category_counts(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        member_delta: i64,
+        post_delta: i64,
+    ) -> Result<(), CommunityServiceError> {
+        let category = self.retrieve_category(tenant_id, category_id).await?;
+        self.store
+            .update_category(
+                tenant_id,
+                category_id,
+                &sdkwork_community_storage_sqlx::CommunityCategoryPatch {
+                    slug: None,
+                    title: None,
+                    description: None,
+                    cover_image: None,
+                    avatar: None,
+                    owner_id: None,
+                    member_count: Some((category.member_count + member_delta).max(0)),
+                    post_count: Some((category.post_count + post_delta).max(0)),
+                    is_paid: None,
+                    price: None,
+                    tags: None,
+                    priority: None,
+                    enabled: None,
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+    }
+
+    async fn require_member(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+    ) -> Result<(), CommunityServiceError> {
+        let member = self.current_member(tenant_id, category_id, user_id).await?;
+        if member.is_none() {
+            return Err(CommunityServiceError::Unauthorized(
+                "membership required".to_owned(),
+            ));
+        }
+        Ok(())
+    }
+
+    async fn require_manager(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+    ) -> Result<(), CommunityServiceError> {
+        let member = self.current_member(tenant_id, category_id, user_id).await?;
+        match member.as_ref().map(|member| member.role.as_str()) {
+            Some("owner" | "admin") => Ok(()),
+            _ => Err(CommunityServiceError::Unauthorized(
+                "owner or admin role required".to_owned(),
+            )),
+        }
     }
 
     pub async fn update_moderation(
@@ -667,8 +1173,52 @@ fn map_category(category: CommunityStoredCategory) -> CommunityCategoryView {
         slug: category.slug,
         title: category.title,
         description: category.description,
+        cover_image: category.cover_image,
+        avatar: category.avatar,
+        owner_id: category.owner_id,
+        member_count: category.member_count,
+        post_count: category.post_count,
+        is_paid: category.is_paid,
+        price: category.price,
+        tags: category.tags,
         priority: category.priority,
         enabled: category.enabled,
+    }
+}
+
+fn map_member(member: CommunityStoredMember) -> CommunityMemberView {
+    CommunityMemberView {
+        id: member.id,
+        tenant_id: member.tenant_id,
+        category_id: member.category_id,
+        user_id: member.user_id,
+        user_name: member.user_name,
+        role: member.role,
+        status: member.status,
+        bio: member.bio,
+        joined_at: member.joined_at,
+    }
+}
+
+fn map_group(group: CommunityStoredGroup) -> CommunityGroupView {
+    CommunityGroupView {
+        id: group.id,
+        tenant_id: group.tenant_id,
+        category_id: group.category_id,
+        name: group.name,
+        platform: group.platform,
+        description: group.description,
+        member_count: group.member_count,
+        qr_codes: group
+            .qr_codes
+            .into_iter()
+            .map(|qr| CommunityGroupQrView {
+                url: qr.url,
+                description: qr.description,
+            })
+            .collect(),
+        created_at: group.created_at,
+        updated_at: group.updated_at,
     }
 }
 

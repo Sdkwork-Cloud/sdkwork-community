@@ -143,7 +143,7 @@ const counts = {
   open: checkDocument(open, "sdkwork-community-open-api", "/community/v3/api", []),
 };
 
-if (counts.app !== 11 || counts.backend !== 11 || counts.open !== 4) {
+if (counts.app !== 22 || counts.backend !== 11 || counts.open !== 4) {
   fail(`unexpected route counts ${JSON.stringify(counts)}`);
 }
 

@@ -81,8 +81,8 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
         <IconButton
           icon={<MoreVertical className="w-5 h-5 text-text-sub" />}
           className="bg-transparent"
-          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-            event.stopPropagation();
+          onClick={(e) => {
+            e.stopPropagation();
             onSelect(member);
           }}
         />

@@ -145,6 +145,8 @@ fn probe_request(method: HttpMethod, template_path: &str) -> Request<Body> {
     let method = axum_method(method);
     let uri = template_path
         .replace("{categoryId}", "runtime-parity-missing-category")
+        .replace("{memberId}", "runtime-parity-missing-member")
+        .replace("{groupId}", "runtime-parity-missing-group")
         .replace("{entryId}", "runtime-parity-missing-entry")
         .replace("{slug}", "runtime-parity-missing-slug");
     let body = probe_body(&method, template_path);
@@ -162,8 +164,14 @@ fn probe_request(method: HttpMethod, template_path: &str) -> Request<Body> {
 }
 
 fn probe_body(method: &Method, path: &str) -> &'static str {
+    if *method == Method::PATCH && path.contains("/members/") {
+        return r#"{"role":"admin"}"#;
+    }
+    if *method == Method::PATCH && path.contains("/groups/") {
+        return r#"{"name":"runtime parity probe","platform":"wechat"}"#;
+    }
     if *method == Method::PATCH && path.contains("/categories/") {
-        return r#"{"slug":"","title":""}"#;
+        return r#"{"slug":"","title":"runtime parity probe"}"#;
     }
     if *method == Method::PATCH && path.contains("/entries/") {
         return r#"{"categoryId":"","kind":"discussion","title":"","tags":[]}"#;
@@ -172,7 +180,13 @@ fn probe_body(method: &Method, path: &str) -> &'static str {
         return "";
     }
     if path.ends_with("/categories") {
-        return r#"{"slug":"","title":""}"#;
+        return r#"{"slug":"","title":"runtime parity probe"}"#;
+    }
+    if path.ends_with("/join") {
+        return "{}";
+    }
+    if path.ends_with("/groups") {
+        return r#"{"name":"runtime parity probe","platform":"wechat"}"#;
     }
     if path.ends_with("/entries") {
         return r#"{"categoryId":"","kind":"discussion","title":"","tags":[]}"#;

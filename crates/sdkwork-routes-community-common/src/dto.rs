@@ -1,4 +1,7 @@
-use sdkwork_community_service::{CommunityCategoryView, CommunityCommentView, CommunityEntryView};
+use sdkwork_community_service::{
+    CommunityCategoryView, CommunityCommentView, CommunityEntryView, CommunityGroupView,
+    CommunityMemberView,
+};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -57,8 +60,59 @@ pub struct CommunityCategoryResponse {
     pub title: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cover_image: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owner_id: Option<String>,
+    pub member_count: i64,
+    pub post_count: i64,
+    pub is_paid: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub price: Option<f64>,
+    pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityMemberResponse {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub user_id: String,
+    pub user_name: String,
+    pub role: String,
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bio: Option<String>,
+    pub joined_at: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityGroupQrResponse {
+    pub url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityGroupResponse {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub platform: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    pub member_count: i64,
+    pub qr_codes: Vec<CommunityGroupQrResponse>,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -116,8 +170,52 @@ pub fn map_category(category: CommunityCategoryView) -> CommunityCategoryRespons
         slug: category.slug,
         title: category.title,
         description: category.description,
+        cover_image: category.cover_image,
+        avatar: category.avatar,
+        owner_id: category.owner_id,
+        member_count: category.member_count,
+        post_count: category.post_count,
+        is_paid: category.is_paid,
+        price: category.price,
+        tags: category.tags,
         priority: category.priority,
         enabled: category.enabled,
+    }
+}
+
+pub fn map_member(member: CommunityMemberView) -> CommunityMemberResponse {
+    CommunityMemberResponse {
+        id: member.id,
+        tenant_id: member.tenant_id,
+        category_id: member.category_id,
+        user_id: member.user_id,
+        user_name: member.user_name,
+        role: member.role,
+        status: member.status,
+        bio: member.bio,
+        joined_at: member.joined_at,
+    }
+}
+
+pub fn map_group(group: CommunityGroupView) -> CommunityGroupResponse {
+    CommunityGroupResponse {
+        id: group.id,
+        tenant_id: group.tenant_id,
+        category_id: group.category_id,
+        name: group.name,
+        platform: group.platform,
+        description: group.description,
+        member_count: group.member_count,
+        qr_codes: group
+            .qr_codes
+            .into_iter()
+            .map(|qr| CommunityGroupQrResponse {
+                url: qr.url,
+                description: qr.description,
+            })
+            .collect(),
+        created_at: group.created_at,
+        updated_at: group.updated_at,
     }
 }
 

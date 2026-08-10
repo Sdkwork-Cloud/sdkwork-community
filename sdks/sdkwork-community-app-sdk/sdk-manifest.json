@@ -20,12 +20,27 @@
   "baseUrl": "http://127.0.0.1:18080",
   "standardProfile": "sdkwork-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 11,
+  "ownerOnlyOperationCount": 22,
   "operations": [
+    {
+      "method": "POST",
+      "operationId": "categories.create",
+      "path": "/app/v3/api/community/categories"
+    },
+    {
+      "method": "POST",
+      "operationId": "categories.join",
+      "path": "/app/v3/api/community/categories/{categoryId}/join"
+    },
     {
       "method": "GET",
       "operationId": "categories.list",
       "path": "/app/v3/api/community/categories"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "categories.update",
+      "path": "/app/v3/api/community/categories/{categoryId}"
     },
     {
       "method": "POST",
@@ -71,6 +86,46 @@
       "method": "GET",
       "operationId": "feed.list",
       "path": "/app/v3/api/community/feed"
+    },
+    {
+      "method": "POST",
+      "operationId": "groups.create",
+      "path": "/app/v3/api/community/categories/{categoryId}/groups"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "groups.delete",
+      "path": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "groups.list",
+      "path": "/app/v3/api/community/categories/{categoryId}/groups"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "groups.update",
+      "path": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "members.delete",
+      "path": "/app/v3/api/community/categories/{categoryId}/members/{memberId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "members.list",
+      "path": "/app/v3/api/community/categories/{categoryId}/members"
+    },
+    {
+      "method": "GET",
+      "operationId": "members.retrieve",
+      "path": "/app/v3/api/community/categories/{categoryId}/members/current"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "members.update",
+      "path": "/app/v3/api/community/categories/{categoryId}/members/{memberId}"
     },
     {
       "method": "POST",

@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import React from "react";
 import { cn, IconButton } from "@sdkwork/ui-mobile-react";
 import { Users, MessageSquare, Check, MoreHorizontal } from "lucide-react";
-import { formatMoney } from "@sdkwork/utils/money";
 import { Community } from "../types";
 import { useNavigate } from "react-router";
 
@@ -21,8 +20,7 @@ export const CommunityCard: React.FC<CommunityCardProps> = ({
   onMoreClick,
   onJoinClick,
 }) => {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.resolvedLanguage || "zh-CN";
+  const { t } = useTranslation();
 return (
     <div
       className="bg-white dark:bg-[#1E1E1E] mb-2 overflow-hidden cursor-pointer active:bg-black/5 dark:active:bg-white/5 transition-colors border-b border-black/5 dark:border-white/5"
@@ -90,16 +88,7 @@ return (
                 <button
                   onClick={onJoinClick}
                   className="px-4 py-1.5 rounded-full bg-orange-500 text-white font-medium text-[13px] shadow-sm shadow-orange-500/20 active:scale-[0.98] transition-transform"
-                >{t('community.auto_n3990cdea', '¥{{price}} 加入', {
-                  price:
-                    formatMoney(community.price, {
-                      currency: "CNY",
-                      locale,
-                      mode: "decimal",
-                      minFractionDigits: 0,
-                      maxFractionDigits: 2,
-                    }) ?? "",
-                })}</button>
+                >{t('community.auto_n3990cdea', '¥{community.price} 加入')}</button>
               ) : (
                 <button
                   onClick={onJoinClick}

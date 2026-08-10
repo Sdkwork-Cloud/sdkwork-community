@@ -12,11 +12,49 @@ CREATE TABLE IF NOT EXISTS community_category (
     slug TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
+    cover_image TEXT,
+    avatar TEXT,
+    owner_id TEXT,
+    member_count INTEGER NOT NULL DEFAULT 0,
+    post_count INTEGER NOT NULL DEFAULT 0,
+    is_paid BOOLEAN NOT NULL DEFAULT FALSE,
+    price NUMERIC,
+    tags TEXT[] NOT NULL DEFAULT '{}',
     priority INTEGER NOT NULL DEFAULT 0,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     UNIQUE (tenant_id, slug)
+);
+
+CREATE TABLE IF NOT EXISTS community_member (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    category_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',
+    status TEXT NOT NULL DEFAULT 'active',
+    bio TEXT,
+    joined_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (tenant_id, category_id, user_id),
+    FOREIGN KEY (category_id) REFERENCES community_category(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_group (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    category_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    platform TEXT NOT NULL,
+    description TEXT,
+    member_count INTEGER NOT NULL DEFAULT 0,
+    qr_codes JSONB NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES community_category(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS community_entry (
@@ -169,6 +207,15 @@ CREATE INDEX IF NOT EXISTS idx_community_moderation_event_entry
 
 CREATE INDEX IF NOT EXISTS idx_community_recommendation_source
     ON community_recommendation_snapshot (tenant_id, source_entry_id, score);
+
+CREATE INDEX IF NOT EXISTS idx_community_member_category
+    ON community_member (category_id, role);
+
+CREATE INDEX IF NOT EXISTS idx_community_member_user
+    ON community_member (tenant_id, user_id);
+
+CREATE INDEX IF NOT EXISTS idx_community_group_category
+    ON community_group (category_id, platform);
 
 INSERT INTO community_schema_version (id, version, applied_at)
 VALUES ('community.storage', 'community.storage.v1', '2026-06-06T00:00:00Z')

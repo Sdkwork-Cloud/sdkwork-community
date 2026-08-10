@@ -22,15 +22,21 @@
     "@sdkwork/community-service": "workspace:*",
     "@sdkwork/community-h5-core": "workspace:*",
     "@sdkwork/community-sdk-ports": "workspace:*",
+    "@sdkwork/community-mobile-react-community": "workspace:*",
     "@sdkwork/sdk-common": "workspace:*",
     "@sdkwork/community-h5-community": "workspace:*",
+    "i18next": "catalog:",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "react-i18next": "catalog:",
+    "react-router": "catalog:"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "tailwindcss": "catalog:",
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
     "vitest": "^4.1.2"

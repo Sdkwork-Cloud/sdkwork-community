@@ -1,52 +1,78 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+@source "../../sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src";
+@source "../../../sdkwork-ui/sdkwork-ui-mobile-react/src";
+
+@theme {
+  --color-primary-blue: var(--sdkwork-community-h5-primary-blue);
+  --color-bg-color: var(--sdkwork-community-h5-bg-color);
+  --color-glass-bg: var(--sdkwork-community-h5-glass-bg);
+  --color-glass-border: var(--sdkwork-community-h5-glass-border);
+  --color-text-main: var(--sdkwork-community-h5-text-main);
+  --color-text-sub: var(--sdkwork-community-h5-text-sub);
+  --color-accent-green: var(--sdkwork-community-h5-accent-green);
+  --color-accent-red: var(--sdkwork-community-h5-accent-red);
+  --color-accent-blue: var(--sdkwork-community-h5-accent-blue);
+  --color-border-color: var(--sdkwork-community-h5-border-color);
+  --color-hover-bg: var(--sdkwork-community-h5-hover-bg);
+  --color-active-bg: var(--sdkwork-community-h5-active-bg);
+  --color-chat-me-bg: var(--sdkwork-community-h5-chat-me-bg);
+  --color-chat-other-bg: var(--sdkwork-community-h5-chat-other-bg);
+  --color-chat-active-bg: var(--sdkwork-community-h5-active-bg);
+  --color-chat-btn-bg: var(--sdkwork-community-h5-chat-btn-bg);
+  --color-input-bg: var(--sdkwork-community-h5-input-bg);
+}
+
 :root {
+  color-scheme: light;
+  /* Light Mode (values aligned with the consuming sdkwork-im h5 theme) */
+  --sdkwork-community-h5-primary-blue: #2B5CE7;
+  --sdkwork-community-h5-bg-color: #F4F6F9;
+  --sdkwork-community-h5-glass-bg: rgba(255, 255, 255, 0.95);
+  --sdkwork-community-h5-glass-border: rgba(0, 0, 0, 0.08);
+  --sdkwork-community-h5-text-main: #1D2129;
+  --sdkwork-community-h5-text-sub: #86909C;
+  --sdkwork-community-h5-accent-green: #00B42A;
+  --sdkwork-community-h5-accent-red: #F53F3F;
+  --sdkwork-community-h5-accent-blue: #2B5CE7;
+  --sdkwork-community-h5-border-color: #E5E6EB;
+  --sdkwork-community-h5-hover-bg: #F2F3F5;
+  --sdkwork-community-h5-active-bg: #E5E6EB;
+  --sdkwork-community-h5-chat-me-bg: #95EC69;
+  --sdkwork-community-h5-chat-other-bg: #FFFFFF;
+  --sdkwork-community-h5-chat-btn-bg: #F7F7F7;
+  --sdkwork-community-h5-input-bg: #F7F7F7;
+}
+
+.dark {
+  color-scheme: dark;
+  /* Dark Mode */
+  --sdkwork-community-h5-primary-blue: #2B5CE7;
+  --sdkwork-community-h5-bg-color: #0A0A0A;
+  --sdkwork-community-h5-glass-bg: rgba(20, 20, 20, 0.95);
+  --sdkwork-community-h5-glass-border: rgba(255, 255, 255, 0.1);
+  --sdkwork-community-h5-text-main: #F3F4F6;
+  --sdkwork-community-h5-text-sub: #9CA3AF;
+  --sdkwork-community-h5-accent-green: #00B42A;
+  --sdkwork-community-h5-accent-red: #F53F3F;
+  --sdkwork-community-h5-accent-blue: #2B5CE7;
+  --sdkwork-community-h5-border-color: #2E2E2E;
+  --sdkwork-community-h5-hover-bg: #1F1F1F;
+  --sdkwork-community-h5-active-bg: #262626;
+  --sdkwork-community-h5-chat-me-bg: #2B5CE7;
+  --sdkwork-community-h5-chat-other-bg: #1C1C1E;
+  --sdkwork-community-h5-chat-btn-bg: #1F1F1F;
+  --sdkwork-community-h5-input-bg: #1F1F1F;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--sdkwork-community-h5-bg-color);
+  color: var(--sdkwork-community-h5-text-main);
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.card {
-  padding: 2em;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-
-button:hover {
-  border-color: #646cff;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }

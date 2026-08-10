@@ -1,8 +1,14 @@
 import type {
   SdkworkCommunityCategory,
+  SdkworkCommunityCircleCommand,
   SdkworkCommunityComment,
   SdkworkCommunityEntry,
   SdkworkCommunityEntryKind,
+  SdkworkCommunityGroup,
+  SdkworkCommunityGroupCommand,
+  SdkworkCommunityMember,
+  SdkworkCommunityMemberRole,
+  SdkworkCommunityMemberStatus,
   SdkworkCommunityPublicationIssue,
   SdkworkCommunityPublicationReadiness,
   SdkworkCommunityReviewState,
@@ -16,7 +22,12 @@ import type {
   SdkworkCommunityReactionSetResult,
 } from "@sdkwork/community-sdk-ports";
 import type { SdkworkCommunityAppClient } from "@sdkwork/community-app-sdk";
-import type { CommunityEntryCommand } from "@sdkwork/community-app-sdk";
+import type {
+  CommunityCircleCommand,
+  CommunityEntryCommand,
+  CommunityGroupCommand,
+  CommunityMemberPatchCommand,
+} from "@sdkwork/community-app-sdk";
 
 const PUBLICATION_ISSUES = new Set<SdkworkCommunityPublicationIssue>([
   "flagged",
@@ -78,6 +89,7 @@ function mapEntry(record: Record<string, unknown>): SdkworkCommunityEntry {
       id: String(author?.id ?? ""),
       name: String(author?.name ?? ""),
     },
+    body: record.body ? String(record.body) : undefined,
     categoryId: String(record.categoryId ?? ""),
     categoryLabel: record.categoryLabel ? String(record.categoryLabel) : undefined,
     excerpt: record.excerpt ? String(record.excerpt) : undefined,
@@ -124,13 +136,109 @@ function mapPublicationReadiness(record: Record<string, unknown>): SdkworkCommun
 
 function mapCategory(record: Record<string, unknown>): SdkworkCommunityCategory {
   return {
+    avatar: record.avatar ? String(record.avatar) : undefined,
+    coverImage: record.coverImage ? String(record.coverImage) : undefined,
     description: record.description ? String(record.description) : undefined,
     enabled: record.enabled === undefined ? true : Boolean(record.enabled),
     id: String(record.id ?? ""),
+    isPaid: record.isPaid === undefined ? undefined : Boolean(record.isPaid),
+    memberCount: record.memberCount === undefined ? undefined : Number(record.memberCount),
+    ownerId: record.ownerId ? String(record.ownerId) : undefined,
+    postCount: record.postCount === undefined ? undefined : Number(record.postCount),
+    price: record.price === undefined ? undefined : Number(record.price),
     priority: Number(record.priority ?? 0),
     slug: String(record.slug ?? ""),
+    tags: Array.isArray(record.tags) ? record.tags.map((tag) => String(tag)) : undefined,
     tenantId: String(record.tenantId ?? ""),
     title: String(record.title ?? ""),
+  };
+}
+
+function mapMember(record: Record<string, unknown>): SdkworkCommunityMember {
+  const nestedUser = (record.user ?? record.author) as Record<string, unknown> | undefined;
+  const avatar = nestedUser?.avatar as Record<string, unknown> | undefined;
+  const user = nestedUser ?? {
+    id: record.userId ?? "",
+    name: record.userName ?? "",
+  };
+
+  return {
+    bio: record.bio ? String(record.bio) : undefined,
+    communityId: String(record.communityId ?? ""),
+    id: String(record.id ?? ""),
+    joinedAt: String(record.joinedAt ?? record.createdAt ?? new Date().toISOString()),
+    role: String(record.role ?? "member") as SdkworkCommunityMemberRole,
+    status: String(record.status ?? "active") as SdkworkCommunityMemberStatus,
+    user: {
+      avatar: avatar
+        ? {
+            id: String(avatar.id ?? ""),
+            kind: "image",
+            publicUrl: avatar.publicUrl ? String(avatar.publicUrl) : undefined,
+          }
+        : undefined,
+      id: String(user.id ?? ""),
+      name: String(user.name ?? ""),
+    },
+  };
+}
+
+function mapGroup(record: Record<string, unknown>): SdkworkCommunityGroup {
+  const qrCodes = Array.isArray(record.qrCodes)
+    ? record.qrCodes.map((item) => {
+        const qr = item as Record<string, unknown>;
+        return {
+          description: qr.description ? String(qr.description) : undefined,
+          url: String(qr.url ?? ""),
+        };
+      })
+    : undefined;
+
+  return {
+    communityId: String(record.communityId ?? ""),
+    createdAt: String(record.createdAt ?? new Date().toISOString()),
+    description: record.description ? String(record.description) : undefined,
+    id: String(record.id ?? ""),
+    memberCount: Number(record.memberCount ?? 0),
+    name: String(record.name ?? ""),
+    platform: String(record.platform ?? "other") as SdkworkCommunityGroup["platform"],
+    qrCodeUrl: record.qrCodeUrl ? String(record.qrCodeUrl) : undefined,
+    qrCodes,
+  };
+}
+
+function toCircleCommand(command: SdkworkCommunityCircleCommand): CommunityCircleCommand {
+  return {
+    title: command.title,
+    ...(command.description !== undefined ? { description: command.description } : {}),
+    ...(command.avatar !== undefined ? { avatar: command.avatar } : {}),
+    ...(command.coverImage !== undefined ? { coverImage: command.coverImage } : {}),
+    ...(command.isPaid !== undefined ? { isPaid: command.isPaid } : {}),
+    ...(command.price !== undefined ? { price: command.price } : {}),
+    ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
+  };
+}
+
+function toGroupCommand(command: SdkworkCommunityGroupCommand): CommunityGroupCommand {
+  return {
+    name: command.name,
+    platform: command.platform,
+    ...(command.description !== undefined ? { description: command.description } : {}),
+    ...(command.memberCount !== undefined
+      ? { memberCount: String(command.memberCount) }
+      : {}),
+    ...(command.qrCodes !== undefined
+      ? { qrCodes: command.qrCodes.map((item) => ({ ...item })) }
+      : {}),
+  };
+}
+
+function toMemberPatchCommand(
+  patch: { role?: SdkworkCommunityMemberRole; status?: SdkworkCommunityMemberStatus },
+): CommunityMemberPatchCommand {
+  return {
+    ...(patch.role !== undefined ? { role: patch.role } : {}),
+    ...(patch.status !== undefined ? { status: patch.status } : {}),
   };
 }
 
@@ -181,9 +289,26 @@ export function createGeneratedCommunityAppSdkPort(
   return {
     community: {
       categories: {
+        async create(command: SdkworkCommunityCircleCommand) {
+          const item = await client.community.categories.create(toCircleCommand(command));
+          return mapCategory(item as Record<string, unknown>);
+        },
         async list() {
           const page = await client.community.categories.list();
           return page.items.map((item) => mapCategory(item as Record<string, unknown>));
+        },
+        async update(categoryId: string, command: Partial<SdkworkCommunityCircleCommand>) {
+          const body = toCircleCommand({
+            title: command.title ?? "",
+            ...(command.description !== undefined ? { description: command.description } : {}),
+            ...(command.avatar !== undefined ? { avatar: command.avatar } : {}),
+            ...(command.coverImage !== undefined ? { coverImage: command.coverImage } : {}),
+            ...(command.isPaid !== undefined ? { isPaid: command.isPaid } : {}),
+            ...(command.price !== undefined ? { price: command.price } : {}),
+            ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
+          });
+          const item = await client.community.categories.update(categoryId, body);
+          return mapCategory(item as Record<string, unknown>);
         },
       },
       comments: {
@@ -239,6 +364,86 @@ export function createGeneratedCommunityAppSdkPort(
             const page = await client.community.entries.recommendations.list(entryId);
             return mapPageItems(page);
           },
+        },
+      },
+      members: {
+        async current(communityId: string) {
+          try {
+            const item = await client.community.members.retrieve(communityId);
+            return mapMember(item as Record<string, unknown>);
+          } catch {
+            return undefined;
+          }
+        },
+        async join(communityId: string) {
+          const item = await client.community.categories.join(communityId);
+          return mapMember(item as Record<string, unknown>);
+        },
+        async list(communityId: string) {
+          const page = await client.community.members.list(communityId);
+          return page.items.map((item) => mapMember(item as Record<string, unknown>));
+        },
+        async remove(communityId: string, memberId: string) {
+          await client.community.members.delete(communityId, memberId);
+        },
+        async updateRole(
+          communityId: string,
+          memberId: string,
+          role: SdkworkCommunityMemberRole,
+        ) {
+          const item = await client.community.members.update(
+            communityId,
+            memberId,
+            toMemberPatchCommand({ role }),
+          );
+          return mapMember(item as Record<string, unknown>);
+        },
+        async updateStatus(
+          communityId: string,
+          memberId: string,
+          status: SdkworkCommunityMemberStatus,
+        ) {
+          const item = await client.community.members.update(
+            communityId,
+            memberId,
+            toMemberPatchCommand({ status }),
+          );
+          return mapMember(item as Record<string, unknown>);
+        },
+      },
+      groups: {
+        async create(communityId: string, command: SdkworkCommunityGroupCommand) {
+          const item = await client.community.groups.create(
+            communityId,
+            toGroupCommand(command),
+          );
+          return mapGroup(item as Record<string, unknown>);
+        },
+        async list(communityId: string) {
+          const page = await client.community.groups.list(communityId);
+          return page.items.map((item) => mapGroup(item as Record<string, unknown>));
+        },
+        async remove(communityId: string, groupId: string) {
+          await client.community.groups.delete(communityId, groupId);
+        },
+        async update(
+          communityId: string,
+          groupId: string,
+          command: Partial<SdkworkCommunityGroupCommand>,
+        ) {
+          const body: CommunityGroupCommand = {
+            name: command.name ?? "",
+            platform: command.platform ?? "other",
+            ...(command.description !== undefined ? { description: command.description } : {}),
+            ...(command.memberCount !== undefined
+              ? { memberCount: String(command.memberCount) }
+              : {}),
+            ...(command.qrCodes !== undefined
+              ? { qrCodes: command.qrCodes.map((item) => ({ ...item })) }
+              : {}),
+          };
+          const item = await client.community.groups.update(communityId, groupId, body);
+          return mapGroup(item as Record<string, unknown>);
         },
       },
     },

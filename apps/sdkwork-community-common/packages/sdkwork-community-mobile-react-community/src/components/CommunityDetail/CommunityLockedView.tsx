@@ -1,7 +1,6 @@
 import React from "react";
 import { Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { formatMoney } from "@sdkwork/utils/money";
 import { Community } from "../../types";
 
 export const CommunityLockedView = ({
@@ -11,8 +10,7 @@ export const CommunityLockedView = ({
   community: Community;
   onJoin: () => void;
 }) => {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.resolvedLanguage || "zh-CN";
+  const { t } = useTranslation();
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#1C1C1E] p-8 -mt-2 z-10">
@@ -30,16 +28,7 @@ export const CommunityLockedView = ({
         className="w-full max-w-[240px] py-3.5 bg-blue-500 text-white rounded-full font-bold text-[16px] shadow-lg shadow-blue-500/30 active:scale-95 transition-transform flex items-center justify-center gap-2"
         onClick={onJoin}
       >
-        {t("community.auto_20ed0b2", "¥{{price}} 购买解锁", {
-          price:
-            formatMoney(community.price, {
-              currency: "CNY",
-              locale,
-              mode: "decimal",
-              minFractionDigits: 0,
-              maxFractionDigits: 2,
-            }) ?? "",
-        })}
+        {t("community.auto_20ed0b2", "¥{{price}} 购买解锁", { price: community.price })}
       </button>
     </div>
   );

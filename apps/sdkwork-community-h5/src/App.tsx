@@ -1,18 +1,26 @@
-import { useState } from 'react'
+import { Suspense } from "react";
+import { BrowserRouter, Route, Routes } from "react-router";
+import { AuthGate } from "./AuthGate";
+import { AppShell } from "./shell/AppShell";
+import { communityRouteDefinitions } from "./routes/communityRoutes";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="App">
-      <h1>SDKWork Community H5</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-    </div>
-  )
+    <BrowserRouter>
+      <AuthGate>
+        <AppShell>
+          <Suspense fallback={<div className="p-8 text-center text-text-sub">加载中...</div>}>
+            <Routes>
+              {communityRouteDefinitions.map((route) => (
+                <Route key={route.path} path={route.path} element={route.element} />
+              ))}
+              <Route path="*" element={<div className="p-8 text-center text-text-sub">页面不存在</div>} />
+            </Routes>
+          </Suspense>
+        </AppShell>
+      </AuthGate>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

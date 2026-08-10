@@ -609,6 +609,10 @@
           "tenantId",
           "slug",
           "title",
+          "memberCount",
+          "postCount",
+          "isPaid",
+          "tags",
           "priority",
           "enabled"
         ],
@@ -628,11 +632,225 @@
           "description": {
             "type": "string"
           },
+          "coverImage": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "postCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "isPaid": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "priority": {
             "type": "integer"
           },
           "enabled": {
             "type": "boolean"
+          }
+        }
+      },
+      "CommunityCircleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "coverImage": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "isPaid": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CommunityMemberResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tenantId",
+          "categoryId",
+          "userId",
+          "userName",
+          "role",
+          "status",
+          "joinedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "CommunityMemberPatchCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "CommunityGroupQr": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "CommunityGroupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tenantId",
+          "categoryId",
+          "name",
+          "platform",
+          "memberCount",
+          "qrCodes",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "qrCodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommunityGroupQr"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "CommunityGroupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "platform"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "qrCodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommunityGroupQr"
+            }
           }
         }
       },

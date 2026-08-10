@@ -46,13 +46,21 @@ pub struct CommunityStorageCapabilityManifest {
     pub repository_bindings: Vec<CommunityRepositoryBinding>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CommunityStoredCategory {
     pub id: String,
     pub tenant_id: String,
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
+    pub cover_image: Option<String>,
+    pub avatar: Option<String>,
+    pub owner_id: Option<String>,
+    pub member_count: i64,
+    pub post_count: i64,
+    pub is_paid: bool,
+    pub price: Option<f64>,
+    pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
 }
@@ -93,16 +101,95 @@ pub struct SetCommunityReaction {
     pub now: String,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct NewCommunityCategory {
     pub id: String,
     pub tenant_id: String,
     pub slug: String,
     pub title: String,
     pub description: Option<String>,
+    pub cover_image: Option<String>,
+    pub avatar: Option<String>,
+    pub owner_id: Option<String>,
+    pub is_paid: bool,
+    pub price: Option<f64>,
+    pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
     pub now: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CommunityStoredMember {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub user_id: String,
+    pub user_name: String,
+    pub role: String,
+    pub status: String,
+    pub bio: Option<String>,
+    pub joined_at: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct NewCommunityMember {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub user_id: String,
+    pub user_name: String,
+    pub role: String,
+    pub bio: Option<String>,
+    pub now: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CommunityMemberPatch {
+    pub role: Option<String>,
+    pub status: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CommunityStoredGroup {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub platform: String,
+    pub description: Option<String>,
+    pub member_count: i64,
+    pub qr_codes: Vec<CommunityStoredGroupQr>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CommunityStoredGroupQr {
+    pub url: String,
+    pub description: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct NewCommunityGroup {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub platform: String,
+    pub description: Option<String>,
+    pub member_count: i64,
+    pub qr_codes: Vec<CommunityStoredGroupQr>,
+    pub now: String,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CommunityGroupPatch {
+    pub name: Option<String>,
+    pub platform: Option<String>,
+    pub description: Option<String>,
+    pub member_count: Option<i64>,
+    pub qr_codes: Option<Vec<CommunityStoredGroupQr>>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -166,6 +253,8 @@ pub fn community_database_tables() -> Vec<&'static str> {
         "community_reaction",
         "community_moderation_event",
         "community_recommendation_snapshot",
+        "community_member",
+        "community_group",
         "community_schema_version",
         "community_migration_lock",
     ]
@@ -185,6 +274,9 @@ pub fn community_database_indexes() -> Vec<&'static str> {
         "idx_community_reaction_entry",
         "idx_community_moderation_event_entry",
         "idx_community_recommendation_source",
+        "idx_community_member_category",
+        "idx_community_member_user",
+        "idx_community_group_category",
     ]
 }
 
@@ -243,6 +335,16 @@ pub fn community_repository_bindings() -> Vec<CommunityRepositoryBinding> {
             "community",
             "community.recommendation.repository",
             vec!["community_recommendation_snapshot"],
+        ),
+        binding(
+            "community",
+            "community.member.repository",
+            vec!["community_member"],
+        ),
+        binding(
+            "community",
+            "community.group.repository",
+            vec!["community_group"],
         ),
     ]
 }

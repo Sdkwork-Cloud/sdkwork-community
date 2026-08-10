@@ -106,39 +106,194 @@
         "status": "active",
         "since": "1.0.0",
         "replacementCode": null
+      },
+      {
+        "code": "community.categories.write",
+        "name": "Write community circles",
+        "resource": "categories",
+        "action": "write",
+        "status": "active",
+        "since": "1.1.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.members.read",
+        "name": "Read community members",
+        "resource": "members",
+        "action": "read",
+        "status": "active",
+        "since": "1.1.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.members.write",
+        "name": "Write community members",
+        "resource": "members",
+        "action": "write",
+        "status": "active",
+        "since": "1.1.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.groups.read",
+        "name": "Read community groups",
+        "resource": "groups",
+        "action": "read",
+        "status": "active",
+        "since": "1.1.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.groups.write",
+        "name": "Write community groups",
+        "resource": "groups",
+        "action": "write",
+        "status": "active",
+        "since": "1.1.0",
+        "replacementCode": null
       }
     ],
     "openapiAuthorities": [
       {
         "apiAuthority": "sdkwork-community-app-api",
         "operationPermissions": [
-          { "operationId": "categories.list", "permission": "community.categories.read" },
-          { "operationId": "feed.list", "permission": "community.entries.read" },
-          { "operationId": "entries.create", "permission": "community.entries.write" },
-          { "operationId": "entries.retrieve", "permission": "community.entries.read" },
-          { "operationId": "entries.update", "permission": "community.entries.write" },
-          { "operationId": "entries.delete", "permission": "community.entries.write" },
-          { "operationId": "entries.recommendations.list", "permission": "community.recommendations.read" },
-          { "operationId": "entries.publicationReadiness.retrieve", "permission": "community.entries.read" },
-          { "operationId": "reactions.create", "permission": "community.reactions.write" },
-          { "operationId": "comments.list", "permission": "community.comments.read" },
-          { "operationId": "comments.create", "permission": "community.comments.write" }
+          {
+            "operationId": "categories.list",
+            "permission": "community.categories.read"
+          },
+          {
+            "operationId": "feed.list",
+            "permission": "community.entries.read"
+          },
+          {
+            "operationId": "entries.create",
+            "permission": "community.entries.write"
+          },
+          {
+            "operationId": "entries.retrieve",
+            "permission": "community.entries.read"
+          },
+          {
+            "operationId": "entries.update",
+            "permission": "community.entries.write"
+          },
+          {
+            "operationId": "entries.delete",
+            "permission": "community.entries.write"
+          },
+          {
+            "operationId": "entries.recommendations.list",
+            "permission": "community.recommendations.read"
+          },
+          {
+            "operationId": "entries.publicationReadiness.retrieve",
+            "permission": "community.entries.read"
+          },
+          {
+            "operationId": "reactions.create",
+            "permission": "community.reactions.write"
+          },
+          {
+            "operationId": "comments.list",
+            "permission": "community.comments.read"
+          },
+          {
+            "operationId": "comments.create",
+            "permission": "community.comments.write"
+          },
+          {
+            "operationId": "categories.create",
+            "permission": "community.categories.write"
+          },
+          {
+            "operationId": "categories.update",
+            "permission": "community.categories.write"
+          },
+          {
+            "operationId": "categories.join",
+            "permission": "community.members.write"
+          },
+          {
+            "operationId": "members.list",
+            "permission": "community.members.read"
+          },
+          {
+            "operationId": "members.retrieve",
+            "permission": "community.members.read"
+          },
+          {
+            "operationId": "members.update",
+            "permission": "community.members.write"
+          },
+          {
+            "operationId": "members.delete",
+            "permission": "community.members.write"
+          },
+          {
+            "operationId": "groups.list",
+            "permission": "community.groups.read"
+          },
+          {
+            "operationId": "groups.create",
+            "permission": "community.groups.write"
+          },
+          {
+            "operationId": "groups.update",
+            "permission": "community.groups.write"
+          },
+          {
+            "operationId": "groups.delete",
+            "permission": "community.groups.write"
+          }
         ]
       },
       {
         "apiAuthority": "sdkwork-community-backend-api",
         "operationPermissions": [
-          { "operationId": "categories.management.list", "permission": "community.categories.read" },
-          { "operationId": "categories.create", "permission": "community.categories.manage" },
-          { "operationId": "categories.update", "permission": "community.categories.manage" },
-          { "operationId": "categories.delete", "permission": "community.categories.manage" },
-          { "operationId": "entries.management.list", "permission": "community.moderation.read" },
-          { "operationId": "entries.moderation.create", "permission": "community.moderation.manage" },
-          { "operationId": "entries.feature", "permission": "community.moderation.manage" },
-          { "operationId": "entries.pin", "permission": "community.moderation.manage" },
-          { "operationId": "entries.delete", "permission": "community.moderation.manage" },
-          { "operationId": "moderation.queue.list", "permission": "community.moderation.read" },
-          { "operationId": "recommendations.rebuild", "permission": "community.recommendations.manage" }
+          {
+            "operationId": "categories.management.list",
+            "permission": "community.categories.read"
+          },
+          {
+            "operationId": "categories.create",
+            "permission": "community.categories.manage"
+          },
+          {
+            "operationId": "categories.update",
+            "permission": "community.categories.manage"
+          },
+          {
+            "operationId": "categories.delete",
+            "permission": "community.categories.manage"
+          },
+          {
+            "operationId": "entries.management.list",
+            "permission": "community.moderation.read"
+          },
+          {
+            "operationId": "entries.moderation.create",
+            "permission": "community.moderation.manage"
+          },
+          {
+            "operationId": "entries.feature",
+            "permission": "community.moderation.manage"
+          },
+          {
+            "operationId": "entries.pin",
+            "permission": "community.moderation.manage"
+          },
+          {
+            "operationId": "entries.delete",
+            "permission": "community.moderation.manage"
+          },
+          {
+            "operationId": "moderation.queue.list",
+            "permission": "community.moderation.read"
+          },
+          {
+            "operationId": "recommendations.rebuild",
+            "permission": "community.recommendations.manage"
+          }
         ]
       }
     ]

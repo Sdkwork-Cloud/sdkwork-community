@@ -3,16 +3,17 @@ use std::sync::Arc;
 
 use axum::extract::{Extension, Path, Query, State};
 use axum::response::Response;
-use axum::routing::{get, post};
+use axum::routing::{get, patch, post};
 use axum::{Json, Router};
 use sdkwork_community_service::{
-    CommunityCommentCommand, CommunityEntryCommand, CommunityReactionCommand, CommunityService,
+    CommunityCircleCommand, CommunityCommentCommand, CommunityEntryCommand, CommunityGroupCommand,
+    CommunityMemberPatchCommand, CommunityReactionCommand, CommunityService,
 };
 use sdkwork_community_storage_sqlx::CommunityFeedQuery;
 use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_routes_community_common::{
     api_response::{map_service_error, success_command, success_item, success_items},
-    dto::{map_category, map_comment, map_entry},
+    dto::{map_category, map_comment, map_entry, map_group, map_member},
     subject::runtime_subject_from_extension,
     web_bootstrap::wrap_router_with_web_framework_from_env,
 };
@@ -39,7 +40,38 @@ struct FeedQueryParams {
 
 pub fn build_app_router(host: Arc<sdkwork_community_service_host::CommunityServiceHost>) -> Router {
     Router::new()
-        .route("/app/v3/api/community/categories", get(list_categories))
+        .route(
+            "/app/v3/api/community/categories",
+            get(list_categories).post(create_circle),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}",
+            patch(update_circle),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/join",
+            post(join_category),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/members",
+            get(list_members),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/members/current",
+            get(current_member),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/members/{memberId}",
+            patch(update_member).delete(remove_member),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/groups",
+            get(list_groups).post(create_group),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/groups/{groupId}",
+            patch(update_group).delete(delete_group),
+        )
         .route("/app/v3/api/community/feed", get(list_feed))
         .route("/app/v3/api/community/entries", post(create_entry))
         .route(
@@ -316,15 +348,13 @@ async fn list_comments(
         .list_comments(&subject.tenant_id, &entry_id, page, page_size)
         .await
     {
-        Ok((items, total)) => {
-            success_items(
-                context.as_ref().map(|Extension(ctx)| ctx),
-                items.into_iter().map(map_comment).collect(),
-                page,
-                page_size,
-                Some(total),
-            )
-        }
+        Ok((items, total)) => success_items(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            items.into_iter().map(map_comment).collect(),
+            page,
+            page_size,
+            Some(total),
+        ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }
@@ -408,6 +438,350 @@ async fn delete_entry(
     match state
         .service
         .delete_entry_for_author(&subject.tenant_id, &subject.user_id, &entry_id)
+        .await
+    {
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn create_circle(
+    State(state): State<AppState>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityCircleCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .create_circle(
+            &subject.tenant_id,
+            &subject.user_id,
+            &subject.display_name,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_category(item),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_circle(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityCircleCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .update_circle(&subject.tenant_id, &subject.user_id, &category_id, body)
+        .await
+    {
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_category(item),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn join_category(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .join_category(
+            &subject.tenant_id,
+            &category_id,
+            &subject.user_id,
+            &subject.display_name,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_member(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn list_members(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .list_members(&subject.tenant_id, &category_id)
+        .await
+    {
+        Ok(items) => {
+            let count = items.len() as i64;
+            success_items(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                items.into_iter().map(map_member).collect(),
+                1,
+                count,
+                Some(count),
+            )
+        }
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn current_member(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .current_member(&subject.tenant_id, &category_id, &subject.user_id)
+        .await
+    {
+        Ok(Some(member)) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_member(member),
+        ),
+        Ok(None) => map_service_error(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            sdkwork_community_service::CommunityServiceError::NotFound(
+                "current user is not a member".to_owned(),
+            ),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_member(
+    State(state): State<AppState>,
+    Path((category_id, member_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityMemberPatchCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .update_member(
+            &subject.tenant_id,
+            &subject.user_id,
+            &category_id,
+            &member_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_member(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn remove_member(
+    State(state): State<AppState>,
+    Path((category_id, member_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .remove_member(
+            &subject.tenant_id,
+            &subject.user_id,
+            &category_id,
+            &member_id,
+        )
+        .await
+    {
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn list_groups(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .list_groups(&subject.tenant_id, &category_id)
+        .await
+    {
+        Ok(items) => {
+            let count = items.len() as i64;
+            success_items(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                items.into_iter().map(map_group).collect(),
+                1,
+                count,
+                Some(count),
+            )
+        }
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn create_group(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityGroupCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .create_group(&subject.tenant_id, &subject.user_id, &category_id, body)
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_group(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_group(
+    State(state): State<AppState>,
+    Path((category_id, group_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityGroupCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .update_group(
+            &subject.tenant_id,
+            &subject.user_id,
+            &category_id,
+            &group_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_group(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn delete_group(
+    State(state): State<AppState>,
+    Path((category_id, group_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .delete_group(
+            &subject.tenant_id,
+            &subject.user_id,
+            &category_id,
+            &group_id,
+        )
         .await
     {
         Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),

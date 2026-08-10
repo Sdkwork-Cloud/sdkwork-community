@@ -3,9 +3,11 @@
 use sqlx::{PgPool, Row};
 
 use super::{
-    CommunityCategoryPatch, CommunityEntryPatch, CommunityFeedQuery, CommunityModerationPatch,
-    CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry,
-    CommunityStoredEntryPage, NewCommunityCategory, NewCommunityComment, NewCommunityEntry,
+    CommunityCategoryPatch, CommunityEntryPatch, CommunityFeedQuery, CommunityGroupPatch,
+    CommunityMemberPatch, CommunityModerationPatch, CommunityStoredCategory,
+    CommunityStoredComment, CommunityStoredEntry, CommunityStoredEntryPage, CommunityStoredGroup,
+    CommunityStoredGroupQr, CommunityStoredMember, NewCommunityCategory, NewCommunityComment,
+    NewCommunityEntry, NewCommunityGroup, NewCommunityMember,
 };
 
 pub async fn list_categories(
@@ -14,7 +16,8 @@ pub async fn list_categories(
 ) -> Result<Vec<CommunityStoredCategory>, sqlx::Error> {
     let rows = sqlx::query(
         r#"
-        SELECT id, tenant_id, slug, title, description, priority, enabled
+        SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
+               member_count, post_count, is_paid, price::float8, tags, priority, enabled
         FROM community_category
         WHERE tenant_id = $1 AND enabled = TRUE
         ORDER BY priority DESC, slug ASC
@@ -31,6 +34,14 @@ pub async fn list_categories(
             slug: string_cell(row, "slug"),
             title: string_cell(row, "title"),
             description: optional_string_cell(row, "description"),
+            cover_image: optional_string_cell(row, "cover_image"),
+            avatar: optional_string_cell(row, "avatar"),
+            owner_id: optional_string_cell(row, "owner_id"),
+            member_count: integer_cell(row, "member_count"),
+            post_count: integer_cell(row, "post_count"),
+            is_paid: bool_cell(row, "is_paid"),
+            price: optional_f64_cell(row, "price"),
+            tags: text_array_cell(row, "tags"),
             priority: integer_cell(row, "priority"),
             enabled: bool_cell(row, "enabled"),
         })
@@ -95,8 +106,9 @@ pub async fn create_category(
     sqlx::query(
         r#"
         INSERT INTO community_category
-            (id, tenant_id, slug, title, description, priority, enabled, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            (id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
+             member_count, post_count, is_paid, price, tags, priority, enabled, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::numeric, $13::text[], $14, $15, $16, $17)
         "#,
     )
     .bind(input.id)
@@ -104,6 +116,14 @@ pub async fn create_category(
     .bind(input.slug)
     .bind(input.title)
     .bind(input.description)
+    .bind(input.cover_image)
+    .bind(input.avatar)
+    .bind(input.owner_id)
+    .bind(0i64)
+    .bind(0i64)
+    .bind(input.is_paid)
+    .bind(input.price)
+    .bind(&input.tags)
     .bind(input.priority)
     .bind(input.enabled)
     .bind(&input.now)
@@ -126,13 +146,24 @@ pub async fn update_category(
     sqlx::query(
         r#"
         UPDATE community_category
-        SET slug = $1, title = $2, description = $3, priority = $4, enabled = $5, updated_at = $6
-        WHERE tenant_id = $7 AND id = $8
+        SET slug = $1, title = $2, description = $3, cover_image = $4, avatar = $5,
+            owner_id = $6, member_count = $7, post_count = $8, is_paid = $9,
+            price = $10::numeric, tags = $11::text[], priority = $12, enabled = $13,
+            updated_at = $14
+        WHERE tenant_id = $15 AND id = $16
         "#,
     )
     .bind(patch.slug.as_ref().unwrap_or(&existing.slug))
     .bind(patch.title.as_ref().unwrap_or(&existing.title))
     .bind(patch.description.as_ref().or(existing.description.as_ref()))
+    .bind(patch.cover_image.as_ref().or(existing.cover_image.as_ref()))
+    .bind(patch.avatar.as_ref().or(existing.avatar.as_ref()))
+    .bind(patch.owner_id.as_ref().or(existing.owner_id.as_ref()))
+    .bind(patch.member_count.unwrap_or(existing.member_count))
+    .bind(patch.post_count.unwrap_or(existing.post_count))
+    .bind(patch.is_paid.unwrap_or(existing.is_paid))
+    .bind(patch.price.or(existing.price))
+    .bind(patch.tags.as_ref().unwrap_or(&existing.tags))
     .bind(patch.priority.unwrap_or(existing.priority))
     .bind(patch.enabled.unwrap_or(existing.enabled))
     .bind(chrono::Utc::now().to_rfc3339())
@@ -838,4 +869,260 @@ fn bool_cell(row: &sqlx::postgres::PgRow, column: &str) -> bool {
     row.try_get::<bool, _>(column)
         .or_else(|_| row.try_get::<i64, _>(column).map(|value| value != 0))
         .unwrap_or(false)
+}
+
+fn optional_f64_cell(row: &sqlx::postgres::PgRow, column: &str) -> Option<f64> {
+    row.try_get::<Option<f64>, _>(column).ok().flatten()
+}
+
+fn text_array_cell(row: &sqlx::postgres::PgRow, column: &str) -> Vec<String> {
+    row.try_get::<Vec<String>, _>(column).unwrap_or_default()
+}
+
+fn qr_codes_cell(row: &sqlx::postgres::PgRow, column: &str) -> Vec<CommunityStoredGroupQr> {
+    row.try_get::<Option<sqlx::types::Json<Vec<CommunityStoredGroupQr>>>, _>(column)
+        .ok()
+        .flatten()
+        .map(|json| json.0)
+        .unwrap_or_default()
+}
+
+pub async fn list_members(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+) -> Result<Vec<CommunityStoredMember>, sqlx::Error> {
+    let rows = sqlx::query(
+        r#"
+        SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio, joined_at
+        FROM community_member
+        WHERE tenant_id = $1 AND category_id = $2
+        ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, joined_at ASC
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .fetch_all(pool)
+    .await?;
+    Ok(rows
+        .iter()
+        .map(|row| CommunityStoredMember {
+            id: string_cell(row, "id"),
+            tenant_id: string_cell(row, "tenant_id"),
+            category_id: string_cell(row, "category_id"),
+            user_id: string_cell(row, "user_id"),
+            user_name: string_cell(row, "user_name"),
+            role: string_cell(row, "role"),
+            status: string_cell(row, "status"),
+            bio: optional_string_cell(row, "bio"),
+            joined_at: string_cell(row, "joined_at"),
+        })
+        .collect())
+}
+
+pub async fn current_member(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    user_id: &str,
+) -> Result<Option<CommunityStoredMember>, sqlx::Error> {
+    let row = sqlx::query(
+        r#"
+        SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio, joined_at
+        FROM community_member
+        WHERE tenant_id = $1 AND category_id = $2 AND user_id = $3
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(user_id)
+    .fetch_optional(pool)
+    .await?;
+    Ok(row.map(|row| CommunityStoredMember {
+        id: string_cell(&row, "id"),
+        tenant_id: string_cell(&row, "tenant_id"),
+        category_id: string_cell(&row, "category_id"),
+        user_id: string_cell(&row, "user_id"),
+        user_name: string_cell(&row, "user_name"),
+        role: string_cell(&row, "role"),
+        status: string_cell(&row, "status"),
+        bio: optional_string_cell(&row, "bio"),
+        joined_at: string_cell(&row, "joined_at"),
+    }))
+}
+
+pub async fn create_member(pool: &PgPool, input: NewCommunityMember) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO community_member
+            (id, tenant_id, category_id, user_id, user_name, role, status, bio, joined_at, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9, $10)
+        ON CONFLICT (tenant_id, category_id, user_id) DO NOTHING
+        "#,
+    )
+    .bind(input.id)
+    .bind(input.tenant_id)
+    .bind(input.category_id)
+    .bind(input.user_id)
+    .bind(input.user_name)
+    .bind(input.role)
+    .bind(input.bio)
+    .bind(&input.now)
+    .bind(&input.now)
+    .bind(&input.now)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_member(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    member_id: &str,
+    patch: &CommunityMemberPatch,
+) -> Result<(), sqlx::Error> {
+    let existing = list_members(pool, tenant_id, category_id).await?;
+    let Some(existing) = existing.into_iter().find(|member| member.id == member_id) else {
+        return Ok(());
+    };
+    sqlx::query(
+        r#"
+        UPDATE community_member
+        SET role = $1, status = $2, updated_at = $3
+        WHERE tenant_id = $4 AND category_id = $5 AND id = $6
+        "#,
+    )
+    .bind(patch.role.as_ref().unwrap_or(&existing.role))
+    .bind(patch.status.as_ref().unwrap_or(&existing.status))
+    .bind(chrono::Utc::now().to_rfc3339())
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(member_id)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete_member(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    member_id: &str,
+) -> Result<bool, sqlx::Error> {
+    let result = sqlx::query(
+        "DELETE FROM community_member WHERE tenant_id = $1 AND category_id = $2 AND id = $3",
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(member_id)
+    .execute(pool)
+    .await?;
+    Ok(result.rows_affected() > 0)
+}
+
+pub async fn list_groups(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+) -> Result<Vec<CommunityStoredGroup>, sqlx::Error> {
+    let rows = sqlx::query(
+        r#"
+        SELECT id, tenant_id, category_id, name, platform, description, member_count, qr_codes, created_at, updated_at
+        FROM community_group
+        WHERE tenant_id = $1 AND category_id = $2
+        ORDER BY created_at ASC
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .fetch_all(pool)
+    .await?;
+    Ok(rows
+        .iter()
+        .map(|row| CommunityStoredGroup {
+            id: string_cell(row, "id"),
+            tenant_id: string_cell(row, "tenant_id"),
+            category_id: string_cell(row, "category_id"),
+            name: string_cell(row, "name"),
+            platform: string_cell(row, "platform"),
+            description: optional_string_cell(row, "description"),
+            member_count: integer_cell(row, "member_count"),
+            qr_codes: qr_codes_cell(row, "qr_codes"),
+            created_at: string_cell(row, "created_at"),
+            updated_at: string_cell(row, "updated_at"),
+        })
+        .collect())
+}
+
+pub async fn create_group(pool: &PgPool, input: NewCommunityGroup) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO community_group
+            (id, tenant_id, category_id, name, platform, description, member_count, qr_codes, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        "#,
+    )
+    .bind(input.id)
+    .bind(input.tenant_id)
+    .bind(input.category_id)
+    .bind(input.name)
+    .bind(input.platform)
+    .bind(input.description)
+    .bind(input.member_count)
+    .bind(sqlx::types::Json(&input.qr_codes))
+    .bind(&input.now)
+    .bind(&input.now)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_group(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    group_id: &str,
+    patch: &CommunityGroupPatch,
+) -> Result<(), sqlx::Error> {
+    let existing = list_groups(pool, tenant_id, category_id).await?;
+    let Some(existing) = existing.into_iter().find(|group| group.id == group_id) else {
+        return Ok(());
+    };
+    sqlx::query(
+        r#"
+        UPDATE community_group
+        SET name = $1, platform = $2, description = $3, member_count = $4, qr_codes = $5, updated_at = $6
+        WHERE tenant_id = $7 AND category_id = $8 AND id = $9
+        "#,
+    )
+    .bind(patch.name.as_ref().unwrap_or(&existing.name))
+    .bind(patch.platform.as_ref().unwrap_or(&existing.platform))
+    .bind(patch.description.as_ref().or(existing.description.as_ref()))
+    .bind(patch.member_count.unwrap_or(existing.member_count))
+    .bind(sqlx::types::Json(patch.qr_codes.as_ref().unwrap_or(&existing.qr_codes)))
+    .bind(chrono::Utc::now().to_rfc3339())
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(group_id)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete_group(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    group_id: &str,
+) -> Result<bool, sqlx::Error> {
+    let result = sqlx::query(
+        "DELETE FROM community_group WHERE tenant_id = $1 AND category_id = $2 AND id = $3",
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(group_id)
+    .execute(pool)
+    .await?;
+    Ok(result.rows_affected() > 0)
 }

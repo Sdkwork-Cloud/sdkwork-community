@@ -4,10 +4,25 @@ export const COMMUNITY_TAG = "community" as const;
 
 export const COMMUNITY_ENTRY_KIND_VALUES = ["announcement", "discussion", "question", "resource", "service"] as const;
 export const COMMUNITY_REVIEW_STATE_VALUES = ["approved", "draft", "flagged", "pending-review", "rejected"] as const;
+export const COMMUNITY_MEMBER_ROLE_VALUES = ["owner", "admin", "member"] as const;
+export const COMMUNITY_MEMBER_STATUS_VALUES = ["active", "muted", "banned"] as const;
+export const COMMUNITY_GROUP_PLATFORM_VALUES = [
+  "wechat",
+  "qq",
+  "feishu",
+  "dingtalk",
+  "telegram",
+  "discord",
+  "whatsapp",
+  "other",
+] as const;
 
 export type SdkworkCommunityEntryKind = (typeof COMMUNITY_ENTRY_KIND_VALUES)[number];
 export type SdkworkCommunityFeedMode = "latest" | "top" | "trending" | "unanswered";
 export type SdkworkCommunityReviewState = (typeof COMMUNITY_REVIEW_STATE_VALUES)[number];
+export type SdkworkCommunityMemberRole = (typeof COMMUNITY_MEMBER_ROLE_VALUES)[number];
+export type SdkworkCommunityMemberStatus = (typeof COMMUNITY_MEMBER_STATUS_VALUES)[number];
+export type SdkworkCommunityGroupPlatform = (typeof COMMUNITY_GROUP_PLATFORM_VALUES)[number];
 
 export interface SdkworkMediaResource {
   bucketId?: string;
@@ -36,6 +51,7 @@ export interface SdkworkCommunityStats {
 
 export interface SdkworkCommunityEntry {
   author: SdkworkCommunityAuthor;
+  body?: string;
   categoryId: string;
   categoryLabel?: string;
   excerpt?: string;
@@ -53,13 +69,72 @@ export interface SdkworkCommunityEntry {
 }
 
 export interface SdkworkCommunityCategory {
+  avatar?: string;
+  coverImage?: string;
   description?: string;
   enabled: boolean;
   id: string;
+  isPaid?: boolean;
+  memberCount?: number;
+  ownerId?: string;
+  postCount?: number;
+  price?: number;
   priority: number;
   slug: string;
+  tabs?: readonly string[];
+  tags?: readonly string[];
   tenantId: string;
   title: string;
+}
+
+/** Circle membership role of a community member. */
+export interface SdkworkCommunityMember {
+  bio?: string;
+  communityId: string;
+  id: string;
+  joinedAt: Date | number | string;
+  role: SdkworkCommunityMemberRole;
+  status: SdkworkCommunityMemberStatus;
+  user: SdkworkCommunityAuthor;
+}
+
+/** QR code attached to a community group (WeChat group, DingTalk group, ...). */
+export interface SdkworkCommunityGroupQr {
+  description?: string;
+  url: string;
+}
+
+/** Circle chat group (WeChat/DingTalk/... group) managed by a community. */
+export interface SdkworkCommunityGroup {
+  communityId: string;
+  createdAt: Date | number | string;
+  description?: string;
+  id: string;
+  memberCount: number;
+  name: string;
+  platform: SdkworkCommunityGroupPlatform;
+  qrCodeUrl?: string;
+  qrCodes?: readonly SdkworkCommunityGroupQr[];
+}
+
+/** Command to create or update a circle (category-backed community). */
+export interface SdkworkCommunityCircleCommand {
+  avatar?: string;
+  coverImage?: string;
+  description?: string;
+  isPaid?: boolean;
+  price?: number;
+  tags?: readonly string[];
+  title: string;
+}
+
+/** Command to create or update a community chat group. */
+export interface SdkworkCommunityGroupCommand {
+  description?: string;
+  memberCount?: number;
+  name: string;
+  platform: SdkworkCommunityGroupPlatform;
+  qrCodes?: readonly SdkworkCommunityGroupQr[];
 }
 
 export interface SdkworkCommunityComment {
@@ -196,6 +271,17 @@ export interface SdkworkCommunityPublicationReadiness {
 
 export const COMMUNITY_APP_API_ROUTES: readonly SdkworkCommunityApiRoute[] = [
   route("GET", "/app/v3/api/community/categories", "categories.list", false),
+  route("POST", "/app/v3/api/community/categories", "categories.create", false),
+  route("PATCH", "/app/v3/api/community/categories/{categoryId}", "categories.update", false),
+  route("POST", "/app/v3/api/community/categories/{categoryId}/join", "categories.join", false),
+  route("GET", "/app/v3/api/community/categories/{categoryId}/members", "members.list", false),
+  route("GET", "/app/v3/api/community/categories/{categoryId}/members/current", "members.current", false),
+  route("PATCH", "/app/v3/api/community/categories/{categoryId}/members/{memberId}", "members.update", false),
+  route("DELETE", "/app/v3/api/community/categories/{categoryId}/members/{memberId}", "members.remove", false),
+  route("GET", "/app/v3/api/community/categories/{categoryId}/groups", "groups.list", false),
+  route("POST", "/app/v3/api/community/categories/{categoryId}/groups", "groups.create", false),
+  route("PATCH", "/app/v3/api/community/categories/{categoryId}/groups/{groupId}", "groups.update", false),
+  route("DELETE", "/app/v3/api/community/categories/{categoryId}/groups/{groupId}", "groups.remove", false),
   route("GET", "/app/v3/api/community/feed", "feed.list", false),
   route("GET", "/app/v3/api/community/entries/{entryId}", "entries.retrieve", false),
   route("GET", "/app/v3/api/community/entries/{entryId}/recommendations", "entries.recommendations.list", false),

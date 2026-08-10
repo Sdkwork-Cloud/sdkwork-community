@@ -41,7 +41,7 @@ impl PostgresTestDatabase {
             .map_err(|error| {
                 format!("connect disposable PostgreSQL test database failed: {error}")
             })?;
-        sqlx::query(&format!("CREATE SCHEMA \"{schema}\""))
+        sqlx::query(sqlx::AssertSqlSafe(format!("CREATE SCHEMA \"{schema}\"")))
             .execute(&admin_pool)
             .await
             .map_err(|error| format!("create isolated PostgreSQL test schema failed: {error}"))?;
@@ -52,7 +52,9 @@ impl PostgresTestDatabase {
             .after_connect(move |connection, _metadata| {
                 let statement = format!("SET search_path TO \"{connection_schema}\"");
                 Box::pin(async move {
-                    sqlx::query(&statement).execute(connection).await?;
+                    sqlx::query(sqlx::AssertSqlSafe(statement))
+                        .execute(connection)
+                        .await?;
                     Ok(())
                 })
             })
@@ -79,10 +81,13 @@ impl PostgresTestDatabase {
 
     pub async fn close(self) -> Result<(), String> {
         self.pool.close().await;
-        let drop_result = sqlx::query(&format!("DROP SCHEMA \"{}\" CASCADE", self.schema))
-            .execute(&self.admin_pool)
-            .await
-            .map_err(|error| format!("drop isolated PostgreSQL test schema failed: {error}"));
+        let drop_result = sqlx::query(sqlx::AssertSqlSafe(format!(
+            "DROP SCHEMA \"{}\" CASCADE",
+            self.schema
+        )))
+        .execute(&self.admin_pool)
+        .await
+        .map_err(|error| format!("drop isolated PostgreSQL test schema failed: {error}"));
         self.admin_pool.close().await;
         drop_result.map(|_| ())
     }

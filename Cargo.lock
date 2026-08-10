@@ -1832,6 +1832,7 @@ dependencies = [
  "sdkwork-database-config",
  "sdkwork-database-sqlx",
  "sdkwork-utils-rust",
+ "serde",
  "sqlx",
  "tokio",
 ]

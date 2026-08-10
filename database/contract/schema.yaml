@@ -36,6 +36,12 @@ tables:
   - name: community_recommendation_snapshot
     lifecycle_status: active
     owner: community-platform
+  - name: community_member
+    lifecycle_status: active
+    owner: community-platform
+  - name: community_group
+    lifecycle_status: active
+    owner: community-platform
   - name: community_schema_version
     lifecycle_status: active
     owner: community-platform
