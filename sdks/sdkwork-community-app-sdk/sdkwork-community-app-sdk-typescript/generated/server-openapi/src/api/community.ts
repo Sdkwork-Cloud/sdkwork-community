@@ -1,7 +1,7 @@
 import { appApiPath } from './paths';
 import type { ApiRequestOptions, HttpClient } from '../http/client';
 
-import type { CommunityActivateMembershipCommand, CommunityCircleCommand, CommunityCommentCommand, CommunityEntryCommand, CommunityGroupCommand, CommunityMemberPatchCommand, CommunityReactionCommand, CommunityTierCommand, SdkWorkPageData } from '../types';
+import type { CommunityActivateMembershipCommand, CommunityCircleCommand, CommunityCommentCommand, CommunityEntryCommand, CommunityGroupCommand, CommunityMemberPatchCommand, CommunityMemberResponse, CommunityReactionCommand, CommunityTierCommand, SdkWorkPageData } from '../types';
 
 
 export class CommunityCommentsApi {
@@ -220,8 +220,8 @@ export class CommunityMembersApi {
   }
 
 /** Community members.current */
-  async retrieve(categoryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
-    return this.client.request<Record<string, unknown>>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/members/current`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
+  async retrieve(categoryId: string, requestOptions?: ApiRequestOptions): Promise<CommunityMemberResponse | null> {
+    return this.client.request<CommunityMemberResponse | null>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/members/current`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'item' });
   }
 
 /** Community members.update */

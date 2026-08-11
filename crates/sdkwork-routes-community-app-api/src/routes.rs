@@ -616,11 +616,13 @@ async fn current_member(
             context.as_ref().map(|Extension(ctx)| ctx),
             map_member(member),
         ),
-        Ok(None) => map_service_error(
+        // A `/members/current` lookup for a user who has not joined is an
+        // absence, not an error: 200 with `data.item: null` so clients can
+        // distinguish "not a member" from a failed lookup without treating
+        // 404 as an exception.
+        Ok(None) => success_item(
             context.as_ref().map(|Extension(ctx)| ctx),
-            sdkwork_community_service::CommunityServiceError::NotFound(
-                "current user is not a member".to_owned(),
-            ),
+            Option::<sdkwork_routes_community_common::dto::CommunityMemberResponse>::None,
         ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }

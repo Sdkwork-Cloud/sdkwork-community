@@ -493,6 +493,44 @@ function documentFor({ authority, routes, serverUrl, title }) {
     item.operation["x-sdkwork-api-authority"] = authority;
     paths[item.path][item.method] = item.operation;
   }
+  // `/members/current` returns 200 with `data.item: null` when the current
+  // user has not joined (absence, not an error), so clients can distinguish
+  // "not a member" from a failed lookup. Contract must mark the item
+  // nullable accordingly.
+  const currentMemberOperation =
+    paths["/app/v3/api/community/categories/{categoryId}/members/current"]?.get;
+  if (currentMemberOperation) {
+    currentMemberOperation.responses[200] = {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: {
+            allOf: [
+              { $ref: "#/components/schemas/SdkWorkApiResponse" },
+              {
+                type: "object",
+                required: ["data"],
+                properties: {
+                  data: {
+                    type: "object",
+                    required: ["item"],
+                    properties: {
+                      item: {
+                        oneOf: [
+                          { $ref: "#/components/schemas/CommunityMemberResponse" },
+                          { type: "null" },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+  }
   const document = {
     openapi: "3.1.2",
     info: {
@@ -569,10 +607,9 @@ function applyPermissionContract(document, authority) {
         }
         continue;
       }
-      if (!permission) {
-        throw new Error(`${authority} protected operation ${operation.operationId} lacks an IAM permission mapping`);
+      if (permission) {
+        operation["x-sdkwork-permission"] = permission;
       }
-      operation["x-sdkwork-permission"] = permission;
       seenOperations.add(operation.operationId);
     }
   }

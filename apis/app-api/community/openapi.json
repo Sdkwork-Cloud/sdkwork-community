@@ -381,7 +381,37 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SdkWorkApiResponse"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "data"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "required": [
+                            "item"
+                          ],
+                          "properties": {
+                            "item": {
+                              "oneOf": [
+                                {
+                                  "$ref": "#/components/schemas/CommunityMemberResponse"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }

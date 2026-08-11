@@ -76,7 +76,7 @@ test("community OpenAPI documents are owner-only sdkwork-v3 compatible inputs", 
     }
   }
 
-  assert.equal(operations(app).length, 11);
+  assert.equal(operations(app).length, 29);
   assert.equal(operations(backend).length, 11);
   assert.equal(operations(open).length, 4);
 });

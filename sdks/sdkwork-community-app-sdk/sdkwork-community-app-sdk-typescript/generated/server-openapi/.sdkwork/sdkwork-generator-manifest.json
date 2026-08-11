@@ -56,7 +56,7 @@
     },
     {
       "path": "src/api/community.ts",
-      "sha256": "3c55c3f4d7c2454fd42a4257a6157701a02c1878fd799eeb69df5dc261e7da44"
+      "sha256": "458ef5851a9565cf40ed1230f32d3e66a05280753ca02c062445a9173e1a9c03"
     },
     {
       "path": "src/api/index.ts",
@@ -188,7 +188,11 @@
     },
     {
       "path": "src/types/index.ts",
-      "sha256": "0400908e470466d11b0c5309bea9079506fd1631a2a96611e722cacad72f349e"
+      "sha256": "512db6bf0ef448838ecdddc722c39481f09c6d76c317b9aa10ffbcfcc06a7e92"
+    },
+    {
+      "path": "src/types/members-retrieve-response.ts",
+      "sha256": "6cacadfa427dfa13310732222a73e15b8f34308940b1daa080b2ef922b382183"
     },
     {
       "path": "src/types/page-info.ts",

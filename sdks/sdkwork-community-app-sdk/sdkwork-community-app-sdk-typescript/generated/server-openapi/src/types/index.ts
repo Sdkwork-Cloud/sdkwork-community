@@ -33,3 +33,4 @@ export type { CommunityReactionCommand } from './community-reaction-command';
 export type { CommunityReactionSetAccepted } from './community-reaction-set-accepted';
 export type { CommunityModerationCommand } from './community-moderation-command';
 export type { CommunityPublicationReadiness } from './community-publication-readiness';
+export type { MembersRetrieveResponse } from './members-retrieve-response';

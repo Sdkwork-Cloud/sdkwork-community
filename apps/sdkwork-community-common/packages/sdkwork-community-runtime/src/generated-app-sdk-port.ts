@@ -422,7 +422,12 @@ export function createGeneratedCommunityAppSdkPort(
         async current(communityId: string) {
           try {
             const item = await client.community.members.retrieve(communityId);
-            return mapMember(item as Record<string, unknown>);
+            // The backend returns 200 with a null item when the current user
+            // has not joined the circle — map that absence to undefined.
+            if (!item) {
+              return undefined;
+            }
+            return mapMember(item as unknown as Record<string, unknown>);
           } catch {
             return undefined;
           }
