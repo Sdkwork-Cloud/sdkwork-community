@@ -1,7 +1,7 @@
 import { appApiPath } from './paths';
 import type { ApiRequestOptions, HttpClient } from '../http/client';
 
-import type { CommunityCircleCommand, CommunityCommentCommand, CommunityEntryCommand, CommunityGroupCommand, CommunityMemberPatchCommand, CommunityReactionCommand, SdkWorkPageData } from '../types';
+import type { CommunityActivateMembershipCommand, CommunityCircleCommand, CommunityCommentCommand, CommunityEntryCommand, CommunityGroupCommand, CommunityMemberPatchCommand, CommunityReactionCommand, CommunityTierCommand, SdkWorkPageData } from '../types';
 
 
 export class CommunityCommentsApi {
@@ -160,6 +160,52 @@ export class CommunityGroupsApi {
   }
 }
 
+export interface CommunityTiersListParams {
+  includeDisabled?: boolean;
+}
+
+export class CommunityTiersApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Community tiers.list */
+  async list(categoryId: string, params?: CommunityTiersListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+    const query = buildQueryString([
+      { name: 'includeDisabled', value: params?.includeDisabled, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<SdkWorkPageData>(appendQueryString(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/tiers`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+
+/** Community tiers.create */
+  async create(categoryId: string, body: CommunityTierCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/tiers`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community tiers.update */
+  async update(categoryId: string, tierId: string, body: CommunityTierCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community tiers.delete */
+  async delete(categoryId: string, tierId: string, requestOptions?: ApiRequestOptions): Promise<void> {
+    return this.client.request<void>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+  }
+
+/** Community tiers.publish */
+  async publish(categoryId: string, tierId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}/publish`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community tiers.unpublish */
+  async unpublish(categoryId: string, tierId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}/unpublish`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  }
+}
+
 export class CommunityMembersApi {
   private client: HttpClient;
 
@@ -186,6 +232,11 @@ export class CommunityMembersApi {
 /** Community members.remove */
   async delete(categoryId: string, memberId: string, requestOptions?: ApiRequestOptions): Promise<void> {
     return this.client.request<void>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/members/${serializePathParameter(memberId, { name: 'memberId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+  }
+
+/** Community members.activate */
+  async activate(categoryId: string, body: CommunityActivateMembershipCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(appApiPath(`/community/categories/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}/members/activate`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -222,6 +273,7 @@ export class CommunityApi {
   private client: HttpClient;
   public readonly categories: CommunityCategoriesApi;
   public readonly members: CommunityMembersApi;
+  public readonly tiers: CommunityTiersApi;
   public readonly groups: CommunityGroupsApi;
   public readonly feed: CommunityFeedApi;
   public readonly entries: CommunityEntriesApi;
@@ -232,6 +284,7 @@ export class CommunityApi {
     this.client = client;
     this.categories = new CommunityCategoriesApi(client);
     this.members = new CommunityMembersApi(client);
+    this.tiers = new CommunityTiersApi(client);
     this.groups = new CommunityGroupsApi(client);
     this.feed = new CommunityFeedApi(client);
     this.entries = new CommunityEntriesApi(client);

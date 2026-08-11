@@ -36,6 +36,8 @@ packages:
   - "../sdkwork-app-topology"
   - "../sdkwork-iam/apps/sdkwork-iam-pc/packages/sdkwork-user-center-core-pc-react"
   - "../sdkwork-ui/sdkwork-ui-mobile-react"
+  - "../sdkwork-order/sdks/sdkwork-order-app-sdk/sdkwork-order-app-sdk-typescript"
+  - "../sdkwork-order/apps/sdkwork-order-common/packages/sdkwork-order-mobile-react-orders"
 
 catalog:
   react: ^19.2.4

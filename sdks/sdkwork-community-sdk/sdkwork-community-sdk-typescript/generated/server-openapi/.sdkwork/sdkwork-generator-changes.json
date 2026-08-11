@@ -9,22 +9,10 @@
     "protocol": "http",
     "packageName": "sdkwork-community-sdk-generated-typescript"
   },
-  "changeFingerprint": "2aedaa7d31c586dbd0cee550436b9a4b85318d54b3f620f096cdbfceafef1332",
+  "changeFingerprint": "12e4a14b3d5f183ddc5dd3a7e098be4054ad7974e13d4a887c7396b4e0f2a553",
   "changes": {
-    "createdGeneratedFiles": [
-      "src/types/community-circle-command.ts",
-      "src/types/community-group-command.ts",
-      "src/types/community-group-qr.ts",
-      "src/types/community-group-response.ts",
-      "src/types/community-member-patch-command.ts",
-      "src/types/community-member-response.ts"
-    ],
-    "updatedGeneratedFiles": [
-      "package.json",
-      "src/http/client.ts",
-      "src/types/community-category.ts",
-      "src/types/index.ts"
-    ],
+    "createdGeneratedFiles": [],
+    "updatedGeneratedFiles": [],
     "unchangedGeneratedFiles": [
       "bin/publish-core.mjs",
       "bin/publish.ps1",
@@ -33,6 +21,7 @@
       "bin/sdk-gen.sh",
       "CHANGELOG.md",
       "LICENSE",
+      "package.json",
       "README.md",
       "sdkwork-sdk.json",
       "src/api/base.ts",
@@ -40,24 +29,36 @@
       "src/api/index.ts",
       "src/api/paths.ts",
       "src/auth/index.ts",
+      "src/http/client.ts",
       "src/http/index.ts",
       "src/index.ts",
       "src/sdk.ts",
       "src/types/common.ts",
+      "src/types/community-activate-membership-command.ts",
       "src/types/community-author.ts",
       "src/types/community-category-command.ts",
+      "src/types/community-category.ts",
+      "src/types/community-circle-command.ts",
       "src/types/community-comment-command.ts",
       "src/types/community-comment.ts",
       "src/types/community-entry-command.ts",
       "src/types/community-entry-kind.ts",
       "src/types/community-entry.ts",
+      "src/types/community-group-command.ts",
+      "src/types/community-group-qr.ts",
+      "src/types/community-group-response.ts",
+      "src/types/community-member-patch-command.ts",
+      "src/types/community-member-response.ts",
+      "src/types/community-membership-tier.ts",
       "src/types/community-moderation-command.ts",
       "src/types/community-publication-readiness.ts",
       "src/types/community-reaction-command.ts",
       "src/types/community-reaction-set-accepted.ts",
       "src/types/community-review-state.ts",
       "src/types/community-stats.ts",
+      "src/types/community-tier-command.ts",
       "src/types/field-error.ts",
+      "src/types/index.ts",
       "src/types/page-info.ts",
       "src/types/problem-detail.ts",
       "src/types/sdk-work-api-response.ts",
@@ -80,100 +81,26 @@
   },
   "impact": {
     "schemaVersion": 1,
-    "areas": [
-      "api-surface",
-      "models",
-      "runtime",
-      "build-metadata"
-    ],
-    "details": [
-      {
-        "area": "api-surface",
-        "paths": [
-          "src/http/client.ts"
-        ]
-      },
-      {
-        "area": "models",
-        "paths": [
-          "src/types/community-category.ts",
-          "src/types/community-circle-command.ts",
-          "src/types/community-group-command.ts",
-          "src/types/community-group-qr.ts",
-          "src/types/community-group-response.ts",
-          "src/types/community-member-patch-command.ts",
-          "src/types/community-member-response.ts",
-          "src/types/index.ts"
-        ]
-      },
-      {
-        "area": "runtime",
-        "paths": [
-          "src/http/client.ts"
-        ]
-      },
-      {
-        "area": "build-metadata",
-        "paths": [
-          "package.json"
-        ]
-      }
-    ],
-    "requiresVerification": true,
-    "summary": "Detected impact areas: api-surface, models, runtime, build-metadata. Verification is required."
+    "areas": [],
+    "details": [],
+    "requiresVerification": false,
+    "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped."
   },
   "verificationPlan": {
-    "shouldRun": true,
-    "runPhase": "now",
-    "summary": "Detected impact areas: api-surface, models, runtime, build-metadata. Verification is required. Run the required verification commands now against the generated SDK output.",
-    "steps": [
-      {
-        "id": "check",
-        "title": "Unified package check",
-        "required": true,
-        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, models, runtime, build-metadata.",
-        "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
-        "command": "node",
-        "args": [
-          "./bin/publish-core.mjs",
-          "--language",
-          "typescript",
-          "--project-dir",
-          ".",
-          "--action",
-          "check"
-        ],
-        "displayCommand": "node ./bin/publish-core.mjs --language typescript --project-dir . --action check"
-      },
-      {
-        "id": "build",
-        "title": "Unified package build",
-        "required": true,
-        "rationale": "Run the full package build because this language uses a lighter check path than the final build. Triggered by: api-surface, models, runtime, build-metadata.",
-        "workingDirectory": "E:\\sdkwork-space\\sdkwork-community\\sdks\\sdkwork-community-sdk\\sdkwork-community-sdk-typescript\\generated\\server-openapi",
-        "command": "node",
-        "args": [
-          "./bin/publish-core.mjs",
-          "--language",
-          "typescript",
-          "--project-dir",
-          ".",
-          "--action",
-          "build"
-        ],
-        "displayCommand": "node ./bin/publish-core.mjs --language typescript --project-dir . --action build"
-      }
-    ]
+    "shouldRun": false,
+    "runPhase": "skip",
+    "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped.",
+    "steps": []
   },
   "executionDecision": {
     "schemaVersion": 1,
-    "riskLevel": "medium",
-    "nextAction": "verify",
+    "riskLevel": "low",
+    "nextAction": "skip",
     "requiresManualReview": false,
     "applyRequiresExpectedFingerprint": false,
-    "summary": "Changes have been applied. Run the required verification plan now.",
+    "summary": "No actionable changes were detected. No apply or verification step is required.",
     "reasons": [
-      "verification-required"
+      "no-actionable-changes"
     ]
   },
   "preservedLegacyFiles": false

@@ -472,6 +472,34 @@ importers:
         specifier: workspace:*
         version: link:../../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript
 
+  ../sdkwork-order/apps/sdkwork-order-common/packages/sdkwork-order-mobile-react-orders:
+    dependencies:
+      '@sdkwork/order-app-sdk':
+        specifier: workspace:*
+        version: link:../../../../sdks/sdkwork-order-app-sdk/sdkwork-order-app-sdk-typescript
+      '@sdkwork/ui-mobile-react':
+        specifier: workspace:*
+        version: link:../../../../../sdkwork-ui/sdkwork-ui-mobile-react
+      '@sdkwork/utils':
+        specifier: workspace:*
+        version: link:../../../../../sdkwork-utils/packages/sdkwork-utils-typescript
+      qrcode:
+        specifier: 'catalog:'
+        version: 1.5.4
+    devDependencies:
+      '@types/qrcode':
+        specifier: 'catalog:'
+        version: 1.5.6
+
+  ../sdkwork-order/sdks/sdkwork-order-app-sdk/sdkwork-order-app-sdk-typescript:
+    dependencies:
+      '@sdkwork/sdk-common':
+        specifier: workspace:*
+        version: link:../../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript
+      '@sdkwork/utils':
+        specifier: workspace:*
+        version: link:../../../../sdkwork-utils/packages/sdkwork-utils-typescript
+
   ../sdkwork-sdk-commons/sdkwork-sdk-common-typescript:
     devDependencies:
       '@types/node':
@@ -694,6 +722,9 @@ importers:
       '@sdkwork/community-sdk-ports':
         specifier: workspace:*
         version: link:../sdkwork-community-sdk-ports
+      '@sdkwork/order-mobile-react-orders':
+        specifier: workspace:*
+        version: link:../../../../../sdkwork-order/apps/sdkwork-order-common/packages/sdkwork-order-mobile-react-orders
       '@sdkwork/ui-mobile-react':
         specifier: workspace:*
         version: link:../../../../../sdkwork-ui/sdkwork-ui-mobile-react
@@ -809,6 +840,15 @@ importers:
       '@sdkwork/community-service':
         specifier: workspace:*
         version: link:../sdkwork-community-common/packages/sdkwork-community-service
+      '@sdkwork/iam-app-sdk':
+        specifier: workspace:*
+        version: link:../../../sdkwork-iam/sdks/sdkwork-iam-app-sdk/sdkwork-iam-app-sdk-typescript
+      '@sdkwork/order-app-sdk':
+        specifier: workspace:*
+        version: link:../../../sdkwork-order/sdks/sdkwork-order-app-sdk/sdkwork-order-app-sdk-typescript
+      '@sdkwork/order-mobile-react-orders':
+        specifier: workspace:*
+        version: link:../../../sdkwork-order/apps/sdkwork-order-common/packages/sdkwork-order-mobile-react-orders
       '@sdkwork/sdk-common':
         specifier: workspace:*
         version: link:../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript

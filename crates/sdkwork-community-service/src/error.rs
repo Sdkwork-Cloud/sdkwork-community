@@ -12,6 +12,8 @@ pub enum CommunityServiceError {
     Unauthorized(String),
     #[error("storage: {0}")]
     Storage(String),
+    #[error("integration: {0}")]
+    Integration(String),
 }
 
 impl CommunityServiceError {
@@ -22,7 +24,7 @@ impl CommunityServiceError {
             Self::NotFound(_) => "not-found",
             Self::Conflict(_) => "conflict",
             Self::Unauthorized(_) => "unauthorized",
-            Self::Storage(_) => "internal",
+            Self::Storage(_) | Self::Integration(_) => "internal",
         }
     }
 
@@ -33,7 +35,8 @@ impl CommunityServiceError {
             | Self::NotFound(message)
             | Self::Conflict(message)
             | Self::Unauthorized(message)
-            | Self::Storage(message) => message,
+            | Self::Storage(message)
+            | Self::Integration(message) => message,
         }
     }
 }

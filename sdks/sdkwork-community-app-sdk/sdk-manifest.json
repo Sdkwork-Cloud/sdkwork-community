@@ -20,7 +20,7 @@
   "baseUrl": "http://127.0.0.1:18080",
   "standardProfile": "sdkwork-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 22,
+  "ownerOnlyOperationCount": 29,
   "operations": [
     {
       "method": "POST",
@@ -108,6 +108,11 @@
       "path": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}"
     },
     {
+      "method": "POST",
+      "operationId": "members.activate",
+      "path": "/app/v3/api/community/categories/{categoryId}/members/activate"
+    },
+    {
       "method": "DELETE",
       "operationId": "members.delete",
       "path": "/app/v3/api/community/categories/{categoryId}/members/{memberId}"
@@ -131,6 +136,36 @@
       "method": "POST",
       "operationId": "reactions.create",
       "path": "/app/v3/api/community/entries/{entryId}/reactions"
+    },
+    {
+      "method": "POST",
+      "operationId": "tiers.create",
+      "path": "/app/v3/api/community/categories/{categoryId}/tiers"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "tiers.delete",
+      "path": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "tiers.list",
+      "path": "/app/v3/api/community/categories/{categoryId}/tiers"
+    },
+    {
+      "method": "POST",
+      "operationId": "tiers.publish",
+      "path": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish"
+    },
+    {
+      "method": "POST",
+      "operationId": "tiers.unpublish",
+      "path": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "tiers.update",
+      "path": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}"
     }
   ],
   "managedBy": "tools/community_sdk_generator_runner.mjs",

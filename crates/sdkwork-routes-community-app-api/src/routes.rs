@@ -6,14 +6,15 @@ use axum::response::Response;
 use axum::routing::{get, patch, post};
 use axum::{Json, Router};
 use sdkwork_community_service::{
-    CommunityCircleCommand, CommunityCommentCommand, CommunityEntryCommand, CommunityGroupCommand,
-    CommunityMemberPatchCommand, CommunityReactionCommand, CommunityService,
+    CommunityActivateMembershipCommand, CommunityCircleCommand, CommunityCommentCommand,
+    CommunityEntryCommand, CommunityGroupCommand, CommunityMemberPatchCommand,
+    CommunityReactionCommand, CommunityService, CommunityTierCommand,
 };
 use sdkwork_community_storage_sqlx::CommunityFeedQuery;
 use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_routes_community_common::{
     api_response::{map_service_error, success_command, success_item, success_items},
-    dto::{map_category, map_comment, map_entry, map_group, map_member},
+    dto::{map_category, map_comment, map_entry, map_group, map_member, map_tier},
     subject::runtime_subject_from_extension,
     web_bootstrap::wrap_router_with_web_framework_from_env,
 };
@@ -57,6 +58,10 @@ pub fn build_app_router(host: Arc<sdkwork_community_service_host::CommunityServi
             get(list_members),
         )
         .route(
+            "/app/v3/api/community/categories/{categoryId}/members/activate",
+            post(activate_membership),
+        )
+        .route(
             "/app/v3/api/community/categories/{categoryId}/members/current",
             get(current_member),
         )
@@ -71,6 +76,22 @@ pub fn build_app_router(host: Arc<sdkwork_community_service_host::CommunityServi
         .route(
             "/app/v3/api/community/categories/{categoryId}/groups/{groupId}",
             patch(update_group).delete(delete_group),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/tiers",
+            get(list_tiers).post(create_tier),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+            patch(update_tier).delete(delete_tier),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish",
+            post(publish_tier),
+        )
+        .route(
+            "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish",
+            post(unpublish_tier),
         )
         .route("/app/v3/api/community/feed", get(list_feed))
         .route("/app/v3/api/community/entries", post(create_entry))
@@ -785,6 +806,209 @@ async fn delete_group(
         .await
     {
         Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn list_tiers(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    Query(query): Query<BTreeMap<String, String>>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    // Owners see the full list including unpublished tiers; the purchase
+    // surface only receives enabled tiers.
+    let include_disabled = query.get("includeDisabled").is_some();
+    match state
+        .service
+        .list_tiers(&subject.tenant_id, &category_id, !include_disabled)
+        .await
+    {
+        Ok(items) => {
+            let count = items.len() as i64;
+            success_items(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                items.into_iter().map(map_tier).collect(),
+                1,
+                count,
+                Some(count),
+            )
+        }
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn create_tier(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityTierCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .create_tier(&subject.tenant_id, &subject.user_id, &category_id, body)
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_tier(
+    State(state): State<AppState>,
+    Path((category_id, tier_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityTierCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .update_tier(
+            &subject.tenant_id,
+            &subject.user_id,
+            &category_id,
+            &tier_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn delete_tier(
+    State(state): State<AppState>,
+    Path((category_id, tier_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .delete_tier(&subject.tenant_id, &subject.user_id, &category_id, &tier_id)
+        .await
+    {
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn publish_tier(
+    State(state): State<AppState>,
+    Path((category_id, tier_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .publish_tier(&subject.tenant_id, &subject.user_id, &category_id, &tier_id)
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn unpublish_tier(
+    State(state): State<AppState>,
+    Path((category_id, tier_id)): Path<(String, String)>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .unpublish_tier(&subject.tenant_id, &subject.user_id, &category_id, &tier_id)
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn activate_membership(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityActivateMembershipCommand>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .activate_membership(
+            &subject.tenant_id,
+            &category_id,
+            &subject.user_id,
+            &subject.display_name,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_member(item)),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }

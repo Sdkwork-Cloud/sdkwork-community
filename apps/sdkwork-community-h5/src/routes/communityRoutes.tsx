@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate } from "react-router";
 
 type CommunityPageName =
+  | "CircleCashierBridge"
   | "CommunityList"
   | "MyCommunities"
   | "CreateCommunity"
@@ -24,6 +25,7 @@ function lazyPage(name: CommunityPageName) {
   });
 }
 
+const CircleCashierBridge = lazyPage("CircleCashierBridge");
 const CommunityList = lazyPage("CommunityList");
 const MyCommunities = lazyPage("MyCommunities");
 const CreateCommunity = lazyPage("CreateCommunity");
@@ -61,6 +63,7 @@ export const communityRouteDefinitions = [
   { path: "/community/:id/post", element: <CommunityPostCreate /> },
   { path: "/community/:id/groups/create", element: <CreateCommunityGroup /> },
   { path: "/community/:id/group/:groupId", element: <CommunityGroupQRs /> },
+  { path: "/community/:id/cashier/:orderId", element: <CircleCashierBridge /> },
   { path: "/login", element: <Navigate to="/community" replace /> },
 ] as const;
 

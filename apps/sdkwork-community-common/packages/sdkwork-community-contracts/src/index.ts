@@ -87,15 +87,48 @@ export interface SdkworkCommunityCategory {
   title: string;
 }
 
-/** Circle membership role of a community member. */
 export interface SdkworkCommunityMember {
   bio?: string;
   communityId: string;
   id: string;
   joinedAt: Date | number | string;
+  membershipExpiresAt?: Date | number | string | null;
   role: SdkworkCommunityMemberRole;
   status: SdkworkCommunityMemberStatus;
+  tierId?: string;
+  tierName?: string;
   user: SdkworkCommunityAuthor;
+}
+
+/** Purchasable circle membership level (会员等级). */
+export interface SdkworkCommunityMembershipTier {
+  benefits: readonly string[];
+  catalogPackageId?: string;
+  categoryId: string;
+  description?: string;
+  durationDays: number;
+  enabled: boolean;
+  id: string;
+  name: string;
+  price: number;
+  sortOrder: number;
+  tenantId: string;
+}
+
+/** Command to create or update a circle membership tier. */
+export interface SdkworkCommunityTierCommand {
+  benefits?: readonly string[];
+  description?: string;
+  durationDays?: number;
+  name: string;
+  price: number;
+  sortOrder?: number;
+}
+
+/** Command to activate a paid circle membership after order payment. */
+export interface SdkworkCommunityActivateMembershipCommand {
+  orderId: string;
+  tierId: string;
 }
 
 /** QR code attached to a community group (WeChat group, DingTalk group, ...). */
@@ -277,6 +310,13 @@ export const COMMUNITY_APP_API_ROUTES: readonly SdkworkCommunityApiRoute[] = [
   route("GET", "/app/v3/api/community/categories/{categoryId}/members", "members.list", false),
   route("GET", "/app/v3/api/community/categories/{categoryId}/members/current", "members.current", false),
   route("PATCH", "/app/v3/api/community/categories/{categoryId}/members/{memberId}", "members.update", false),
+  route("POST", "/app/v3/api/community/categories/{categoryId}/members/activate", "members.activate", false),
+  route("GET", "/app/v3/api/community/categories/{categoryId}/tiers", "tiers.list", false),
+  route("POST", "/app/v3/api/community/categories/{categoryId}/tiers", "tiers.create", false),
+  route("PATCH", "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}", "tiers.update", false),
+  route("DELETE", "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}", "tiers.delete", false),
+  route("POST", "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish", "tiers.publish", false),
+  route("POST", "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish", "tiers.unpublish", false),
   route("DELETE", "/app/v3/api/community/categories/{categoryId}/members/{memberId}", "members.remove", false),
   route("GET", "/app/v3/api/community/categories/{categoryId}/groups", "groups.list", false),
   route("POST", "/app/v3/api/community/categories/{categoryId}/groups", "groups.create", false),

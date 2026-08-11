@@ -2,6 +2,7 @@ import {
   buildCommunityRecommendations,
   filterCommunityEntries,
   type FilterCommunityEntriesOptions,
+  type SdkworkCommunityActivateMembershipCommand,
   type SdkworkCommunityCategory,
   type SdkworkCommunityCircleCommand,
   type SdkworkCommunityComment,
@@ -12,8 +13,10 @@ import {
   type SdkworkCommunityMember,
   type SdkworkCommunityMemberRole,
   type SdkworkCommunityMemberStatus,
+  type SdkworkCommunityMembershipTier,
   type SdkworkCommunityPublicationReadiness,
   type SdkworkCommunityReviewState,
+  type SdkworkCommunityTierCommand,
   evaluateCommunityPublicationReadiness,
 } from "@sdkwork/community-contracts";
 
@@ -84,6 +87,10 @@ export interface SdkworkCommunityAppSdkPort {
       };
     };
     members: {
+      activate(
+        communityId: string,
+        command: SdkworkCommunityActivateMembershipCommand,
+      ): Promise<SdkworkCommunityMember>;
       current(communityId: string): Promise<SdkworkCommunityMember | undefined>;
       join(communityId: string): Promise<SdkworkCommunityMember>;
       list(communityId: string): Promise<readonly SdkworkCommunityMember[]>;
@@ -98,6 +105,23 @@ export interface SdkworkCommunityAppSdkPort {
         memberId: string,
         status: SdkworkCommunityMemberStatus,
       ): Promise<SdkworkCommunityMember>;
+    };
+    tiers: {
+      create(
+        communityId: string,
+        command: SdkworkCommunityTierCommand,
+      ): Promise<SdkworkCommunityMembershipTier>;
+      list(communityId: string): Promise<readonly SdkworkCommunityMembershipTier[]>;
+      /** Owner management view: includes unpublished tiers. */
+      listAll(communityId: string): Promise<readonly SdkworkCommunityMembershipTier[]>;
+      publish(communityId: string, tierId: string): Promise<SdkworkCommunityMembershipTier>;
+      remove(communityId: string, tierId: string): Promise<void>;
+      unpublish(communityId: string, tierId: string): Promise<SdkworkCommunityMembershipTier>;
+      update(
+        communityId: string,
+        tierId: string,
+        command: Partial<SdkworkCommunityTierCommand>,
+      ): Promise<SdkworkCommunityMembershipTier>;
     };
     groups: {
       create(
@@ -121,6 +145,7 @@ export interface CreateInMemoryCommunityAppSdkPortOptions {
   currentUserId?: string;
   entries?: readonly SdkworkCommunityEntry[];
   memberships?: readonly SdkworkCommunityMember[];
+  tiers?: readonly SdkworkCommunityMembershipTier[];
 }
 
 export function createInMemoryCommunityAppSdkPort(
@@ -133,10 +158,16 @@ export function createInMemoryCommunityAppSdkPort(
   const reactions = new Map<string, Set<string>>();
   const members = new Map<string, SdkworkCommunityMember[]>();
   const groups = new Map<string, SdkworkCommunityGroup[]>();
+  const tiers = new Map<string, SdkworkCommunityMembershipTier[]>();
   for (const membership of options.memberships ?? []) {
     const list = members.get(membership.communityId) ?? [];
     list.push(membership);
     members.set(membership.communityId, list);
+  }
+  for (const tier of options.tiers ?? []) {
+    const list = tiers.get(tier.categoryId) ?? [];
+    list.push(tier);
+    tiers.set(tier.categoryId, list);
   }
 
   function findEntry(entryId: string): SdkworkCommunityEntry {
@@ -165,6 +196,20 @@ export function createInMemoryCommunityAppSdkPort(
     const list = groups.get(communityId) ?? [];
     groups.set(communityId, list);
     return list;
+  }
+
+  function communityTiers(communityId: string): SdkworkCommunityMembershipTier[] {
+    const list = tiers.get(communityId) ?? [];
+    tiers.set(communityId, list);
+    return list;
+  }
+
+  function findTier(communityId: string, tierId: string): SdkworkCommunityMembershipTier {
+    const tier = communityTiers(communityId).find((candidate) => candidate.id === tierId);
+    if (!tier) {
+      throw new Error(`community membership tier not found: ${tierId}`);
+    }
+    return tier;
   }
 
   function findMember(communityId: string, memberId: string): SdkworkCommunityMember {
@@ -381,6 +426,104 @@ export function createInMemoryCommunityAppSdkPort(
           const member = findMember(communityId, memberId);
           member.status = status;
           return member;
+        },
+        async activate(communityId, command) {
+          findCategory(communityId);
+          const tier = communityTiers(communityId).find(
+            (candidate) => candidate.id === command.tierId && candidate.enabled,
+          );
+          if (!tier) {
+            throw new Error(`community membership tier not found: ${command.tierId}`);
+          }
+          const userId = `${currentUserId}-membership`;
+          let member = communityMembers(communityId).find((candidate) => candidate.id === userId);
+          if (!member) {
+            member = {
+              bio: undefined,
+              communityId,
+              id: userId,
+              joinedAt: new Date().toISOString(),
+              role: "member",
+              status: "active",
+              user: { id: currentUserId, name: "Local User" },
+            };
+            communityMembers(communityId).push(member);
+            const category = findCategory(communityId);
+            category.memberCount = (category.memberCount ?? 0) + 1;
+          }
+          const expiresAt = new Date(
+            Date.now() + tier.durationDays * 24 * 60 * 60 * 1000,
+          ).toISOString();
+          member.tierId = tier.id;
+          member.tierName = tier.name;
+          member.membershipExpiresAt = expiresAt;
+          return member;
+        },
+      },
+      tiers: {
+        async create(communityId, command) {
+          findCategory(communityId);
+          const tier: SdkworkCommunityMembershipTier = {
+            benefits: command.benefits ?? [],
+            categoryId: communityId,
+            description: command.description,
+            durationDays: command.durationDays ?? 365,
+            enabled: false,
+            id: `tier-${communityTiers(communityId).length + 1}`,
+            name: command.name,
+            price: command.price,
+            sortOrder: command.sortOrder ?? 0,
+            tenantId: "local",
+          };
+          communityTiers(communityId).push(tier);
+          return tier;
+        },
+        async list(communityId) {
+          return communityTiers(communityId).filter((tier) => tier.enabled);
+        },
+        async listAll(communityId) {
+          return communityTiers(communityId);
+        },
+        async publish(communityId, tierId) {
+          const tier = findTier(communityId, tierId);
+          tier.enabled = true;
+          tier.catalogPackageId = tier.catalogPackageId ?? `local-package-${tierId}`;
+          return tier;
+        },
+        async unpublish(communityId, tierId) {
+          const tier = findTier(communityId, tierId);
+          tier.enabled = false;
+          return tier;
+        },
+        async remove(communityId, tierId) {
+          const list = communityTiers(communityId);
+          const index = list.findIndex((tier) => tier.id === tierId);
+          if (index < 0) {
+            throw new Error(`community membership tier not found: ${tierId}`);
+          }
+          list.splice(index, 1);
+        },
+        async update(communityId, tierId, command) {
+          const tier = findTier(communityId, tierId);
+          if (command.name !== undefined) {
+            tier.name = command.name;
+          }
+          if (command.description !== undefined) {
+            tier.description = command.description;
+          }
+          if (command.price !== undefined) {
+            tier.price = command.price;
+          }
+          if (command.durationDays !== undefined) {
+            tier.durationDays = command.durationDays;
+          }
+          if (command.benefits !== undefined) {
+            tier.benefits = [...command.benefits];
+          }
+          if (command.sortOrder !== undefined) {
+            tier.sortOrder = command.sortOrder;
+          }
+          return tier;
         },
       },
       groups: {

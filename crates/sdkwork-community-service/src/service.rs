@@ -4,12 +4,16 @@ use chrono::Utc;
 use sdkwork_community_storage_sqlx::{
     CommunityFeedQuery, CommunityGroupPatch, CommunityMemberPatch, CommunitySqlxStore,
     CommunityStoredCategory, CommunityStoredComment, CommunityStoredEntry, CommunityStoredGroup,
-    CommunityStoredGroupQr, CommunityStoredMember, NewCommunityCategory, NewCommunityComment,
-    NewCommunityEntry, NewCommunityGroup, NewCommunityMember, SetCommunityReaction,
+    CommunityStoredGroupQr, CommunityStoredMember, CommunityStoredTier, CommunityTierPatch,
+    NewCommunityCategory, NewCommunityComment, NewCommunityEntry, NewCommunityGroup,
+    NewCommunityMember, NewCommunityTier, SetCommunityReaction,
 };
 use sdkwork_utils_rust::{slugify, uuid, validated_offset_list_params};
 
 use crate::error::CommunityServiceError;
+use crate::integration::{
+    CommerceIntegration, CommerceIntegrationConfig, MembershipPackageRegistration,
+};
 
 #[derive(Debug, Clone)]
 pub struct CommunityCategoryView {
@@ -40,7 +44,25 @@ pub struct CommunityMemberView {
     pub role: String,
     pub status: String,
     pub bio: Option<String>,
+    pub tier_id: Option<String>,
+    pub tier_name: Option<String>,
+    pub membership_expires_at: Option<String>,
     pub joined_at: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct CommunityTierView {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub price: f64,
+    pub duration_days: i64,
+    pub benefits: Vec<String>,
+    pub catalog_package_id: Option<String>,
+    pub sort_order: i64,
+    pub enabled: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -164,6 +186,26 @@ pub struct CommunityGroupCommand {
     pub qr_codes: Option<Vec<CommunityGroupQrView>>,
 }
 
+/// Command to create or update a circle membership tier (会员等级).
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityTierCommand {
+    pub name: String,
+    pub description: Option<String>,
+    pub price: f64,
+    pub duration_days: Option<i64>,
+    pub benefits: Option<Vec<String>>,
+    pub sort_order: Option<i64>,
+}
+
+/// Command to activate a paid circle membership after order payment.
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityActivateMembershipCommand {
+    pub order_id: String,
+    pub tier_id: String,
+}
+
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CommunityCommentCommand {
     pub body: String,
@@ -214,11 +256,28 @@ pub struct CommunityCommandAccepted {
 
 pub struct CommunityService {
     store: Arc<CommunitySqlxStore>,
+    commerce: Arc<CommerceIntegration>,
 }
 
 impl CommunityService {
     pub fn new(store: Arc<CommunitySqlxStore>) -> Self {
-        Self { store }
+        Self {
+            store,
+            commerce: Arc::new(CommerceIntegration::new(
+                CommerceIntegrationConfig::from_env(),
+            )),
+        }
+    }
+
+    pub fn with_commerce(
+        store: Arc<CommunitySqlxStore>,
+        commerce: Arc<CommerceIntegration>,
+    ) -> Self {
+        Self { store, commerce }
+    }
+
+    pub fn commerce(&self) -> &CommerceIntegration {
+        &self.commerce
     }
 
     pub async fn list_categories(
@@ -792,6 +851,20 @@ impl CommunityService {
         if let Some(member) = self.current_member(tenant_id, category_id, user_id).await? {
             return Ok(member);
         }
+        // Circles with purchasable membership tiers require a paid membership;
+        // direct joins are rejected so the purchase flow stays authoritative.
+        if !self
+            .store
+            .list_tiers(tenant_id, category_id, true)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
+            .is_empty()
+        {
+            return Err(CommunityServiceError::Validation(
+                "this circle requires a paid membership; please purchase a membership tier"
+                    .to_owned(),
+            ));
+        }
         let now = Utc::now().to_rfc3339();
         let member_id = uuid();
         self.store
@@ -845,6 +918,9 @@ impl CommunityService {
                 &CommunityMemberPatch {
                     role: command.role,
                     status: command.status,
+                    tier_id: None,
+                    tier_name: None,
+                    membership_expires_at: None,
                 },
             )
             .await
@@ -1068,6 +1144,307 @@ impl CommunityService {
         }
     }
 
+    /// Lists circle membership tiers. `enabled_only` hides unpublished tiers
+    /// from the purchase surface while owners manage the full list.
+    pub async fn list_tiers(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        enabled_only: bool,
+    ) -> Result<Vec<CommunityTierView>, CommunityServiceError> {
+        self.store
+            .list_tiers(tenant_id, category_id, enabled_only)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+            .map(|items| items.into_iter().map(map_tier).collect())
+    }
+
+    /// Creates an unpublished membership tier (owner/admin). Publishing is a
+    /// separate step so the tier only becomes purchasable once its catalog
+    /// package has been registered.
+    pub async fn create_tier(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        command: CommunityTierCommand,
+    ) -> Result<CommunityTierView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        if command.name.trim().is_empty() {
+            return Err(CommunityServiceError::Validation(
+                "tier name is required".to_owned(),
+            ));
+        }
+        if command.price < 0.0 {
+            return Err(CommunityServiceError::Validation(
+                "tier price must not be negative".to_owned(),
+            ));
+        }
+        let now = Utc::now().to_rfc3339();
+        let tier_id = uuid();
+        self.store
+            .create_tier(NewCommunityTier {
+                id: tier_id.clone(),
+                tenant_id: tenant_id.to_owned(),
+                category_id: category_id.to_owned(),
+                name: command.name,
+                description: command.description,
+                price: command.price,
+                duration_days: command.duration_days.unwrap_or(365),
+                benefits: command.benefits.unwrap_or_default(),
+                sort_order: command.sort_order.unwrap_or(0),
+                now,
+            })
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.retrieve_tier(tenant_id, category_id, &tier_id).await
+    }
+
+    pub async fn update_tier(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        tier_id: &str,
+        command: CommunityTierCommand,
+    ) -> Result<CommunityTierView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        let existing = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
+        self.store
+            .update_tier(
+                tenant_id,
+                category_id,
+                tier_id,
+                &CommunityTierPatch {
+                    name: (!command.name.trim().is_empty()).then_some(command.name),
+                    description: command.description,
+                    price: Some(command.price),
+                    duration_days: command.duration_days,
+                    benefits: command.benefits,
+                    catalog_package_id: None,
+                    sort_order: command.sort_order,
+                    enabled: None,
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        let _ = existing;
+        self.retrieve_tier(tenant_id, category_id, tier_id).await
+    }
+
+    /// Publishes a tier: registers the membership package on the membership
+    /// backend (auto-assigned external id becomes the order `packageId`) and
+    /// makes the tier purchasable.
+    pub async fn publish_tier(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        tier_id: &str,
+    ) -> Result<CommunityTierView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
+        if tier.enabled && tier.catalog_package_id.is_some() {
+            return Ok(tier);
+        }
+        let category = self.retrieve_category(tenant_id, category_id).await?;
+        let registered = self
+            .commerce
+            .register_membership_package(MembershipPackageRegistration {
+                code: format!("community-tier-{}", tier.id.replace('-', "")),
+                package_group_id: "package-group-circle-membership".to_owned(),
+                plan_id: "plan-circle-membership".to_owned(),
+                name: format!("{} · {}", category.title, tier.name),
+                price_amount: format!("{:.2}", tier.price),
+                currency_code: "CNY".to_owned(),
+                duration_days: tier.duration_days,
+                status: "active".to_owned(),
+            })
+            .await
+            .map_err(CommunityServiceError::Integration)?;
+        self.store
+            .update_tier(
+                tenant_id,
+                category_id,
+                tier_id,
+                &CommunityTierPatch {
+                    name: None,
+                    description: None,
+                    price: None,
+                    duration_days: None,
+                    benefits: None,
+                    catalog_package_id: Some(registered.external_id.to_string()),
+                    sort_order: None,
+                    enabled: Some(true),
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.retrieve_tier(tenant_id, category_id, tier_id).await
+    }
+
+    pub async fn unpublish_tier(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        tier_id: &str,
+    ) -> Result<CommunityTierView, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        self.store
+            .update_tier(
+                tenant_id,
+                category_id,
+                tier_id,
+                &CommunityTierPatch {
+                    name: None,
+                    description: None,
+                    price: None,
+                    duration_days: None,
+                    benefits: None,
+                    catalog_package_id: None,
+                    sort_order: None,
+                    enabled: Some(false),
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.retrieve_tier(tenant_id, category_id, tier_id).await
+    }
+
+    pub async fn delete_tier(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+        tier_id: &str,
+    ) -> Result<CommunityCommandAccepted, CommunityServiceError> {
+        self.require_manager(tenant_id, category_id, actor_user_id)
+            .await?;
+        let deleted = self
+            .store
+            .delete_tier(tenant_id, category_id, tier_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        if !deleted {
+            return Err(CommunityServiceError::NotFound(format!(
+                "tier {tier_id} not found"
+            )));
+        }
+        Ok(CommunityCommandAccepted {
+            accepted: true,
+            resource_id: Some(tier_id.to_owned()),
+            status: Some("deleted".to_owned()),
+        })
+    }
+
+    /// Activates a paid circle membership after order payment: verifies the
+    /// order with the order backend, upserts the member and applies the tier
+    /// with its expiry.
+    pub async fn activate_membership(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+        display_name: &str,
+        command: CommunityActivateMembershipCommand,
+    ) -> Result<CommunityMemberView, CommunityServiceError> {
+        let tier = self
+            .retrieve_tier(tenant_id, category_id, &command.tier_id)
+            .await?;
+        if !tier.enabled || tier.catalog_package_id.is_none() {
+            return Err(CommunityServiceError::Validation(
+                "membership tier is not purchasable".to_owned(),
+            ));
+        }
+        let paid = self
+            .commerce
+            .verify_order_paid(&command.order_id)
+            .await
+            .map_err(CommunityServiceError::Integration)?;
+        if !paid {
+            return Err(CommunityServiceError::Validation(
+                "order is not paid".to_owned(),
+            ));
+        }
+        let now = Utc::now().to_rfc3339();
+        let expires_at = chrono::DateTime::parse_from_rfc3339(&now)
+            .map(|value| value + chrono::Duration::days(tier.duration_days))
+            .unwrap_or_else(|_| {
+                chrono::DateTime::parse_from_rfc3339("2030-01-01T00:00:00Z")
+                    .expect("static fallback expiry")
+            })
+            .to_rfc3339();
+
+        if self
+            .current_member(tenant_id, category_id, user_id)
+            .await?
+            .is_none()
+        {
+            self.store
+                .create_member(NewCommunityMember {
+                    id: uuid(),
+                    tenant_id: tenant_id.to_owned(),
+                    category_id: category_id.to_owned(),
+                    user_id: user_id.to_owned(),
+                    user_name: display_name.to_owned(),
+                    role: "member".to_owned(),
+                    bio: None,
+                    now: now.clone(),
+                })
+                .await
+                .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+            self.adjust_category_counts(tenant_id, category_id, 1, 0)
+                .await?;
+        }
+        let member = self
+            .current_member(tenant_id, category_id, user_id)
+            .await?
+            .ok_or_else(|| {
+                CommunityServiceError::Storage("activated membership not found".to_owned())
+            })?;
+        self.store
+            .update_member(
+                tenant_id,
+                category_id,
+                &member.id,
+                &CommunityMemberPatch {
+                    role: None,
+                    status: None,
+                    tier_id: Some(tier.id.clone()),
+                    tier_name: Some(tier.name),
+                    membership_expires_at: Some(expires_at),
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.current_member(tenant_id, category_id, user_id)
+            .await?
+            .ok_or_else(|| {
+                CommunityServiceError::Storage("activated membership not found".to_owned())
+            })
+    }
+
+    async fn retrieve_tier(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        tier_id: &str,
+    ) -> Result<CommunityTierView, CommunityServiceError> {
+        self.store
+            .list_tiers(tenant_id, category_id, false)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
+            .into_iter()
+            .find(|tier| tier.id == tier_id)
+            .map(map_tier)
+            .ok_or_else(|| CommunityServiceError::NotFound(format!("tier {tier_id} not found")))
+    }
+
     pub async fn update_moderation(
         &self,
         tenant_id: &str,
@@ -1196,7 +1573,26 @@ fn map_member(member: CommunityStoredMember) -> CommunityMemberView {
         role: member.role,
         status: member.status,
         bio: member.bio,
+        tier_id: member.tier_id,
+        tier_name: member.tier_name,
+        membership_expires_at: member.membership_expires_at,
         joined_at: member.joined_at,
+    }
+}
+
+fn map_tier(tier: CommunityStoredTier) -> CommunityTierView {
+    CommunityTierView {
+        id: tier.id,
+        tenant_id: tier.tenant_id,
+        category_id: tier.category_id,
+        name: tier.name,
+        description: tier.description,
+        price: tier.price,
+        duration_days: tier.duration_days,
+        benefits: tier.benefits,
+        catalog_package_id: tier.catalog_package_id,
+        sort_order: tier.sort_order,
+        enabled: tier.enabled,
     }
 }
 

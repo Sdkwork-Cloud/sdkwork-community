@@ -1,6 +1,6 @@
 use sdkwork_community_service::{
     CommunityCategoryView, CommunityCommentView, CommunityEntryView, CommunityGroupView,
-    CommunityMemberView,
+    CommunityMemberView, CommunityTierView,
 };
 use serde::Serialize;
 
@@ -88,7 +88,31 @@ pub struct CommunityMemberResponse {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bio: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tier_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tier_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub membership_expires_at: Option<String>,
     pub joined_at: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommunityTierResponse {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    pub price: f64,
+    pub duration_days: i64,
+    pub benefits: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub catalog_package_id: Option<String>,
+    pub sort_order: i64,
+    pub enabled: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -193,7 +217,26 @@ pub fn map_member(member: CommunityMemberView) -> CommunityMemberResponse {
         role: member.role,
         status: member.status,
         bio: member.bio,
+        tier_id: member.tier_id,
+        tier_name: member.tier_name,
+        membership_expires_at: member.membership_expires_at,
         joined_at: member.joined_at,
+    }
+}
+
+pub fn map_tier(tier: CommunityTierView) -> CommunityTierResponse {
+    CommunityTierResponse {
+        id: tier.id,
+        tenant_id: tier.tenant_id,
+        category_id: tier.category_id,
+        name: tier.name,
+        description: tier.description,
+        price: tier.price,
+        duration_days: tier.duration_days,
+        benefits: tier.benefits,
+        catalog_package_id: tier.catalog_package_id,
+        sort_order: tier.sort_order,
+        enabled: tier.enabled,
     }
 }
 

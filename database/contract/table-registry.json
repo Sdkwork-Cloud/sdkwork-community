@@ -79,6 +79,12 @@
       "owner": "community-platform",
       "compliance_level": "L2",
       "lifecycle_status": "active"
+    },
+    {
+      "table_name": "community_membership_tier",
+      "owner": "community-platform",
+      "compliance_level": "L2",
+      "lifecycle_status": "active"
     }
   ]
 }

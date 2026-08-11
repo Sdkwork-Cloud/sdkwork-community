@@ -20,6 +20,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.delete",
         "surface": "app-api"
@@ -50,6 +57,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/current",
         "operationId": "members.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.list",
         "surface": "app-api"
       },
       {
@@ -111,6 +125,13 @@
       {
         "authProfile": "dual-token",
         "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.update",
         "surface": "app-api"
@@ -134,6 +155,34 @@
         "method": "POST",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/join",
         "operationId": "categories.join",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/activate",
+        "operationId": "members.activate",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish",
+        "operationId": "tiers.publish",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish",
+        "operationId": "tiers.unpublish",
         "surface": "app-api"
       },
       {
@@ -281,6 +330,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.delete",
         "surface": "app-api"
@@ -311,6 +367,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/current",
         "operationId": "members.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.list",
         "surface": "app-api"
       },
       {
@@ -372,6 +435,13 @@
       {
         "authProfile": "dual-token",
         "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.update",
         "surface": "app-api"
@@ -395,6 +465,34 @@
         "method": "POST",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/join",
         "operationId": "categories.join",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/activate",
+        "operationId": "members.activate",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish",
+        "operationId": "tiers.publish",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish",
+        "operationId": "tiers.unpublish",
         "surface": "app-api"
       },
       {
@@ -542,6 +640,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.delete",
         "surface": "app-api"
@@ -572,6 +677,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/current",
         "operationId": "members.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.list",
         "surface": "app-api"
       },
       {
@@ -633,6 +745,13 @@
       {
         "authProfile": "dual-token",
         "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.update",
         "surface": "app-api"
@@ -656,6 +775,34 @@
         "method": "POST",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/join",
         "operationId": "categories.join",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/activate",
+        "operationId": "members.activate",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish",
+        "operationId": "tiers.publish",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish",
+        "operationId": "tiers.unpublish",
         "surface": "app-api"
       },
       {
@@ -803,6 +950,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.delete",
         "surface": "app-api"
@@ -833,6 +987,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/current",
         "operationId": "members.retrieve",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.list",
         "surface": "app-api"
       },
       {
@@ -894,6 +1055,13 @@
       {
         "authProfile": "dual-token",
         "method": "PATCH",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "operationId": "tiers.update",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "PATCH",
         "normalizedPath": "/app/v3/api/community/entries/{entryId}",
         "operationId": "entries.update",
         "surface": "app-api"
@@ -917,6 +1085,34 @@
         "method": "POST",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/join",
         "operationId": "categories.join",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/members/activate",
+        "operationId": "members.activate",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers",
+        "operationId": "tiers.create",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish",
+        "operationId": "tiers.publish",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "POST",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish",
+        "operationId": "tiers.unpublish",
         "surface": "app-api"
       },
       {

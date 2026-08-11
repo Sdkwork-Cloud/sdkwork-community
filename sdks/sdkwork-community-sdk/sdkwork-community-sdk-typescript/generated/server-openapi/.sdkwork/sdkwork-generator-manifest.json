@@ -91,6 +91,10 @@
       "sha256": "2d75166aa61cdbf2c56569b4fd1dcb10c0a070fe8bf8123bd519af10844bee29"
     },
     {
+      "path": "src/types/community-activate-membership-command.ts",
+      "sha256": "13d4a121ac89d2da09762c5c2ff36a247bf540458d277e3ec7b67905dd959a7f"
+    },
+    {
       "path": "src/types/community-author.ts",
       "sha256": "a49a94ae2fced353b858d9602af321691be42f5e48f2070cb798ce4a7e4ac01d"
     },
@@ -147,6 +151,10 @@
       "sha256": "9acd30feb88a197ba0afe0a34b2a8bc41c4bd0267d71e8f819e75fad5a45547f"
     },
     {
+      "path": "src/types/community-membership-tier.ts",
+      "sha256": "9007d62beb8887c8594145458a783f6418f62c7d2e511ae3104ea1ee67dad675"
+    },
+    {
       "path": "src/types/community-moderation-command.ts",
       "sha256": "4dddea6464f4b2ee6d8227cb68bd505ee68d2c4ea6798e680c05d15d9ed57304"
     },
@@ -171,12 +179,16 @@
       "sha256": "427fffa42f1da1a8262adf65d1dbf09457f52f094dc04700fb7cb6299596bbbe"
     },
     {
+      "path": "src/types/community-tier-command.ts",
+      "sha256": "43ff9d3fa284a86a8e373118cca9b1efab34206328d0626a66a2ef92ba6637a4"
+    },
+    {
       "path": "src/types/field-error.ts",
       "sha256": "7688827a804d5c888fdf626b89e3356832f858e24f0657069b6b842a31ae6907"
     },
     {
       "path": "src/types/index.ts",
-      "sha256": "1a03f75060f049881c59b76e6be377c5117ca76bf2c285a7f8edacf34399421e"
+      "sha256": "0400908e470466d11b0c5309bea9079506fd1631a2a96611e722cacad72f349e"
     },
     {
       "path": "src/types/page-info.ts",

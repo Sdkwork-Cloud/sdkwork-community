@@ -4,28 +4,31 @@ import { cn, IconButton } from "@sdkwork/ui-mobile-react";
 import { MessageSquare, Check, X, Lock } from "lucide-react";
 import { getCommunityCurrentUser } from "../services/communityAuthSessionPort";
 import { useNavigate, useLocation } from "react-router";
+import type { MembershipTier } from "../types";
 
 interface PaymentSheetProps {
   communityName: string;
-  communityPrice?: number;
   communityCoverImage: string;
+  tiers: MembershipTier[];
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (tier: MembershipTier, paymentMethod: string) => void;
 }
 
 export const PaymentSheet: React.FC<PaymentSheetProps> = ({
   communityName,
-  communityPrice,
   communityCoverImage,
+  tiers,
   onClose,
   onConfirm,
 }) => {
   const { t } = useTranslation();
-const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(null);
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(
+    tiers[0]?.id ?? null,
+  );
+  const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
   const [isAlipay, setIsAlipay] = useState(false);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,7 +39,7 @@ const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(n
       // 未登录，检测是否在微信内（可支持授权/静默登录Mock）
       const ua = navigator.userAgent.toLowerCase();
       const isWx = ua.includes('micromessenger');
-      
+
       const currentPath = encodeURIComponent(location.pathname + location.search);
       if (isWx) {
         // Mock 微信授权登录流程
@@ -44,8 +47,6 @@ const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(n
         // 实际开发中会重定向到微信授权URL
       }
       navigate(`/login?redirect=${currentPath}`);
-    } else {
-      setIsAuthChecking(false);
     }
   }, [navigate, location]);
 
@@ -54,100 +55,128 @@ const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(n
     const ua = navigator.userAgent.toLowerCase();
     const isWx = ua.includes('micromessenger');
     const isAli = ua.includes('alipayclient');
-    
+
     setIsWeChat(isWx);
     setIsAlipay(isAli);
-    
-    // 如果在微信内，仅保留微信支付
-    // 如果在支付宝内，仅保留支付宝支付
-    // 否则两者或者默认均可，这里做个默认值选取
-    if (isWx) {
-      setSelectedPayment('wechat');
-    } else if (isAli) {
-      setSelectedPayment('alipay');
-    } else {
-      setSelectedPayment('wechat'); // 网页版默认
-    }
   }, []);
 
-  if (isAuthChecking) {
-    return null; // 或者返回一个Loading状态
-  }
+  const selectedTier = tiers.find((tier) => tier.id === selectedTierId) ?? null;
+
+  const handleConfirm = () => {
+    if (!selectedTier) return;
+    const paymentMethod = selectedPayment ?? (isAlipay ? 'alipay' : 'wechat_pay');
+    onConfirm(selectedTier, paymentMethod);
+  };
 
   return (
-    <div className="absolute inset-0 z-[100] flex flex-col justify-end pointer-events-auto overflow-hidden">
-      <div 
-        className="absolute inset-0 bg-black/40 transition-opacity"
-        onClick={onClose}
-      />
-      <div className="bg-white dark:bg-[#1C1C1E] rounded-t-2xl w-full relative z-10 p-5 pb-[calc(20px+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between mb-6 shrink-0">
-          <h3 className="text-[18px] font-bold text-text-main">{t('community.auto_38dbf769', '确认订单')}</h3>
-          <IconButton 
-            icon={<X className="w-5 h-5 text-text-main" />}
-            className="w-8 h-8 -mr-1"
-            onClick={onClose}
-          />
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" onClick={onClose}>
+      <div
+        className="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-2xl p-4 pb-8 max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[17px] font-bold text-text-main">{t('community.auto_n150cf9c5', '开通圈子会员')}</h3>
+          <IconButton icon={<X className="w-5 h-5" />} onClick={onClose} aria-label="close" />
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-4 scrollbar-none">
-          <div className="flex items-center gap-4 mb-6 bg-[#F8F9FA] dark:bg-[#2C2C2E] p-4 rounded-xl shadow-sm border border-black/5 dark:border-white/5">
-            <img src={communityCoverImage} alt="" className="w-16 h-16 rounded-lg object-cover border border-black/10 dark:border-white/10" />
-            <div className="flex flex-col flex-1">
-              <span className="text-[16px] font-semibold text-text-main mb-1 line-clamp-1">{communityName}</span>
-              <span className="text-[13px] text-text-sub line-clamp-1">{t('community.auto_n150cf9c5', '付费圈子买断（永久有效）')}</span>
-            </div>
-            <div className="text-[20px] font-bold text-text-main">¥{communityPrice}</div>
+        {/* 圈子信息 */}
+        <div className="flex items-center gap-3 mb-4">
+          <img src={communityCoverImage} alt="" className="w-12 h-12 rounded-xl object-cover" />
+          <div className="flex flex-col">
+            <span className="text-[15px] font-semibold text-text-main">{communityName}</span>
+            <span className="text-[12px] text-text-sub">{t('community.auto_25f42a69', '付费圈子')}</span>
           </div>
+        </div>
 
-          {!isWeChat && !isAlipay && (
-            <div className="mb-6">
-              <h4 className="text-[14px] font-medium text-text-sub mb-3">{t('community.auto_2f3381bf', '支付方式')}</h4>
-              <div className="flex flex-col gap-3">
-                <div 
-                  className={cn("flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer", selectedPayment === 'wechat' ? "border-emerald-500 bg-emerald-500/5" : "border-black/5 dark:border-white/5")}
-                  onClick={() => setSelectedPayment('wechat')}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-emerald-500 fill-emerald-500" />
-                    </div>
-                    <span className="text-[15px] font-medium text-text-main">{t('community.auto_2cb6c4bc', '微信支付')}</span>
-                  </div>
-                  <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center", selectedPayment === 'wechat' ? "border-emerald-500" : "border-text-sub/30")}>
-                    {selectedPayment === 'wechat' && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
-                  </div>
-                </div>
-                <div 
-                  className={cn("flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer", selectedPayment === 'alipay' ? "border-blue-500 bg-blue-500/5" : "border-black/5 dark:border-white/5")}
-                  onClick={() => setSelectedPayment('alipay')}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                      <Check className="w-5 h-5 text-blue-500" />
-                    </div>
-                    <span className="text-[15px] font-medium text-text-main">{t('community.auto_185bd34', '支付宝')}</span>
-                  </div>
-                  <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center", selectedPayment === 'alipay' ? "border-blue-500" : "border-text-sub/30")}>
-                    {selectedPayment === 'alipay' && <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />}
-                  </div>
-                </div>
+        {/* 会员等级选择 */}
+        <div className="flex flex-col gap-2 mb-4">
+          {tiers.map((tier) => (
+            <button
+              key={tier.id}
+              onClick={() => setSelectedTierId(tier.id)}
+              className={cn(
+                "flex items-center justify-between w-full rounded-xl border px-3 py-3 text-left transition-colors",
+                selectedTierId === tier.id
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10"
+                  : "border-black/10 dark:border-white/10",
+              )}
+            >
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[15px] font-semibold text-text-main">{tier.name}</span>
+                {tier.description && (
+                  <span className="text-[12px] text-text-sub line-clamp-1">{tier.description}</span>
+                )}
+                <span className="text-[12px] text-text-sub">
+                  {tier.durationDays >= 365
+                    ? `${Math.round(tier.durationDays / 365)} 年有效`
+                    : `${tier.durationDays} 天有效`}
+                </span>
               </div>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between mb-8 px-1">
-            <span className="text-[15px] text-text-main font-medium">{t('community.auto_2c3862b0', '应付金额')}</span>
-            <span className="text-[28px] font-bold text-red-500 leading-none">¥{communityPrice}</span>
-          </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[18px] font-bold text-red-500">¥{tier.price}</span>
+                <span
+                  className={cn(
+                    "w-4 h-4 rounded-full border flex items-center justify-center",
+                    selectedTierId === tier.id ? "border-blue-500" : "border-black/20",
+                  )}
+                >
+                  {selectedTierId === tier.id && <Check className="w-3 h-3 text-blue-500" />}
+                </span>
+              </div>
+            </button>
+          ))}
         </div>
 
-        <div className="shrink-0 pt-2 mt-auto">
-          <button 
-            onClick={onConfirm}
-            className="w-full bg-blue-500 text-white rounded-full py-3.5 font-bold text-[16px] shadow-lg shadow-blue-500/30 active:scale-95 transition-transform flex items-center justify-center gap-1.5"
-          >
-            <Lock className="w-5 h-5" />{t('community.auto_39175f91', '立即支付')}</button>
+        {/* 权益预览 */}
+        {selectedTier && selectedTier.benefits.length > 0 && (
+          <div className="mb-4 rounded-xl bg-chat-active-bg p-3 flex flex-col gap-1.5">
+            {selectedTier.benefits.map((benefit) => (
+              <span key={benefit} className="text-[13px] text-text-main flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-blue-500" /> {benefit}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* 支付方式 */}
+        {!isWeChat && !isAlipay && (
+          <div className="flex flex-col gap-2 mb-4">
+            <span className="text-[13px] text-text-sub">{t('community.auto_2b2c2b90', '支付方式')}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSelectedPayment('wechat')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[14px] font-medium",
+                  selectedPayment === 'wechat' ? "border-[#07C160] bg-[#07C160]/10 text-[#07C160]" : "border-black/10 dark:border-white/10 text-text-main",
+                )}
+              >
+                <MessageSquare className="w-4 h-4" /> 微信支付
+              </button>
+              <button
+                onClick={() => setSelectedPayment('alipay')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[14px] font-medium",
+                  selectedPayment === 'alipay' ? "border-[#1677FF] bg-[#1677FF]/10 text-[#1677FF]" : "border-black/10 dark:border-white/10 text-text-main",
+                )}
+              >
+                支付宝支付
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 立即支付 */}
+        <button
+          onClick={handleConfirm}
+          disabled={!selectedTier}
+          className="w-full rounded-xl bg-blue-500 py-3 text-[15px] font-semibold text-white disabled:opacity-40"
+        >
+          {selectedTier ? `立即支付 ¥${selectedTier.price}` : t('community.auto_n150cf9c5', '请选择会员等级')}
+        </button>
+
+        <div className="mt-3 flex items-center justify-center gap-1 text-[12px] text-text-sub">
+          <Lock className="w-3 h-3" />
+          {t('community.auto_n150cf9c5', '支付将通过安全收银台完成')}
         </div>
       </div>
     </div>

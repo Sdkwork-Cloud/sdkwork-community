@@ -6,6 +6,7 @@ import { Community } from "../types";
 import { cn, IconButton, showToast } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, ChevronRight, Camera, Image as ImageIcon, QrCode } from "lucide-react";
 import { AVAILABLE_TABS } from "./CommunityEditTabs";
+import { TierManagementPanel } from "../components/TierManagementPanel";
 
 export const CommunityProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -178,6 +179,12 @@ const { id } = useParams<{ id: string }>();
                </div>
              </div>
           </div>
+
+          {community.isPaid && (
+            <div className="bg-white dark:bg-[#1C1C1E] mt-4 border-y border-black/5 dark:border-white/5 px-4 py-4">
+              <TierManagementPanel communityId={community.id} />
+            </div>
+          )}
 
        </div>
     </div>

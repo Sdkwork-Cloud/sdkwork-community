@@ -17,6 +17,9 @@ export type { CommunityMemberPatchCommand } from './community-member-patch-comma
 export type { CommunityGroupQr } from './community-group-qr';
 export type { CommunityGroupResponse } from './community-group-response';
 export type { CommunityGroupCommand } from './community-group-command';
+export type { CommunityMembershipTier } from './community-membership-tier';
+export type { CommunityTierCommand } from './community-tier-command';
+export type { CommunityActivateMembershipCommand } from './community-activate-membership-command';
 export type { CommunityAuthor } from './community-author';
 export type { CommunityEntryKind } from './community-entry-kind';
 export type { CommunityReviewState } from './community-review-state';

@@ -40,4 +40,64 @@ describe("@sdkwork/community-sdk-ports", () => {
     });
     await expect(client.community.comments.list("entry-1")).resolves.toHaveLength(1);
   });
+
+  it("manages membership tiers and activates memberships", async () => {
+    const client: SdkworkCommunityAppSdkPort = createInMemoryCommunityAppSdkPort({
+      categories: [
+        {
+          enabled: true,
+          id: "comm-paid",
+          priority: 0,
+          slug: "paid",
+          tenantId: "local",
+          title: "付费圈",
+        },
+      ],
+    });
+
+    // Unpublished tiers are not listed for purchase.
+    const created = await client.community.tiers.create("comm-paid", {
+      benefits: ["圈子内容", "官方群"],
+      durationDays: 365,
+      name: "高级会员",
+      price: 199,
+    });
+    expect(created.enabled).toBe(false);
+    await expect(client.community.tiers.list("comm-paid")).resolves.toEqual([]);
+
+    // Publish registers the catalog package and makes the tier purchasable.
+    const published = await client.community.tiers.publish("comm-paid", created.id);
+    expect(published.enabled).toBe(true);
+    expect(published.catalogPackageId).toBeTruthy();
+    await expect(client.community.tiers.list("comm-paid")).resolves.toHaveLength(1);
+
+    // Update tier fields.
+    const updated = await client.community.tiers.update("comm-paid", created.id, {
+      price: 299,
+    });
+    expect(updated.price).toBe(299);
+
+    // Activation creates the member with the tier and expiry.
+    const member = await client.community.members.activate("comm-paid", {
+      orderId: "order-1",
+      tierId: created.id,
+    });
+    expect(member).toMatchObject({
+      role: "member",
+      tierId: created.id,
+      tierName: "高级会员",
+    });
+    expect(member.membershipExpiresAt).toBeTruthy();
+
+    // Unpublish hides the tier again; removing deletes it.
+    await client.community.tiers.unpublish("comm-paid", created.id);
+    await expect(client.community.tiers.list("comm-paid")).resolves.toEqual([]);
+    await client.community.tiers.remove("comm-paid", created.id);
+    await expect(
+      client.community.members.activate("comm-paid", {
+        orderId: "order-2",
+        tierId: created.id,
+      }),
+    ).rejects.toThrow("tier not found");
+  });
 });

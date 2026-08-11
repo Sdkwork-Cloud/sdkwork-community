@@ -1,8 +1,15 @@
 import {
   configureCommunityAuthSessionPort,
+  configureCommunityOrderRuntime,
   configureCommunityRuntimePort,
   resetCommunityRuntimePort,
+  type CreateCircleMembershipOrderOptions,
+  type CircleMembershipOrder,
 } from "@sdkwork/community-mobile-react-community";
+import {
+  configureOrderMobileRuntime,
+  type WechatPaymentOAuthChannel,
+} from "@sdkwork/order-mobile-react-orders";
 import { getRuntime } from "./runtime";
 
 /**
@@ -16,7 +23,28 @@ import { getRuntime } from "./runtime";
  * - `configureCommunityRuntimePort` switches the package to the generated
  *   Community App SDK port once a session exists; without a session the
  *   package keeps its seeded in-memory port so the UI stays explorable.
+ * - `configureOrderMobileRuntime` composes the official order cashier with
+ *   the order App SDK client and the IAM WeChat payment OAuth channel.
+ * - `configureCommunityOrderRuntime` routes circle membership order creation
+ *   through sdkwork-order (`memberships.orders.create`), so the whole
+ *   purchase flow settles on the order service.
  */
+
+function createWechatPaymentOAuthChannel(): WechatPaymentOAuthChannel {
+  return {
+    async fetchAuthorizeUrl(redirect: string): Promise<string> {
+      const response = await getRuntime().sdkClients.iamAppSdkClient.oauth.wechatPaymentOauth.start({
+        redirect,
+      });
+      const record = (response ?? {}) as { authorizeUrl?: unknown; authUrl?: unknown };
+      const authorizeUrl = record.authorizeUrl ?? record.authUrl;
+      if (typeof authorizeUrl !== "string" || authorizeUrl.trim().length === 0) {
+        throw new Error("WeChat payment OAuth start did not return an authorizeUrl.");
+      }
+      return authorizeUrl;
+    },
+  };
+}
 
 let bootstrapped = false;
 
@@ -29,6 +57,35 @@ export function bootstrapCommunityPort(): void {
   const runtime = getRuntime();
   configureCommunityAuthSessionPort({
     getCurrentUser: () => runtime.getCurrentUser(),
+  });
+
+  configureOrderMobileRuntime({
+    client: runtime.sdkClients.orderAppSdkClient,
+    wechatPaymentOAuth: createWechatPaymentOAuthChannel(),
+    paymentRegion: runtime.environment.deploymentProfile === "cloud" ? "cn" : "cn",
+  });
+
+  configureCommunityOrderRuntime({
+    async createMembershipOrder(
+      options: CreateCircleMembershipOrderOptions,
+    ): Promise<CircleMembershipOrder> {
+      const result = await runtime.sdkClients.orderAppSdkClient.memberships.orders.create(
+        {
+          action: "purchase",
+          packageId: options.packageId,
+          paymentMethod: options.paymentMethod,
+          paymentProduct: "mobile_cashier_h5",
+          source: options.source ?? "community-circle",
+        },
+        { idempotencyKey: crypto.randomUUID() },
+      );
+      return {
+        orderId: result.orderId,
+        orderNo: result.orderNo,
+        amount: result.amount,
+        cashierUrl: result.cashierUrl,
+      };
+    },
   });
 
   const syncRuntimePort = (): void => {

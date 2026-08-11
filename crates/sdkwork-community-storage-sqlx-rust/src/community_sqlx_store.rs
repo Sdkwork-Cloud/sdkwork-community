@@ -362,4 +362,50 @@ impl CommunitySqlxStore {
         )
         .await
     }
+
+    pub async fn list_tiers(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        enabled_only: bool,
+    ) -> Result<Vec<super::CommunityStoredTier>, sqlx::Error> {
+        super::postgres_queries::list_tiers(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            enabled_only,
+        )
+        .await
+    }
+
+    pub async fn create_tier(&self, input: super::NewCommunityTier) -> Result<(), sqlx::Error> {
+        super::postgres_queries::create_tier(self.postgres_pool(), input).await
+    }
+
+    pub async fn update_tier(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        tier_id: &str,
+        patch: &super::CommunityTierPatch,
+    ) -> Result<(), sqlx::Error> {
+        super::postgres_queries::update_tier(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            tier_id,
+            patch,
+        )
+        .await
+    }
+
+    pub async fn delete_tier(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        tier_id: &str,
+    ) -> Result<bool, sqlx::Error> {
+        super::postgres_queries::delete_tier(self.postgres_pool(), tenant_id, category_id, tier_id)
+            .await
+    }
 }

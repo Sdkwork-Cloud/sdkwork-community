@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { CommunityService } from "../services/CommunityService";
-import { Community, Post, Resource, CommunityGroup } from "../types";
+import { getCommunityOrderRuntime } from "../services/communityOrderRuntime";
+import { Community, Post, Resource, CommunityGroup, MembershipTier } from "../types";
 import { cn, IconButton, showToast, Tabs } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, Share2, Plus, Users, LayoutDashboard, FileText, Download, Check, Heart, MessageCircle, MessageSquare, QrCode, X, Edit2, Trash2, Newspaper, BookOpen, FolderGit, Package, Settings2, Lock } from "lucide-react";
 
@@ -57,19 +58,24 @@ const { id } = useParams<{ id: string }>();
 
   const [isPaySheetOpen, setIsPaySheetOpen] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'>('wechat');
+  const [tiers, setTiers] = useState<MembershipTier[]>([]);
 
   const handleJoin = async () => {
     if (!id || !community) return;
     if (community.isPaid) {
       if (!isPaySheetOpen) {
         setIsPaySheetOpen(true);
+        try {
+          setTiers(await CommunityService.getMembershipTiers(id));
+        } catch {
+          showToast(t('community.auto_fn_2796529c', '获取圈子配置失败'));
+        }
         return;
       }
     }
     
     try {
-      showToast(community.isPaid ? "支付处理中..." : "加入中...");
+      showToast("加入中...");
       await CommunityService.joinCommunity(id);
       
       const [fetchedResources, fetchedGroups] = await Promise.all([
@@ -86,6 +92,29 @@ const { id } = useParams<{ id: string }>();
     } catch {
       showToast(t('community.auto_fn_2f078e83', '操作失败'));
       setIsPaySheetOpen(false);
+    }
+  };
+
+  // Paid circle: create the membership order through sdkwork-order and enter
+  // the cashier bridge; the bridge activates the membership and returns here.
+  const handleConfirmPay = async (tier: MembershipTier, paymentMethod: string) => {
+    if (!id) return;
+    if (!tier.catalogPackageId) {
+      showToast(t('community.auto_fn_n630c7e9a', '该会员等级尚未上架，请稍后再试'));
+      return;
+    }
+    try {
+      showToast(t('community.auto_fn_1e02c86c', '订单创建中...'));
+      const order = await getCommunityOrderRuntime().createMembershipOrder({
+        packageId: tier.catalogPackageId,
+        paymentMethod,
+        source: 'community-circle',
+      });
+      setIsPaySheetOpen(false);
+      navigate(`/community/${id}/cashier/${encodeURIComponent(order.orderId)}?tierId=${encodeURIComponent(tier.id)}`);
+    } catch (error) {
+      console.error('circle membership order creation failed', error);
+      showToast(t('community.auto_fn_2f078e83', '下单失败，请稍后再试'));
     }
   };
 
@@ -259,10 +288,10 @@ const { id } = useParams<{ id: string }>();
        {isPaySheetOpen && (
           <PaymentSheet
              communityName={community.name}
-             communityPrice={community.price}
              communityCoverImage={community.coverImage}
+             tiers={tiers}
              onClose={() => setIsPaySheetOpen(false)}
-             onConfirm={handleJoin}
+             onConfirm={handleConfirmPay}
           />
        )}
 

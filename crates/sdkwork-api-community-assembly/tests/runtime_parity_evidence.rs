@@ -147,6 +147,7 @@ fn probe_request(method: HttpMethod, template_path: &str) -> Request<Body> {
         .replace("{categoryId}", "runtime-parity-missing-category")
         .replace("{memberId}", "runtime-parity-missing-member")
         .replace("{groupId}", "runtime-parity-missing-group")
+        .replace("{tierId}", "runtime-parity-missing-tier")
         .replace("{entryId}", "runtime-parity-missing-entry")
         .replace("{slug}", "runtime-parity-missing-slug");
     let body = probe_body(&method, template_path);
@@ -170,6 +171,9 @@ fn probe_body(method: &Method, path: &str) -> &'static str {
     if *method == Method::PATCH && path.contains("/groups/") {
         return r#"{"name":"runtime parity probe","platform":"wechat"}"#;
     }
+    if *method == Method::PATCH && path.contains("/tiers/") {
+        return r#"{"name":"runtime parity probe","price":1}"#;
+    }
     if *method == Method::PATCH && path.contains("/categories/") {
         return r#"{"slug":"","title":"runtime parity probe"}"#;
     }
@@ -184,6 +188,12 @@ fn probe_body(method: &Method, path: &str) -> &'static str {
     }
     if path.ends_with("/join") {
         return "{}";
+    }
+    if path.ends_with("/members/activate") {
+        return r#"{"orderId":"runtime-parity-order","tierId":"runtime-parity-tier"}"#;
+    }
+    if path.ends_with("/tiers") {
+        return r#"{"name":"runtime parity probe","price":1}"#;
     }
     if path.ends_with("/groups") {
         return r#"{"name":"runtime parity probe","platform":"wechat"}"#;

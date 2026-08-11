@@ -42,6 +42,9 @@ tables:
   - name: community_group
     lifecycle_status: active
     owner: community-platform
+  - name: community_membership_tier
+    lifecycle_status: active
+    owner: community-platform
   - name: community_schema_version
     lifecycle_status: active
     owner: community-platform

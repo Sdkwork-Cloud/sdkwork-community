@@ -10,7 +10,9 @@ path = "src/lib.rs"
 
 [dependencies]
 chrono.workspace = true
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
 sdkwork-community-core-rust.workspace = true
 sdkwork-community-storage-sqlx-rust.workspace = true
 sdkwork-utils-rust.workspace = true

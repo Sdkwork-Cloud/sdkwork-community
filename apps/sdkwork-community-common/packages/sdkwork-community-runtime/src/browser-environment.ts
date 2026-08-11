@@ -2,6 +2,7 @@ import { trim } from "@sdkwork/utils";
 
 const DEFAULT_DEVELOPMENT_ORIGIN = "http://127.0.0.1:18094";
 const IAM_APP_SDK_FAMILY_ID = "sdkwork-iam-app-sdk";
+const ORDER_APP_SDK_FAMILY_ID = "sdkwork-order-app-sdk";
 
 export type CommunityEnvironmentName = "development" | "test" | "staging" | "production";
 export type CommunityDeploymentProfile = "standalone" | "cloud";
@@ -25,6 +26,9 @@ export interface CommunityBrowserEnvironment {
     dependencySdkBaseUrls: {
       "sdkwork-iam-app-sdk": {
         appApiBaseUrl: string;
+      };
+      "sdkwork-order-app-sdk"?: {
+        appApiBaseUrl?: string;
       };
     };
     openApiBaseUrl: string;
@@ -141,6 +145,14 @@ export function resolveCommunityBrowserEnvironment(
       dependencySdkBaseUrls: {
         [IAM_APP_SDK_FAMILY_ID]: {
           appApiBaseUrl: appbaseAppApiBaseUrl,
+        },
+        [ORDER_APP_SDK_FAMILY_ID]: {
+          // Order resolves through the application gateway unless an explicit
+          // order app API base URL is configured (mirrors the consuming-app
+          // `SDKWORK_ORDER_APP_API_BASE_URL ?? IM base URL` convention).
+          appApiBaseUrl: optionalString(
+            runtimeConfig.sdkBaseUrls?.dependencySdkBaseUrls?.[ORDER_APP_SDK_FAMILY_ID]?.appApiBaseUrl,
+          ) ?? appApiBaseUrl,
         },
       },
       openApiBaseUrl,

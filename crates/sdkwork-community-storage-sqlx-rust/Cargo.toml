@@ -18,6 +18,7 @@ sdkwork-database-config.workspace = true
 sdkwork-database-sqlx.workspace = true
 sdkwork-utils-rust.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 sqlx = { workspace = true, features = ["json", "runtime-tokio", "postgres"] }
 
 [dev-dependencies]

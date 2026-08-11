@@ -4,10 +4,11 @@ import type {
   SdkworkCommunityEntry,
   SdkworkCommunityGroup,
   SdkworkCommunityMember as SdkworkCommunityMemberRecord,
+  SdkworkCommunityMembershipTier,
 } from "@sdkwork/community-contracts";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
 import { getCommunityRuntimePort } from "./communityRuntimePort";
-import type { Community, CommunityGroup, CommunityMember, Post, PostComment, Resource } from "../types";
+import type { Community, CommunityGroup, CommunityMember, MembershipTier, Post, PostComment, Resource } from "../types";
 
 /**
  * Community (圈子) service facade for the mobile React UI.
@@ -123,6 +124,26 @@ function mapMemberToCommunityMember(member: SdkworkCommunityMemberRecord): Commu
     joinDate: String(member.joinedAt),
     status: member.status,
     bio: member.bio,
+    tierId: member.tierId,
+    tierName: member.tierName,
+    membershipExpiresAt: member.membershipExpiresAt
+      ? String(member.membershipExpiresAt)
+      : undefined,
+  };
+}
+
+function mapTierToMembershipTier(tier: SdkworkCommunityMembershipTier): MembershipTier {
+  return {
+    id: tier.id,
+    categoryId: tier.categoryId,
+    name: tier.name,
+    description: tier.description,
+    price: tier.price,
+    durationDays: tier.durationDays,
+    benefits: [...tier.benefits],
+    enabled: tier.enabled,
+    sortOrder: tier.sortOrder,
+    catalogPackageId: tier.catalogPackageId,
   };
 }
 
@@ -290,5 +311,77 @@ export const CommunityService = {
 
   async deleteGroup(communityId: string, groupId: string): Promise<void> {
     await port().community.groups.remove(communityId, groupId);
+  },
+
+  /** Lists purchasable (enabled) membership tiers of a circle. */
+  async getMembershipTiers(communityId: string): Promise<MembershipTier[]> {
+    const tiers = await port().community.tiers.list(communityId);
+    return tiers.map(mapTierToMembershipTier);
+  },
+
+  /** Owner/admin: lists all tiers including unpublished ones. */
+  async listAllMembershipTiers(communityId: string): Promise<MembershipTier[]> {
+    const tiers = await port().community.tiers.listAll(communityId);
+    return tiers.map(mapTierToMembershipTier);
+  },
+
+  /** Owner/admin: creates an unpublished membership tier. */
+  async createMembershipTier(
+    communityId: string,
+    tier: Omit<MembershipTier, "id" | "categoryId" | "enabled">,
+  ): Promise<MembershipTier> {
+    const created = await port().community.tiers.create(communityId, {
+      name: tier.name,
+      description: tier.description,
+      price: tier.price,
+      durationDays: tier.durationDays,
+      benefits: tier.benefits,
+      sortOrder: tier.sortOrder,
+    });
+    return mapTierToMembershipTier(created);
+  },
+
+  /** Owner/admin: updates a membership tier. */
+  async updateMembershipTier(
+    communityId: string,
+    tierId: string,
+    tier: Partial<Omit<MembershipTier, "id" | "categoryId" | "enabled">>,
+  ): Promise<MembershipTier> {
+    const updated = await port().community.tiers.update(communityId, tierId, {
+      name: tier.name,
+      description: tier.description,
+      price: tier.price,
+      durationDays: tier.durationDays,
+      benefits: tier.benefits,
+      sortOrder: tier.sortOrder,
+    });
+    return mapTierToMembershipTier(updated);
+  },
+
+  /** Owner/admin: publishes a tier (registers its catalog package). */
+  async publishMembershipTier(communityId: string, tierId: string): Promise<MembershipTier> {
+    const tier = await port().community.tiers.publish(communityId, tierId);
+    return mapTierToMembershipTier(tier);
+  },
+
+  /** Owner/admin: unpublishes a tier. */
+  async unpublishMembershipTier(communityId: string, tierId: string): Promise<MembershipTier> {
+    const tier = await port().community.tiers.unpublish(communityId, tierId);
+    return mapTierToMembershipTier(tier);
+  },
+
+  /** Owner/admin: deletes a membership tier. */
+  async deleteMembershipTier(communityId: string, tierId: string): Promise<void> {
+    await port().community.tiers.remove(communityId, tierId);
+  },
+
+  /** Activates a paid membership after order payment (order verified server-side). */
+  async activateMembership(
+    communityId: string,
+    orderId: string,
+    tierId: string,
+  ): Promise<CommunityMember> {
+    const member = await port().community.members.activate(communityId, { orderId, tierId });
+    return mapMemberToCommunityMember(member);
   },
 };

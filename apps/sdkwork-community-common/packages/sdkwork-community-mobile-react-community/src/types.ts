@@ -11,6 +11,22 @@ export interface Community {
   isJoined?: boolean;
   isPaid?: boolean;
   price?: number;
+  tiers?: MembershipTier[];
+}
+
+/** Circle membership tier (会员等级) shown on the purchase surface. */
+export interface MembershipTier {
+  id: string;
+  categoryId: string;
+  name: string;
+  description?: string;
+  price: number;
+  durationDays: number;
+  benefits: string[];
+  enabled: boolean;
+  sortOrder: number;
+  /** membership_package external id used as the order packageId. */
+  catalogPackageId?: string;
 }
 
 export interface PostComment {
@@ -72,4 +88,7 @@ export interface CommunityMember {
   joinDate: string;
   status: 'active' | 'muted' | 'banned';
   bio?: string;
+  tierId?: string;
+  tierName?: string;
+  membershipExpiresAt?: string;
 }

@@ -129,6 +129,9 @@ pub struct CommunityStoredMember {
     pub role: String,
     pub status: String,
     pub bio: Option<String>,
+    pub tier_id: Option<String>,
+    pub tier_name: Option<String>,
+    pub membership_expires_at: Option<String>,
     pub joined_at: String,
 }
 
@@ -148,6 +151,50 @@ pub struct NewCommunityMember {
 pub struct CommunityMemberPatch {
     pub role: Option<String>,
     pub status: Option<String>,
+    pub tier_id: Option<String>,
+    pub tier_name: Option<String>,
+    pub membership_expires_at: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CommunityStoredTier {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub price: f64,
+    pub duration_days: i64,
+    pub benefits: Vec<String>,
+    pub catalog_package_id: Option<String>,
+    pub sort_order: i64,
+    pub enabled: bool,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct NewCommunityTier {
+    pub id: String,
+    pub tenant_id: String,
+    pub category_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub price: f64,
+    pub duration_days: i64,
+    pub benefits: Vec<String>,
+    pub sort_order: i64,
+    pub now: String,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CommunityTierPatch {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub price: Option<f64>,
+    pub duration_days: Option<i64>,
+    pub benefits: Option<Vec<String>>,
+    pub catalog_package_id: Option<String>,
+    pub sort_order: Option<i64>,
+    pub enabled: Option<bool>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -255,6 +302,7 @@ pub fn community_database_tables() -> Vec<&'static str> {
         "community_recommendation_snapshot",
         "community_member",
         "community_group",
+        "community_membership_tier",
         "community_schema_version",
         "community_migration_lock",
     ]
@@ -277,6 +325,7 @@ pub fn community_database_indexes() -> Vec<&'static str> {
         "idx_community_member_category",
         "idx_community_member_user",
         "idx_community_group_category",
+        "idx_community_membership_tier_category",
     ]
 }
 
@@ -345,6 +394,11 @@ pub fn community_repository_bindings() -> Vec<CommunityRepositoryBinding> {
             "community",
             "community.group.repository",
             vec!["community_group"],
+        ),
+        binding(
+            "community",
+            "community.membership-tier.repository",
+            vec!["community_membership_tier"],
         ),
     ]
 }

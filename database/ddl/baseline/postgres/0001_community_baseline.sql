@@ -36,10 +36,31 @@ CREATE TABLE IF NOT EXISTS community_member (
     role TEXT NOT NULL DEFAULT 'member',
     status TEXT NOT NULL DEFAULT 'active',
     bio TEXT,
+    tier_id TEXT,
+    tier_name TEXT,
+    membership_expires_at TEXT,
     joined_at TEXT NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     UNIQUE (tenant_id, category_id, user_id),
+    FOREIGN KEY (category_id) REFERENCES community_category(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS community_membership_tier (
+    id TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    category_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    price NUMERIC NOT NULL,
+    duration_days INTEGER NOT NULL DEFAULT 365,
+    benefits JSONB NOT NULL DEFAULT '[]',
+    catalog_package_id TEXT,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (tenant_id, category_id, name),
     FOREIGN KEY (category_id) REFERENCES community_category(id) ON DELETE CASCADE
 );
 
@@ -216,6 +237,9 @@ CREATE INDEX IF NOT EXISTS idx_community_member_user
 
 CREATE INDEX IF NOT EXISTS idx_community_group_category
     ON community_group (category_id, platform);
+
+CREATE INDEX IF NOT EXISTS idx_community_membership_tier_category
+    ON community_membership_tier (category_id, enabled, sort_order);
 
 INSERT INTO community_schema_version (id, version, applied_at)
 VALUES ('community.storage', 'community.storage.v1', '2026-06-06T00:00:00Z')

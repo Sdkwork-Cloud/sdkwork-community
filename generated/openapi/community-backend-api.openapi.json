@@ -1341,6 +1341,112 @@
           }
         }
       },
+      "CommunityMembershipTier": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tenantId",
+          "categoryId",
+          "name",
+          "price",
+          "durationDays",
+          "benefits",
+          "sortOrder",
+          "enabled"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "durationDays": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "benefits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "catalogPackageId": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityTierCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "price"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "durationDays": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "benefits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CommunityActivateMembershipCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "orderId",
+          "tierId"
+        ],
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "tierId": {
+            "type": "string"
+          }
+        }
+      },
       "CommunityAuthor": {
         "type": "object",
         "additionalProperties": false,

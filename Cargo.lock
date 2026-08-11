@@ -1805,10 +1805,12 @@ name = "sdkwork-community-service"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "reqwest",
  "sdkwork-community-core-rust",
  "sdkwork-community-storage-sqlx-rust",
  "sdkwork-utils-rust",
  "serde",
+ "serde_json",
  "thiserror 1.0.69",
 ]
 
@@ -1833,6 +1835,7 @@ dependencies = [
  "sdkwork-database-sqlx",
  "sdkwork-utils-rust",
  "serde",
+ "serde_json",
  "sqlx",
  "tokio",
 ]

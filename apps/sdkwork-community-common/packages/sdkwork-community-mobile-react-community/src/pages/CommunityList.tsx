@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { CommunityService } from "../services/CommunityService";
-import { Community } from "../types";
+import { getCommunityOrderRuntime } from "../services/communityOrderRuntime";
+import { Community, MembershipTier } from "../types";
 import { cn, IconButton, showToast, Tabs, ActionSheet } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, Search, Users, MessageSquare, Compass, Check, X, Plus, MoreHorizontal } from "lucide-react";
 
@@ -41,8 +42,8 @@ const navigate = useNavigate();
 
   const [isPaySheetOpen, setIsPaySheetOpen] = useState(false);
   const [selectedPaidCommunity, setSelectedPaidCommunity] = useState<Community | null>(null);
+  const [selectedTiers, setSelectedTiers] = useState<MembershipTier[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'>('wechat');
   const [communityGroupsCache, setCommunityGroupsCache] = useState<any[]>([]);
 
   const handleJoin = async (e: React.MouseEvent, id: string) => {
@@ -53,6 +54,11 @@ const navigate = useNavigate();
     if (comm.isPaid) {
        setSelectedPaidCommunity(comm);
        setIsPaySheetOpen(true);
+       try {
+         setSelectedTiers(await CommunityService.getMembershipTiers(id));
+       } catch {
+         showToast(t('community.auto_fn_2796529c', '获取圈子配置失败'));
+       }
        return;
     }
 
@@ -72,20 +78,27 @@ const navigate = useNavigate();
     }
   };
 
-  const handleConfirmPayJoin = async () => {
+  // Paid circle: create the membership order through sdkwork-order and enter
+  // the cashier bridge; the bridge activates the membership and returns here.
+  const handleConfirmPayJoin = async (tier: MembershipTier, paymentMethod: string) => {
     if (!selectedPaidCommunity) return;
+    if (!tier.catalogPackageId) {
+      showToast(t('community.auto_fn_n630c7e9a', '该会员等级尚未上架，请稍后再试'));
+      return;
+    }
     try {
-      showToast(t('community.auto_fn_1e02c86c', '支付处理中...'));
-      await CommunityService.joinCommunity(selectedPaidCommunity.id);
-      
-      const fetchedGroups = await CommunityService.getGroupsByCommunity(selectedPaidCommunity.id);
-      setCommunityGroupsCache(fetchedGroups);
-      
-      setCommunities(prev => prev.map(c => c.id === selectedPaidCommunity.id ? { ...c, isJoined: true, memberCount: c.memberCount + 1 } : c));
+      showToast(t('community.auto_fn_1e02c86c', '订单创建中...'));
+      const order = await getCommunityOrderRuntime().createMembershipOrder({
+        packageId: tier.catalogPackageId,
+        paymentMethod,
+        source: 'community-circle',
+      });
       setIsPaySheetOpen(false);
-      setShowSuccessModal(true);
-    } catch {
-      showToast(t('community.auto_fn_2f078e83', '操作失败'));
+      setSelectedPaidCommunity(null);
+      navigate(`/community/${selectedPaidCommunity.id}/cashier/${encodeURIComponent(order.orderId)}?tierId=${encodeURIComponent(tier.id)}`);
+    } catch (error) {
+      console.error('circle membership order creation failed', error);
+      showToast(t('community.auto_fn_2f078e83', '下单失败，请稍后再试'));
       setIsPaySheetOpen(false);
     }
   };
@@ -216,8 +229,8 @@ const navigate = useNavigate();
       {isPaySheetOpen && selectedPaidCommunity && (
          <PaymentSheet
             communityName={selectedPaidCommunity.name}
-            communityPrice={selectedPaidCommunity.price}
             communityCoverImage={selectedPaidCommunity.coverImage}
+            tiers={selectedTiers}
             onClose={() => {
               setIsPaySheetOpen(false);
               setSelectedPaidCommunity(null);

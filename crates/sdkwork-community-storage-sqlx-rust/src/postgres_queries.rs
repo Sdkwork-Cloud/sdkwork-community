@@ -6,8 +6,9 @@ use super::{
     CommunityCategoryPatch, CommunityEntryPatch, CommunityFeedQuery, CommunityGroupPatch,
     CommunityMemberPatch, CommunityModerationPatch, CommunityStoredCategory,
     CommunityStoredComment, CommunityStoredEntry, CommunityStoredEntryPage, CommunityStoredGroup,
-    CommunityStoredGroupQr, CommunityStoredMember, NewCommunityCategory, NewCommunityComment,
-    NewCommunityEntry, NewCommunityGroup, NewCommunityMember,
+    CommunityStoredGroupQr, CommunityStoredMember, CommunityStoredTier, CommunityTierPatch,
+    NewCommunityCategory, NewCommunityComment, NewCommunityEntry, NewCommunityGroup,
+    NewCommunityMember, NewCommunityTier,
 };
 
 pub async fn list_categories(
@@ -894,7 +895,8 @@ pub async fn list_members(
 ) -> Result<Vec<CommunityStoredMember>, sqlx::Error> {
     let rows = sqlx::query(
         r#"
-        SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio, joined_at
+        SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio,
+               tier_id, tier_name, membership_expires_at, joined_at
         FROM community_member
         WHERE tenant_id = $1 AND category_id = $2
         ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, joined_at ASC
@@ -915,6 +917,9 @@ pub async fn list_members(
             role: string_cell(row, "role"),
             status: string_cell(row, "status"),
             bio: optional_string_cell(row, "bio"),
+            tier_id: optional_string_cell(row, "tier_id"),
+            tier_name: optional_string_cell(row, "tier_name"),
+            membership_expires_at: optional_string_cell(row, "membership_expires_at"),
             joined_at: string_cell(row, "joined_at"),
         })
         .collect())
@@ -928,7 +933,8 @@ pub async fn current_member(
 ) -> Result<Option<CommunityStoredMember>, sqlx::Error> {
     let row = sqlx::query(
         r#"
-        SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio, joined_at
+        SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio,
+               tier_id, tier_name, membership_expires_at, joined_at
         FROM community_member
         WHERE tenant_id = $1 AND category_id = $2 AND user_id = $3
         "#,
@@ -947,6 +953,9 @@ pub async fn current_member(
         role: string_cell(&row, "role"),
         status: string_cell(&row, "status"),
         bio: optional_string_cell(&row, "bio"),
+        tier_id: optional_string_cell(&row, "tier_id"),
+        tier_name: optional_string_cell(&row, "tier_name"),
+        membership_expires_at: optional_string_cell(&row, "membership_expires_at"),
         joined_at: string_cell(&row, "joined_at"),
     }))
 }
@@ -989,12 +998,21 @@ pub async fn update_member(
     sqlx::query(
         r#"
         UPDATE community_member
-        SET role = $1, status = $2, updated_at = $3
-        WHERE tenant_id = $4 AND category_id = $5 AND id = $6
+        SET role = $1, status = $2, tier_id = $3, tier_name = $4,
+            membership_expires_at = $5, updated_at = $6
+        WHERE tenant_id = $7 AND category_id = $8 AND id = $9
         "#,
     )
     .bind(patch.role.as_ref().unwrap_or(&existing.role))
     .bind(patch.status.as_ref().unwrap_or(&existing.status))
+    .bind(patch.tier_id.as_ref().or(existing.tier_id.as_ref()))
+    .bind(patch.tier_name.as_ref().or(existing.tier_name.as_ref()))
+    .bind(
+        patch
+            .membership_expires_at
+            .as_ref()
+            .or(existing.membership_expires_at.as_ref()),
+    )
     .bind(chrono::Utc::now().to_rfc3339())
     .bind(tenant_id)
     .bind(category_id)
@@ -1122,6 +1140,147 @@ pub async fn delete_group(
     .bind(tenant_id)
     .bind(category_id)
     .bind(group_id)
+    .execute(pool)
+    .await?;
+    Ok(result.rows_affected() > 0)
+}
+
+pub async fn list_tiers(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    enabled_only: bool,
+) -> Result<Vec<CommunityStoredTier>, sqlx::Error> {
+    let rows = if enabled_only {
+        sqlx::query(
+            r#"
+            SELECT id, tenant_id, category_id, name, description, price::float8,
+                   duration_days, benefits, catalog_package_id, sort_order, enabled
+            FROM community_membership_tier
+            WHERE tenant_id = $1 AND category_id = $2 AND enabled = TRUE
+            ORDER BY sort_order ASC, created_at ASC
+            "#,
+        )
+        .bind(tenant_id)
+        .bind(category_id)
+        .fetch_all(pool)
+        .await?
+    } else {
+        sqlx::query(
+            r#"
+            SELECT id, tenant_id, category_id, name, description, price::float8,
+                   duration_days, benefits, catalog_package_id, sort_order, enabled
+            FROM community_membership_tier
+            WHERE tenant_id = $1 AND category_id = $2
+            ORDER BY sort_order ASC, created_at ASC
+            "#,
+        )
+        .bind(tenant_id)
+        .bind(category_id)
+        .fetch_all(pool)
+        .await?
+    };
+    Ok(rows
+        .iter()
+        .map(|row| CommunityStoredTier {
+            id: string_cell(row, "id"),
+            tenant_id: string_cell(row, "tenant_id"),
+            category_id: string_cell(row, "category_id"),
+            name: string_cell(row, "name"),
+            description: optional_string_cell(row, "description"),
+            price: optional_f64_cell(row, "price").unwrap_or(0.0),
+            duration_days: integer_cell(row, "duration_days"),
+            benefits: text_array_cell(row, "benefits"),
+            catalog_package_id: optional_string_cell(row, "catalog_package_id"),
+            sort_order: integer_cell(row, "sort_order"),
+            enabled: bool_cell(row, "enabled"),
+        })
+        .collect())
+}
+
+pub async fn create_tier(pool: &PgPool, input: NewCommunityTier) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        INSERT INTO community_membership_tier
+            (id, tenant_id, category_id, name, description, price, duration_days,
+             benefits, catalog_package_id, sort_order, enabled, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6::numeric, $7, $8::jsonb, $9, $10, FALSE, $11, $12)
+        "#,
+    )
+    .bind(input.id)
+    .bind(input.tenant_id)
+    .bind(input.category_id)
+    .bind(input.name)
+    .bind(input.description)
+    .bind(input.price)
+    .bind(input.duration_days)
+    .bind(serde_json::to_string(&input.benefits).unwrap_or_else(|_| "[]".to_owned()))
+    .bind(Option::<String>::None)
+    .bind(input.sort_order)
+    .bind(&input.now)
+    .bind(&input.now)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_tier(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    tier_id: &str,
+    patch: &CommunityTierPatch,
+) -> Result<(), sqlx::Error> {
+    let existing = list_tiers(pool, tenant_id, category_id, false).await?;
+    let Some(existing) = existing.into_iter().find(|tier| tier.id == tier_id) else {
+        return Ok(());
+    };
+    sqlx::query(
+        r#"
+        UPDATE community_membership_tier
+        SET name = $1, description = $2, price = $3::numeric, duration_days = $4,
+            benefits = $5::jsonb, catalog_package_id = $6, sort_order = $7,
+            enabled = $8, updated_at = $9
+        WHERE tenant_id = $10 AND category_id = $11 AND id = $12
+        "#,
+    )
+    .bind(patch.name.as_ref().unwrap_or(&existing.name))
+    .bind(patch.description.as_ref().or(existing.description.as_ref()))
+    .bind(patch.price.unwrap_or(existing.price))
+    .bind(patch.duration_days.unwrap_or(existing.duration_days))
+    .bind(
+        serde_json::to_string(patch.benefits.as_ref().unwrap_or(&existing.benefits))
+            .unwrap_or_else(|_| "[]".to_owned()),
+    )
+    .bind(
+        patch
+            .catalog_package_id
+            .as_ref()
+            .or(existing.catalog_package_id.as_ref()),
+    )
+    .bind(patch.sort_order.unwrap_or(existing.sort_order))
+    .bind(patch.enabled.unwrap_or(existing.enabled))
+    .bind(chrono::Utc::now().to_rfc3339())
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(tier_id)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete_tier(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    tier_id: &str,
+) -> Result<bool, sqlx::Error> {
+    let result = sqlx::query(
+        "DELETE FROM community_membership_tier WHERE tenant_id = $1 AND category_id = $2 AND id = $3",
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(tier_id)
     .execute(pool)
     .await?;
     Ok(result.rows_affected() > 0)

@@ -1,4 +1,5 @@
 import type {
+  SdkworkCommunityActivateMembershipCommand,
   SdkworkCommunityCategory,
   SdkworkCommunityCircleCommand,
   SdkworkCommunityComment,
@@ -9,9 +10,11 @@ import type {
   SdkworkCommunityMember,
   SdkworkCommunityMemberRole,
   SdkworkCommunityMemberStatus,
+  SdkworkCommunityMembershipTier,
   SdkworkCommunityPublicationIssue,
   SdkworkCommunityPublicationReadiness,
   SdkworkCommunityReviewState,
+  SdkworkCommunityTierCommand,
 } from "@sdkwork/community-contracts";
 import type {
   SdkworkCommunityAppSdkPort,
@@ -27,6 +30,7 @@ import type {
   CommunityEntryCommand,
   CommunityGroupCommand,
   CommunityMemberPatchCommand,
+  CommunityTierCommand,
 } from "@sdkwork/community-app-sdk";
 
 const PUBLICATION_ISSUES = new Set<SdkworkCommunityPublicationIssue>([
@@ -167,8 +171,13 @@ function mapMember(record: Record<string, unknown>): SdkworkCommunityMember {
     communityId: String(record.communityId ?? ""),
     id: String(record.id ?? ""),
     joinedAt: String(record.joinedAt ?? record.createdAt ?? new Date().toISOString()),
+    membershipExpiresAt: record.membershipExpiresAt
+      ? String(record.membershipExpiresAt)
+      : undefined,
     role: String(record.role ?? "member") as SdkworkCommunityMemberRole,
     status: String(record.status ?? "active") as SdkworkCommunityMemberStatus,
+    tierId: record.tierId ? String(record.tierId) : undefined,
+    tierName: record.tierName ? String(record.tierName) : undefined,
     user: {
       avatar: avatar
         ? {
@@ -239,6 +248,39 @@ function toMemberPatchCommand(
   return {
     ...(patch.role !== undefined ? { role: patch.role } : {}),
     ...(patch.status !== undefined ? { status: patch.status } : {}),
+  };
+}
+
+function mapTier(record: Record<string, unknown>): SdkworkCommunityMembershipTier {
+  return {
+    benefits: Array.isArray(record.benefits)
+      ? record.benefits.map((item) => String(item))
+      : [],
+    catalogPackageId: record.catalogPackageId
+      ? String(record.catalogPackageId)
+      : undefined,
+    categoryId: String(record.categoryId ?? ""),
+    description: record.description ? String(record.description) : undefined,
+    durationDays: Number(record.durationDays ?? 365),
+    enabled: Boolean(record.enabled),
+    id: String(record.id ?? ""),
+    name: String(record.name ?? ""),
+    price: Number(record.price ?? 0),
+    sortOrder: Number(record.sortOrder ?? 0),
+    tenantId: String(record.tenantId ?? ""),
+  };
+}
+
+function toTierCommand(command: SdkworkCommunityTierCommand): CommunityTierCommand {
+  return {
+    name: command.name,
+    price: Number(command.price),
+    ...(command.description !== undefined ? { description: command.description } : {}),
+    ...(command.durationDays !== undefined
+      ? { durationDays: String(command.durationDays) }
+      : {}),
+    ...(command.benefits !== undefined ? { benefits: [...command.benefits] } : {}),
+    ...(command.sortOrder !== undefined ? { sortOrder: String(command.sortOrder) } : {}),
   };
 }
 
@@ -409,6 +451,55 @@ export function createGeneratedCommunityAppSdkPort(
             toMemberPatchCommand({ status }),
           );
           return mapMember(item as Record<string, unknown>);
+        },
+        async activate(communityId: string, command: SdkworkCommunityActivateMembershipCommand) {
+          const item = await client.community.members.activate(communityId, {
+            orderId: command.orderId,
+            tierId: command.tierId,
+          });
+          return mapMember(item as Record<string, unknown>);
+        },
+      },
+      tiers: {
+        async create(communityId: string, command: SdkworkCommunityTierCommand) {
+          const item = await client.community.tiers.create(
+            communityId,
+            toTierCommand(command),
+          );
+          return mapTier(item as Record<string, unknown>);
+        },
+        async list(communityId: string) {
+          const page = await client.community.tiers.list(communityId);
+          return page.items.map((item) => mapTier(item as Record<string, unknown>));
+        },
+        async listAll(communityId: string) {
+          const page = await client.community.tiers.list(communityId, {
+            includeDisabled: true,
+          });
+          return page.items.map((item) => mapTier(item as Record<string, unknown>));
+        },
+        async publish(communityId: string, tierId: string) {
+          const item = await client.community.tiers.publish(communityId, tierId);
+          return mapTier(item as Record<string, unknown>);
+        },
+        async unpublish(communityId: string, tierId: string) {
+          const item = await client.community.tiers.unpublish(communityId, tierId);
+          return mapTier(item as Record<string, unknown>);
+        },
+        async remove(communityId: string, tierId: string) {
+          await client.community.tiers.delete(communityId, tierId);
+        },
+        async update(
+          communityId: string,
+          tierId: string,
+          command: Partial<SdkworkCommunityTierCommand>,
+        ) {
+          const item = await client.community.tiers.update(
+            communityId,
+            tierId,
+            toTierCommand(command as SdkworkCommunityTierCommand),
+          );
+          return mapTier(item as Record<string, unknown>);
         },
       },
       groups: {

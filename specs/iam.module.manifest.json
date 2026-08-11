@@ -151,6 +151,33 @@
         "status": "active",
         "since": "1.1.0",
         "replacementCode": null
+      },
+      {
+        "code": "community.tiers.read",
+        "name": "Read community membership tiers",
+        "resource": "tiers",
+        "action": "read",
+        "status": "active",
+        "since": "1.2.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.tiers.write",
+        "name": "Write community membership tiers",
+        "resource": "tiers",
+        "action": "write",
+        "status": "active",
+        "since": "1.2.0",
+        "replacementCode": null
+      },
+      {
+        "code": "community.memberships.write",
+        "name": "Write community memberships",
+        "resource": "memberships",
+        "action": "write",
+        "status": "active",
+        "since": "1.2.0",
+        "replacementCode": null
       }
     ],
     "openapiAuthorities": [
@@ -244,6 +271,34 @@
           {
             "operationId": "groups.delete",
             "permission": "community.groups.write"
+          },
+          {
+            "operationId": "members.activate",
+            "permission": "community.memberships.write"
+          },
+          {
+            "operationId": "tiers.list",
+            "permission": "community.tiers.read"
+          },
+          {
+            "operationId": "tiers.create",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.update",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.delete",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.publish",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.unpublish",
+            "permission": "community.tiers.write"
           }
         ]
       },

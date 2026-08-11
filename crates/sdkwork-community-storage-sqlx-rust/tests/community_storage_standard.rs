@@ -46,6 +46,7 @@ fn community_storage_manifest_declares_complete_tables_and_migrations() {
             "community_recommendation_snapshot",
             "community_member",
             "community_group",
+            "community_membership_tier",
             "community_schema_version",
             "community_migration_lock",
         ],
@@ -84,6 +85,7 @@ fn community_storage_repositories_bind_to_community_tables() {
             "community.recommendation.repository",
             "community.member.repository",
             "community.group.repository",
+            "community.membership-tier.repository",
         ],
     );
 }

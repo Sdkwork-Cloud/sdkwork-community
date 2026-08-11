@@ -580,6 +580,545 @@
         "x-sdkwork-permission": "community.members.write"
       }
     },
+    "/app/v3/api/community/categories/{categoryId}/members/activate": {
+      "post": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community members.activate",
+        "operationId": "members.activate",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityActivateMembershipCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "members",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.memberships.write"
+      }
+    },
+    "/app/v3/api/community/categories/{categoryId}/tiers": {
+      "get": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community tiers.list",
+        "operationId": "tiers.list",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "includeDisabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "tiers",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.tiers.read"
+      },
+      "post": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community tiers.create",
+        "operationId": "tiers.create",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityTierCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "tiers",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.tiers.write"
+      }
+    },
+    "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}": {
+      "patch": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community tiers.update",
+        "operationId": "tiers.update",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "tierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommunityTierCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "tiers",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.tiers.write"
+      },
+      "delete": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community tiers.delete",
+        "operationId": "tiers.delete",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "tierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "tiers",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.tiers.write"
+      }
+    },
+    "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish": {
+      "post": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community tiers.publish",
+        "operationId": "tiers.publish",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "tierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "tiers",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.tiers.write"
+      }
+    },
+    "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish": {
+      "post": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community tiers.unpublish",
+        "operationId": "tiers.unpublish",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "tierId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "tiers",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.tiers.write"
+      }
+    },
     "/app/v3/api/community/categories/{categoryId}/groups": {
       "get": {
         "tags": [
@@ -2175,6 +2714,112 @@
             "items": {
               "$ref": "#/components/schemas/CommunityGroupQr"
             }
+          }
+        }
+      },
+      "CommunityMembershipTier": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "tenantId",
+          "categoryId",
+          "name",
+          "price",
+          "durationDays",
+          "benefits",
+          "sortOrder",
+          "enabled"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tenantId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "durationDays": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "benefits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "catalogPackageId": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityTierCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "price"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "durationDays": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "benefits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CommunityActivateMembershipCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "orderId",
+          "tierId"
+        ],
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "tierId": {
+            "type": "string"
           }
         }
       },

@@ -86,6 +86,55 @@ const ROUTES: &[HttpRoute] = &[
     )
     .with_required_permission("community.groups.write"),
     HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/categories/{categoryId}/members/activate",
+        "community",
+        "members.activate",
+    )
+    .with_required_permission("community.memberships.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/categories/{categoryId}/tiers",
+        "community",
+        "tiers.list",
+    )
+    .with_required_permission("community.tiers.read"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/categories/{categoryId}/tiers",
+        "community",
+        "tiers.create",
+    )
+    .with_required_permission("community.tiers.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Patch,
+        "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "community",
+        "tiers.update",
+    )
+    .with_required_permission("community.tiers.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}",
+        "community",
+        "tiers.delete",
+    )
+    .with_required_permission("community.tiers.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/publish",
+        "community",
+        "tiers.publish",
+    )
+    .with_required_permission("community.tiers.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Post,
+        "/app/v3/api/community/categories/{categoryId}/tiers/{tierId}/unpublish",
+        "community",
+        "tiers.unpublish",
+    )
+    .with_required_permission("community.tiers.write"),
+    HttpRoute::dual_token(
         HttpMethod::Get,
         "/app/v3/api/community/feed",
         "community",

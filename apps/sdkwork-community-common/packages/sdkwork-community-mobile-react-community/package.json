@@ -29,6 +29,7 @@
   "dependencies": {
     "@sdkwork/community-contracts": "workspace:*",
     "@sdkwork/community-sdk-ports": "workspace:*",
+    "@sdkwork/order-mobile-react-orders": "workspace:*",
     "@sdkwork/ui-mobile-react": "workspace:*",
     "@sdkwork/utils": "workspace:*",
     "@tiptap/extension-placeholder": "catalog:",
