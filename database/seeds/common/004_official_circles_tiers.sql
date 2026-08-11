@@ -1,6 +1,6 @@
 -- Official circle membership tiers (会员等级) and two new official circles.
 --
--- New circles: SDKWORK智能云天使投资群 (paid, from ¥999/year) and
+-- New circles: SDKWORK智能云天使投资群 (paid, from ¥9999/year) and
 -- 人工智能私董会 (paid, from ¥2999/year). Every official paid circle ships
 -- with three membership tiers (普通/高级/VIP style). Tiers are seeded
 -- UNPUBLISHED (enabled = FALSE, catalog_package_id = NULL): the circle owner
@@ -22,7 +22,7 @@ VALUES
         '官方天使投资圈层：聚焦 AI 与智能云赛道的早期项目研判、投资逻辑、行业情报与路演对接，链接创业者与投资人。',
         'https://cdn.sdkwork.com/community/circles/official-angel-investment-cover.png',
         'https://cdn.sdkwork.com/community/circles/official-angel-investment-avatar.png',
-        'sdkwork-official', 1, 1, TRUE, 999,
+        'sdkwork-official', 1, 1, TRUE, 9999,
         ARRAY['投资', 'AI 创业', '天使投资', '官方'], 35, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
@@ -215,13 +215,13 @@ VALUES
 
     -- SDKWORK智能云天使投资群
     ('community-tier-official-angel-standard', '100001', 'community-circle-official-angel-investment',
-     '普通会员', '圈子全部内容与官方交流群', 999, 365,
+     '普通会员', '圈子全部内容与官方交流群', 9999, 365,
      '["圈子全部内容", "官方交流群", "行业情报"]', NULL, 1, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('community-tier-official-angel-plus', '100001', 'community-circle-official-angel-investment',
-     '高级会员', '普通会员权益 + 项目研判与路演回放', 1999, 365,
+     '高级会员', '普通会员权益 + 项目研判与路演回放', 19999, 365,
      '["圈子全部内容", "官方交流群", "行业情报", "项目研判", "路演回放"]', NULL, 2, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('community-tier-official-angel-vip', '100001', 'community-circle-official-angel-investment',
-     '董事会员', '高级会员权益 + 线下闭门交流与项目对接', 3999, 365,
+     '董事会员', '高级会员权益 + 线下闭门交流与项目对接', 39999, 365,
      '["圈子全部内容", "官方交流群", "行业情报", "项目研判", "路演回放", "线下闭门交流", "项目对接"]', NULL, 3, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
     -- 人工智能私董会
