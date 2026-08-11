@@ -28,7 +28,8 @@
       "common": [
         "common/001_bootstrap.sql",
         "common/002_agents_inspiration.sql",
-        "001_bootstrap.sql"
+        "001_bootstrap.sql",
+        "common/003_official_circles.sql"
       ],
       "locales": {
         "zh-CN": []
