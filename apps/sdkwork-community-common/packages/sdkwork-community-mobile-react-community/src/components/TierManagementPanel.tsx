@@ -85,7 +85,7 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
     }
     const price = Number(form.price);
     if (!Number.isFinite(price) || price <= 0) {
-      showToast('请输入有效的价格');
+      showToast(t('community.auto_invalid_price', '请输入有效的价格'));
       return;
     }
     const payload = {
@@ -118,7 +118,7 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
       }
       await loadTiers();
     } catch {
-      showToast('上下架失败，请确认商品服务已配置');
+      showToast(t('community.auto_tier_publish_failed', '上下架失败，请确认商品服务已配置'));
     }
   };
 
@@ -139,15 +139,15 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
           onClick={openCreate}
           className="flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-1.5 text-[13px] font-medium text-white"
         >
-          <Plus className="w-3.5 h-3.5" /> 新建等级
+          <Plus className="w-3.5 h-3.5" /> {t('community.auto_new_tier', '新建等级')}
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center text-text-sub py-6">加载中...</div>
+        <div className="text-center text-text-sub py-6">{t('community.auto_7f6f37e', '加载中...')}</div>
       ) : tiers.length === 0 ? (
         <div className="text-center text-text-sub py-6 text-[13px]">
-          暂无会员等级，创建后可上架销售
+          {t('community.auto_no_tiers', '暂无会员等级，创建后可上架销售')}
         </div>
       ) : (
         tiers.map((tier) => (
@@ -159,8 +159,10 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
               <div className="flex flex-col">
                 <span className="text-[14px] font-semibold text-text-main">{tier.name}</span>
                 <span className="text-[12px] text-text-sub">
-                  ¥{tier.price} / {tier.durationDays >= 365 ? `${Math.round(tier.durationDays / 365)} 年` : `${tier.durationDays} 天`}
-                  {tier.catalogPackageId ? ` · 商品 ${tier.catalogPackageId}` : ""}
+                  ¥{tier.price} / {tier.durationDays >= 365
+                    ? t('community.auto_duration_years_short', '{{years}} 年', { years: Math.round(tier.durationDays / 365) })
+                    : t('community.auto_duration_days_short', '{{days}} 天', { days: tier.durationDays })}
+                  {tier.catalogPackageId ? ` · ${t('community.auto_product', '商品')} ${tier.catalogPackageId}` : ""}
                 </span>
               </div>
               <span
@@ -169,7 +171,7 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                   tier.enabled ? "bg-emerald-500/10 text-emerald-500" : "bg-gray-500/10 dark:bg-white/10 text-text-sub",
                 )}
               >
-                {tier.enabled ? "已上架" : "未上架"}
+                {tier.enabled ? t('community.auto_published', '已上架') : t('community.auto_unpublished', '未上架')}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -177,19 +179,19 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                 onClick={() => handlePublish(tier)}
                 className="flex items-center gap-1 text-[12px] text-blue-500"
               >
-                <Power className="w-3.5 h-3.5" /> {tier.enabled ? "下架" : "上架"}
+                <Power className="w-3.5 h-3.5" /> {tier.enabled ? t('community.auto_take_down', '下架') : t('community.auto_put_up', '上架')}
               </button>
               <button
                 onClick={() => openEdit(tier)}
                 className="flex items-center gap-1 text-[12px] text-text-sub"
               >
-                <Pencil className="w-3.5 h-3.5" /> 编辑
+                <Pencil className="w-3.5 h-3.5" /> {t('community.auto_edit', '编辑')}
               </button>
               <button
                 onClick={() => handleDelete(tier)}
                 className="flex items-center gap-1 text-[12px] text-red-500"
               >
-                <Trash2 className="w-3.5 h-3.5" /> 删除
+                <Trash2 className="w-3.5 h-3.5" /> {t('community.auto_delete', '删除')}
               </button>
             </div>
           </div>
@@ -201,33 +203,33 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
           <div className="w-full max-w-md bg-white dark:bg-[#1C1C1E] rounded-t-2xl p-4 pb-8 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[17px] font-bold text-text-main">
-                {editingTier ? "编辑会员等级" : "新建会员等级"}
+                {editingTier ? t('community.auto_edit_tier', '编辑会员等级') : t('community.auto_create_tier', '新建会员等级')}
               </h3>
               <IconButton icon={<X className="w-5 h-5" />} onClick={() => setShowForm(false)} aria-label="close" />
             </div>
 
             <div className="flex flex-col gap-3">
               <label className="flex flex-col gap-1">
-                <span className="text-[13px] text-text-sub">等级名称 *</span>
+                <span className="text-[13px] text-text-sub">{t('community.auto_tier_name', '等级名称 *')}</span>
                 <input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="如：高级会员"
+                  placeholder={t('community.auto_tier_name_placeholder', '如：高级会员')}
                   className="rounded-lg border border-black/10 dark:border-white/10 px-3 py-2 text-[14px] bg-transparent"
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-[13px] text-text-sub">等级描述</span>
+                <span className="text-[13px] text-text-sub">{t('community.auto_tier_desc', '等级描述')}</span>
                 <input
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="等级简介"
+                  placeholder={t('community.auto_tier_desc_placeholder', '等级简介')}
                   className="rounded-lg border border-black/10 dark:border-white/10 px-3 py-2 text-[14px] bg-transparent"
                 />
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <label className="flex flex-col gap-1">
-                  <span className="text-[13px] text-text-sub">价格（元）*</span>
+                  <span className="text-[13px] text-text-sub">{t('community.auto_tier_price', '价格（元）*')}</span>
                   <input
                     type="number"
                     value={form.price}
@@ -237,7 +239,7 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                   />
                 </label>
                 <label className="flex flex-col gap-1">
-                  <span className="text-[13px] text-text-sub">有效期（天）</span>
+                  <span className="text-[13px] text-text-sub">{t('community.auto_tier_duration', '有效期（天）')}</span>
                   <input
                     type="number"
                     value={form.durationDays}
@@ -248,17 +250,17 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                 </label>
               </div>
               <label className="flex flex-col gap-1">
-                <span className="text-[13px] text-text-sub">权益（每行一条）</span>
+                <span className="text-[13px] text-text-sub">{t('community.auto_tier_benefits', '权益（每行一条）')}</span>
                 <textarea
                   value={form.benefits}
                   onChange={(e) => setForm({ ...form, benefits: e.target.value })}
-                  placeholder={"圈子全部内容\n官方交流群\n专属直播"}
+                  placeholder={t('community.auto_tier_benefits_placeholder', '圈子全部内容\n官方交流群\n专属直播')}
                   rows={3}
                   className="rounded-lg border border-black/10 dark:border-white/10 px-3 py-2 text-[14px] bg-transparent"
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-[13px] text-text-sub">排序</span>
+                <span className="text-[13px] text-text-sub">{t('community.auto_tier_sort', '排序')}</span>
                 <input
                   type="number"
                   value={form.sortOrder}
@@ -271,7 +273,7 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                 onClick={handleSubmit}
                 className="w-full rounded-xl bg-blue-500 py-3 text-[15px] font-semibold text-white"
               >
-                保存
+                {t('community.auto_a071b', '保存')}
               </button>
             </div>
           </div>

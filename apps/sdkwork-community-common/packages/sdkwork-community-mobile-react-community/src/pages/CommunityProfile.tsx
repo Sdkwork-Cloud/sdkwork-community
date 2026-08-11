@@ -33,7 +33,7 @@ const { id } = useParams<{ id: string }>();
         setCommunity(comm);
       }
     } catch {
-      showToast("获取圈子配置失败");
+      showToast(t('community.auto_fn_2796529c', '获取圈子配置失败'));
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +49,7 @@ const { id } = useParams<{ id: string }>();
          <header className="h-[56px] px-4 flex items-center shrink-0 pt-safe bg-bg-color">
             <IconButton icon={<ChevronLeft className="w-6 h-6" />} className="bg-transparent w-10 h-10 -ml-2" onClick={() => navigate(-1)} />
          </header>
-         <div className="flex-1 flex items-center justify-center">加载中...</div>
+         <div className="flex-1 flex items-center justify-center">{t('community.auto_7f6f37e', '加载中...')}</div>
       </div>
     );
   }
@@ -62,7 +62,7 @@ const { id } = useParams<{ id: string }>();
           <div className="absolute left-4 z-10">
             <IconButton icon={<ChevronLeft className="w-6 h-6 text-text-main" />} className="bg-transparent w-10 h-10 -ml-2" onClick={() => navigate(-1)} />
           </div>
-          <h1 className="text-[17px] font-semibold flex-1 text-center">圈子信息</h1>
+          <h1 className="text-[17px] font-semibold flex-1 text-center">{t('community.auto_28f0bff6', '圈子信息')}</h1>
        </header>
 
        <div className="flex-1 overflow-y-auto pb-safe">
@@ -72,7 +72,7 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-3 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigateToEditImage('avatar')}
              >
-               <span className="text-[16px]">圈子头像</span>
+               <span className="text-[16px]">{t('community.auto_28f1d163', '圈子头像')}</span>
                <div className="flex items-center gap-2">
                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#2C2C2E] overflow-hidden flex items-center justify-center">
                     {community.avatar ? (
@@ -89,7 +89,7 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-3 pr-4 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigateToEditImage('coverImage')}
              >
-               <span className="text-[16px]">圈子背景</span>
+               <span className="text-[16px]">{t('community.auto_28f6b26b', '圈子背景')}</span>
                <div className="flex items-center gap-2">
                  <div className="w-20 h-12 rounded-md bg-gray-100 dark:bg-[#2C2C2E] overflow-hidden flex items-center justify-center">
                     {community.coverImage ? (
@@ -108,7 +108,7 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/edit?field=name`)}
              >
-               <span className="text-[16px] whitespace-nowrap">圈子名称</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_28f15acb', '圈子名称')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
                  <span className="text-[15px] text-text-sub truncate">{community.name}</span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
@@ -119,9 +119,9 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/edit?field=description`)}
              >
-               <span className="text-[16px] whitespace-nowrap">圈子简介</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_28f5f693', '圈子简介')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
-                 <span className="text-[15px] text-text-sub truncate">{community.description || '未设置'}</span>
+                 <span className="text-[15px] text-text-sub truncate">{community.description || t('community.auto_not_set', '未设置')}</span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
              </div>
@@ -130,9 +130,9 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/edit?field=tags`)}
              >
-               <span className="text-[16px] whitespace-nowrap">圈子标签</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_28f3c79f', '圈子标签')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
-                 <span className="text-[15px] text-text-sub truncate">{community.tags.join(' ') || '未设置'}</span>
+                 <span className="text-[15px] text-text-sub truncate">{community.tags.join(' ') || t('community.auto_not_set', '未设置')}</span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
              </div>
@@ -141,7 +141,7 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/tabs`)}
              >
-               <span className="text-[16px] whitespace-nowrap">展示模块</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_2bcd0b9b', '展示模块')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
                  <span className="text-[15px] text-text-sub truncate">{community.tabs?.length ? t('community.auto_modules_selected', '{{count}}个模块已选', { count: community.tabs.length }) : t('community.auto_modules_selected_default', '3个模块已选')}</span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
@@ -152,10 +152,10 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/edit?field=memberLimit`)}
              >
-               <span className="text-[16px] whitespace-nowrap">会员人数上限</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_member_limit', '会员人数上限')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
                  <span className="text-[15px] text-text-sub truncate">
-                   {community.memberLimit ? `${community.memberCount}/${community.memberLimit}` : '不限制'}
+                   {community.memberLimit ? `${community.memberCount}/${community.memberLimit}` : t('community.auto_unlimited', '不限制')}
                  </span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
@@ -165,12 +165,12 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/edit?field=revenueTarget`)}
              >
-               <span className="text-[16px] whitespace-nowrap">融资目标金额</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_revenue_target', '融资目标金额')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
                  <span className="text-[15px] text-text-sub truncate">
                    {community.revenueTarget
-                     ? `已募 ¥${formatAmount(community.revenueRaised ?? 0)} / 目标 ¥${formatAmount(community.revenueTarget)}`
-                     : '不限制'}
+                     ? t('community.auto_funding_progress', '已募 ¥{{raised}} / 目标 ¥{{target}}', { raised: formatAmount(community.revenueRaised ?? 0), target: formatAmount(community.revenueTarget) })
+                     : t('community.auto_unlimited', '不限制')}
                  </span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
@@ -180,7 +180,7 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/qrcode`)}
              >
-               <span className="text-[16px] whitespace-nowrap">圈子二维码</span>
+               <span className="text-[16px] whitespace-nowrap">{t('community.auto_nad9972f', '圈子二维码')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
                  <QrCode className="w-4 h-4 text-text-sub opacity-50 shrink-0" />
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
@@ -193,7 +193,7 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/groups`)}
              >
-               <span className="text-[16px]">群组管理</span>
+               <span className="text-[16px]">{t('community.auto_3bf0f825', '群组管理')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end">
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
@@ -203,9 +203,9 @@ const { id } = useParams<{ id: string }>();
                className="flex items-center justify-between py-4 pr-4 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/members`)}
              >
-               <span className="text-[16px]">成员管理</span>
+               <span className="text-[16px]">{t('community.auto_2ddfaecd', '成员管理')}</span>
                <div className="flex items-center gap-2 flex-1 justify-end">
-                 <span className="text-[15px] text-text-sub">{community.memberCount} 人</span>
+                 <span className="text-[15px] text-text-sub">{t('community.auto_n2bd24abe', '{{memberCount}} 人', { memberCount: community.memberCount })}</span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
              </div>

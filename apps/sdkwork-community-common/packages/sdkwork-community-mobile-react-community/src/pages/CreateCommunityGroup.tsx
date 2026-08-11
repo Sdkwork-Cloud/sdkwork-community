@@ -36,7 +36,7 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
         setQrCodes(group.qrCodes || (group.qrCodeUrl ? [{ url: group.qrCodeUrl, description: '' }] : []));
       }
     } catch {
-      showToast("获取群组失败");
+      showToast(t('community.auto_fn_n638c6acd', '获取群组失败'));
     } finally {
       setIsLoading(false);
     }
@@ -73,8 +73,8 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
 
   const handleSubmit = async () => {
     if (!id) return;
-    if (!name.trim()) return showToast("请输入群组名称");
-    if (qrCodes.length === 0) return showToast("请至少上传一张二维码");
+    if (!name.trim()) return showToast(t('community.auto_fn_n3cec0af4', '请输入群组名称'));
+    if (qrCodes.length === 0) return showToast(t('community.auto_fn_525f090e', '请至少上传一张二维码'));
     
     setIsSubmitting(true);
     try {
@@ -88,14 +88,14 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
 
       if (isEditMode && groupId) {
         await CommunityService.updateGroup(id, groupId, payload);
-        showToast("群组修改成功");
+        showToast(t('community.auto_fn_n10752d86', '群组修改成功'));
       } else {
         await CommunityService.createGroup(id, payload as any);
-        showToast("群组创建成功");
+        showToast(t('community.auto_fn_nf8f6d52', '群组创建成功'));
       }
       navigate(-1);
     } catch {
-      showToast(isEditMode ? "修改失败" : "创建失败");
+      showToast(isEditMode ? t('community.auto_fn_update_failed', '修改失败') : t('community.auto_fn_26c29693', '创建失败'));
     } finally {
       setIsSubmitting(false);
     }
@@ -107,7 +107,7 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
         <header className="h-[56px] px-4 flex items-center sticky top-0 z-10 pt-safe bg-bg-color shrink-0">
             <IconButton icon={<ChevronLeft className="w-6 h-6 text-text-main" />} className="bg-transparent w-10 h-10 -ml-2" onClick={() => navigate(-1)} />
         </header>
-        <div className="flex-1 flex items-center justify-center text-text-sub">加载中...</div>
+        <div className="flex-1 flex items-center justify-center text-text-sub">{t('community.auto_7f6f37e', '加载中...')}</div>
       </div>
     );
   }
@@ -117,56 +117,56 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
       <header className="h-[56px] px-4 flex items-center justify-between sticky top-0 z-10 pt-safe bg-bg-color shrink-0 shadow-sm border-b border-black/5 dark:border-white/5">
          <div className="flex items-center gap-2">
             <IconButton icon={<ChevronLeft className="w-6 h-6 text-text-main" />} className="bg-transparent w-10 h-10 -ml-2" onClick={() => navigate(-1)} />
-            <h1 className="text-[17px] font-semibold text-text-main">{isEditMode ? "编辑群组" : "添加群组"}</h1>
+            <h1 className="text-[17px] font-semibold text-text-main">{isEditMode ? t('community.auto_3bf0041b', '编辑群组') : t('community.auto_add_group', '添加群组')}</h1>
          </div>
       </header>
       
       <div className="flex-1 flex flex-col pt-4 overflow-y-auto w-full gap-4 pb-safe bg-white dark:bg-[#1E1E1E]">
         
         <div className="px-4">
-           <label className="text-[14px] font-medium text-text-main mb-2 block">群组名称 *</label>
+           <label className="text-[14px] font-medium text-text-main mb-2 block">{t('community.auto_ne540593', '群组名称 *')}</label>
            <input 
              type="text"
              value={name}
              onChange={e => setName(e.target.value)}
              className="w-full bg-[#f8f9fa] dark:bg-[#2C2C2E] px-4 py-3 rounded-2xl outline-none text-[15px] placeholder:text-text-sub focus:ring-1 focus:ring-blue-500 transition-shadow"
-             placeholder="如: AI 开发者微信1群"
+             placeholder={t('community.auto_prop_80284a', '如: AI 开发者微信1群')}
            />
         </div>
 
         <div className="px-4">
-           <label className="text-[14px] font-medium text-text-main mb-2 block">平台 *</label>
+           <label className="text-[14px] font-medium text-text-main mb-2 block">{t('community.auto_2c2a44a7', '平台 *')}</label>
            <select 
              value={platform}
              onChange={e => setPlatform(e.target.value as any)}
              className="w-full bg-[#f8f9fa] dark:bg-[#2C2C2E] px-4 py-3 rounded-2xl outline-none text-[15px] focus:ring-1 focus:ring-blue-500 transition-shadow appearance-none"
            >
-             <option value="wechat">微信</option>
+             <option value="wechat">{t('community.auto_be5f3', '微信')}</option>
              <option value="qq">QQ</option>
              <option value="telegram">Telegram</option>
              <option value="discord">Discord</option>
-             <option value="feishu">飞书</option>
-             <option value="dingtalk">钉钉</option>
+             <option value="feishu">{t('community.auto_12d148', '飞书')}</option>
+             <option value="dingtalk">{t('community.auto_129120', '钉钉')}</option>
              <option value="whatsapp">WhatsApp</option>
-             <option value="other">其他</option>
+             <option value="other">{t('community.auto_a2c20', '其他')}</option>
            </select>
         </div>
 
         <div className="px-4">
-           <label className="text-[14px] font-medium text-text-main mb-2 block">描述 (选填)</label>
+           <label className="text-[14px] font-medium text-text-main mb-2 block">{t('community.auto_719c787e', '描述 (选填)')}</label>
            <textarea 
              value={description}
              onChange={e => setDescription(e.target.value)}
              className="w-full bg-[#f8f9fa] dark:bg-[#2C2C2E] px-4 py-3 rounded-2xl outline-none text-[15px] placeholder:text-text-sub focus:ring-1 focus:ring-blue-500 transition-shadow resize-none h-24"
-             placeholder="群组规则或介绍..."
+             placeholder={t('community.auto_prop_484b22b', '群组规则或介绍...')}
            />
         </div>
 
         <div className="px-4 pt-2">
            <label className="text-[14px] font-medium text-text-main mb-3 flex items-center justify-between">
-              <span>二维码 (可传多张) *</span>
+              <span>{t('community.auto_14ffcc7b', '二维码 (可传多张) *')}</span>
               <button className="text-blue-500 text-[13px] flex items-center gap-1 active:opacity-70 transition-opacity" onClick={handleAddQr}>
-                 <Plus className="w-4 h-4"/>增加一张</button>
+                 <Plus className="w-4 h-4"/>{t('community.auto_29887662', '增加一张')}</button>
            </label>
            
            <div className="flex flex-col gap-4">
@@ -198,7 +198,7 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
                   onClick={handleAddQr}
                 >
                   <UploadCloud className="w-8 h-8 opacity-50" />
-                  <span className="text-[14px] font-medium opacity-80">点击上传第一张二维码</span>
+                  <span className="text-[14px] font-medium opacity-80">{t('community.auto_n54e7f17b', '点击上传第一张二维码')}</span>
                 </div>
               )}
            </div>
@@ -211,7 +211,7 @@ const { id, groupId } = useParams<{ id: string, groupId?: string }>();
               isSubmitting || qrCodes.length === 0 || !name.trim() ? "bg-blue-300 pointer-events-none" : "bg-blue-500 shadow-md shadow-blue-500/20"
             )}
             onClick={handleSubmit}
-          >{isSubmitting ? "保存中..." : (isEditMode ? "保存修改" : "立即创建")}</button>
+          >{isSubmitting ? t('community.auto_saving', '保存中...') : (isEditMode ? t('community.auto_save_changes', '保存修改') : t('community.auto_create_now', '立即创建'))}</button>
         </div>
 
       </div>

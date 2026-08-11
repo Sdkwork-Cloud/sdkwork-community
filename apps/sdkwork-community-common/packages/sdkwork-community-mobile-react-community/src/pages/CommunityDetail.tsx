@@ -75,7 +75,7 @@ const { id } = useParams<{ id: string }>();
     }
     
     try {
-      showToast("加入中...");
+      showToast(t('community.auto_fn_n630c7e9a', '加入中...'));
       await CommunityService.joinCommunity(id);
       
       const [fetchedResources, fetchedGroups] = await Promise.all([

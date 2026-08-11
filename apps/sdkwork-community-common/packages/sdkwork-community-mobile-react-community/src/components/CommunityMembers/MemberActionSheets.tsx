@@ -120,25 +120,25 @@ export const MemberActionSheets: React.FC<MemberActionSheetsProps> = ({
 
             <div className="flex flex-col">
               <button
-                onClick={() => onBan("1天")}
+                onClick={() => onBan(t('community.auto_5f18', '1天'))}
                 className="bg-white dark:bg-[#2C2C2E] py-4 text-[16px] text-text-main border-b border-black/5 dark:border-white/5 active:bg-black/5 dark:active:bg-white/5 transition-colors"
               >
                 {t("community.auto_5f18", "1天")}
               </button>
               <button
-                onClick={() => onBan("1周")}
+                onClick={() => onBan(t('community.auto_5a57', '1周'))}
                 className="bg-white dark:bg-[#2C2C2E] py-4 text-[16px] text-text-main border-b border-black/5 dark:border-white/5 active:bg-black/5 dark:active:bg-white/5 transition-colors"
               >
                 {t("community.auto_5a57", "1周")}
               </button>
               <button
-                onClick={() => onBan("1个月")}
+                onClick={() => onBan(t('community.auto_a960f', '1个月'))}
                 className="bg-white dark:bg-[#2C2C2E] py-4 text-[16px] text-text-main border-b border-black/5 dark:border-white/5 active:bg-black/5 dark:active:bg-white/5 transition-colors"
               >
                 {t("community.auto_a960f", "1个月")}
               </button>
               <button
-                onClick={() => onBan("永久")}
+                onClick={() => onBan(t('community.auto_d690d', '永久'))}
                 className="bg-white dark:bg-[#2C2C2E] py-4 text-[16px] text-orange-500 active:bg-black/5 dark:active:bg-white/5 transition-colors"
               >
                 {t("community.auto_d690d", "永久")}

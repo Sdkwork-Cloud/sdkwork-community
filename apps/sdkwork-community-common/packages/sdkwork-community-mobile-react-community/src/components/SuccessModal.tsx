@@ -31,7 +31,7 @@ return (
         <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
           <Check className="w-8 h-8 text-emerald-500" />
         </div>
-        <h3 className="text-[20px] font-bold text-text-main mb-2">{isPaid ? "支付成功" : "加入成功"}</h3>
+        <h3 className="text-[20px] font-bold text-text-main mb-2">{isPaid ? t('community.auto_pay_success', '支付成功') : t('community.auto_join_success', '加入成功')}</h3>
         <p className="text-[15px] text-text-sub mb-6 leading-relaxed">{t('community.auto_n3df725c7', '欢迎加入「{{communityName}}」。我们为您准备了圈子专属文档指南，建议您优先阅读。同时请别忘了加入圈子群组，开启热聊！', { communityName })}</p>
 
         <div className="w-full flex flex-col gap-3">

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { CashierPage, OrderService } from "@sdkwork/order-mobile-react-orders";
 import { CommunityService } from "../services/CommunityService";
@@ -26,6 +27,7 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
   orderDetailPath,
   orderCenterPath,
 }) => {
+  const { t } = useTranslation();
   const { id: communityId, orderId } = useParams<{ id: string; orderId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -76,10 +78,10 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
         // The order is paid; activation failure is surfaced but the payer is
         // still returned to the circle so they can retry activation.
         console.error("circle membership activation failed", error);
-        showToast("支付成功，但会员激活未完成，请重新进入圈子重试");
+        showToast(t('community.auto_pay_success_activation_failed', '支付成功，但会员激活未完成，请重新进入圈子重试'));
       }
       if (!cancelled) {
-        showToast("支付成功，已开通圈子会员");
+        showToast(t('community.auto_pay_success_activated', '支付成功，已开通圈子会员'));
         navigate(`/community/${communityId}`, { replace: true });
       }
     };
@@ -98,7 +100,7 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
   }, [communityId, orderId, tierId, navigate]);
 
   if (!communityId || !orderId) {
-    return <div className="p-8 text-center text-text-sub">收银台参数缺失</div>;
+    return <div className="p-8 text-center text-text-sub">{t('community.auto_cashier_params_missing', '收银台参数缺失')}</div>;
   }
 
   return (

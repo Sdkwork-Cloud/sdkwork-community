@@ -154,27 +154,27 @@ const navigate = useNavigate();
         )}
 
         <div className="px-4">
-           <label className="text-[14px] font-medium text-text-main mb-2 block">会员人数上限</label>
+           <label className="text-[14px] font-medium text-text-main mb-2 block">{t('community.auto_member_limit', '会员人数上限')}</label>
            <input 
              type="number"
              value={memberLimit}
              onChange={e => setMemberLimit(e.target.value)}
              className="w-full bg-[#f8f9fa] dark:bg-[#2C2C2E] px-4 py-3 rounded-xl outline-none text-[15px] placeholder:text-text-sub focus:ring-1 focus:ring-blue-500 transition-shadow"
-             placeholder="不填表示不限制"
+             placeholder={t('community.auto_unlimited_hint', '不填表示不限制')}
            />
-           <p className="text-[12px] text-text-sub mt-1">达到上限后新成员无法加入</p>
+           <p className="text-[12px] text-text-sub mt-1">{t('community.auto_member_limit_hint', '达到上限后新成员无法加入')}</p>
         </div>
 
         <div className="px-4">
-           <label className="text-[14px] font-medium text-text-main mb-2 block">融资目标金额（累计支付上限）</label>
+           <label className="text-[14px] font-medium text-text-main mb-2 block">{t('community.auto_revenue_target_hint', '融资目标金额（累计支付上限）')}</label>
            <input 
              type="number"
              value={revenueTarget}
              onChange={e => setRevenueTarget(e.target.value)}
              className="w-full bg-[#f8f9fa] dark:bg-[#2C2C2E] px-4 py-3 rounded-xl outline-none text-[15px] placeholder:text-text-sub focus:ring-1 focus:ring-blue-500 transition-shadow"
-             placeholder="不填表示不限制，如天使轮 500000"
+             placeholder={t('community.auto_revenue_placeholder', '不填表示不限制，如天使轮 500000')}
            />
-           <p className="text-[12px] text-text-sub mt-1">会员购买金额累计达到目标后停止销售</p>
+           <p className="text-[12px] text-text-sub mt-1">{t('community.auto_revenue_hint', '会员购买金额累计达到目标后停止销售')}</p>
         </div>
 
         <div className="h-24"></div> {/* Spacer for fixed bottom */}
@@ -187,7 +187,7 @@ const navigate = useNavigate();
             isSubmitting || !name.trim() || !coverImage ? "bg-blue-300 pointer-events-none" : "bg-blue-500 shadow-md shadow-blue-500/20"
           )}
           onClick={handleSubmit}
-        >{isSubmitting ? "创建中..." : "立即创建"}</button>
+        >{isSubmitting ? t('community.auto_creating', '创建中...') : t('community.auto_create_now', '立即创建')}</button>
       </div>
     </div>
   );

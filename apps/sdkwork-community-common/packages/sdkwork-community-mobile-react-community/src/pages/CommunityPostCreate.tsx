@@ -20,7 +20,7 @@ const { id } = useParams<{ id: string }>();
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: '这一刻的想法...',
+        placeholder: t('community.auto_thought_placeholder', '这一刻的想法...'),
         emptyEditorClass: 'is-editor-empty',
       }),
     ],
@@ -52,7 +52,7 @@ const { id } = useParams<{ id: string }>();
     const filesProcess = files.slice(0, availableSlots);
 
     if (files.length > availableSlots) {
-       showToast(`最多只能选择9张图片，已截取前${availableSlots}张`);
+       showToast(t('community.auto_max_9_photos', '最多只能选择9张图片，已截取前{{count}}张', { count: availableSlots }));
     }
 
     try {
@@ -143,7 +143,7 @@ const { id } = useParams<{ id: string }>();
           )}
           onClick={handleSubmit}
           disabled={isPublishDisabled}
-        >{isSubmitting ? "发表中..." : "发表"}</button>
+        >{isSubmitting ? t('community.auto_publishing', '发表中...') : t('community.auto_publish', '发表')}</button>
       </header>
 
       <div className="flex-1 overflow-y-auto w-full flex flex-col mb-safe">

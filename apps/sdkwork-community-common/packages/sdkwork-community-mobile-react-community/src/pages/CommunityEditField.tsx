@@ -63,11 +63,11 @@ const { id } = useParams<{ id: string }>();
   };
 
   const titles = {
-    name: '圈子名称',
-    description: '圈子简介',
-    tags: '圈子标签',
-    memberLimit: '会员人数上限',
-    revenueTarget: '融资目标金额'
+    name: t('community.auto_28f15acb', '圈子名称'),
+    description: t('community.auto_28f5f693', '圈子简介'),
+    tags: t('community.auto_28f3c79f', '圈子标签'),
+    memberLimit: t('community.auto_member_limit', '会员人数上限'),
+    revenueTarget: t('community.auto_revenue_target', '融资目标金额')
   };
 
   return (
@@ -89,7 +89,7 @@ const { id } = useParams<{ id: string }>();
                 value={value}
                 onChange={e => setValue(e.target.value)}
                 className="w-full bg-transparent py-2 outline-none text-[16px] resize-none h-32 text-text-main"
-                placeholder={`请输入${titles[field]}...`}
+                placeholder={t('community.auto_enter_field_placeholder', '请输入{{field}}...', { field: titles[field] })}
                 autoFocus
               />
             ) : (
@@ -97,7 +97,7 @@ const { id } = useParams<{ id: string }>();
                 value={value}
                 onChange={e => setValue(e.target.value)}
                 className="w-full bg-transparent py-2 outline-none text-[16px] text-text-main"
-                placeholder={field === 'tags' ? "标签用空格分隔" : `请输入${titles[field]}`}
+                placeholder={field === 'tags' ? t('community.auto_tags_space_hint', '标签用空格分隔') : t('community.auto_enter_field_placeholder', '请输入{{field}}...', { field: titles[field] })}
                 autoFocus
               />
             )}
@@ -106,10 +106,10 @@ const { id } = useParams<{ id: string }>();
             <div className="px-4 py-2 text-[13px] text-text-sub">{t('community.auto_n27f80d1e', '多个标签请用空格隔开，例如：科技 创业 互联网')}</div>
           )}
           {field === 'memberLimit' && (
-            <div className="px-4 py-2 text-[13px] text-text-sub">不填表示不限制；达到上限后新成员无法加入</div>
+            <div className="px-4 py-2 text-[13px] text-text-sub">{t('community.auto_member_limit_edit_hint', '不填表示不限制；达到上限后新成员无法加入')}</div>
           )}
           {field === 'revenueTarget' && (
-            <div className="px-4 py-2 text-[13px] text-text-sub">不填表示不限制；会员购买金额累计达到目标后停止销售</div>
+            <div className="px-4 py-2 text-[13px] text-text-sub">{t('community.auto_revenue_edit_hint', '不填表示不限制；会员购买金额累计达到目标后停止销售')}</div>
           )}
        </div>
     </div>

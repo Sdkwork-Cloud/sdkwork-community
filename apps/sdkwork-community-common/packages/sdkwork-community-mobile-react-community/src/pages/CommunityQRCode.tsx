@@ -38,7 +38,7 @@ const { id } = useParams<{ id: string }>();
         style: { transform: 'scale(1)', margin: '0' }
       });
       const link = document.createElement('a');
-      link.download = `${community?.name}-圈子名片.png`;
+      link.download = `${community?.name}-${t('community.auto_28f15322', '圈子名片')}.png`;
       link.href = dataUrl;
       link.click();
       showToast(t('community.auto_fn_n202557e9', '已保存到相册'));
@@ -50,7 +50,7 @@ const { id } = useParams<{ id: string }>();
   };
 
   const handleShare = (type: string) => {
-  showToast(`已分享到${type}`);
+  showToast(t('community.auto_shared_to', '已分享到{{target}}', { target: type }));
     setIsActionSheetOpen(false);
   };
 
@@ -126,12 +126,12 @@ const { id } = useParams<{ id: string }>();
              <div className="bg-[#F2F2F7] dark:bg-[#1C1C1E] rounded-t-2xl w-full max-w-md mx-auto relative z-10 overflow-hidden pb-safe animate-in slide-in-from-bottom duration-300">
                 <div className="flex flex-col">
                    <button 
-                      onClick={() => handleShare('微信好友')}
+                      onClick={() => handleShare(t('community.auto_wechat_friend', '微信好友'))}
                       className="bg-white dark:bg-[#2C2C2E] py-4 text-[16px] text-text-main border-b border-black/5 dark:border-white/5 active:bg-black/5 dark:active:bg-white/5 transition-colors flex items-center justify-center gap-2"
                    >
                       <MessageCircle className="w-5 h-5 text-green-500" />{t('community.auto_n470c7ad6', '发送给微信好友')}</button>
                    <button 
-                      onClick={() => handleShare('朋友圈')}
+                      onClick={() => handleShare(t('community.auto_moments', '朋友圈'))}
                       className="bg-white dark:bg-[#2C2C2E] py-4 text-[16px] text-text-main border-b border-black/5 dark:border-white/5 active:bg-black/5 dark:active:bg-white/5 transition-colors flex items-center justify-center gap-2"
                    >
                       <Share2 className="w-5 h-5 text-blue-500" />{t('community.auto_731c8f9d', '分享到朋友圈')}</button>

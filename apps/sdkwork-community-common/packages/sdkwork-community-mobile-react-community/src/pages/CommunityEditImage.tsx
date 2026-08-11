@@ -150,8 +150,8 @@ const { id } = useParams<{ id: string }>();
   };
 
   const titles = {
-    avatar: '编辑头像',
-    coverImage: '编辑背景'
+    avatar: t('community.auto_edit_avatar', '编辑头像'),
+    coverImage: t('community.auto_edit_cover', '编辑背景')
   };
 
   if (isCropping) {
@@ -202,7 +202,7 @@ const { id } = useParams<{ id: string }>();
                    "font-medium text-[15px] transition-opacity p-2 -mr-2",
                    hasChanged ? "text-blue-500 active:opacity-70" : "text-white/30"
                 )}
-             >{isSaving ? "保存中..." : "完成"}</button>
+             >{isSaving ? t('community.auto_saving', '保存中...') : t('community.auto_done', '完成')}</button>
           </div>
        </header>
 

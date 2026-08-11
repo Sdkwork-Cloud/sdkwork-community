@@ -66,7 +66,7 @@ return (
         </div>
       ))}
       {posts.length === 0 && (
-        <div className="h-40 flex items-center justify-center text-text-sub">暂无动态</div>
+        <div className="h-40 flex items-center justify-center text-text-sub">{t('community.auto_3021c277', '暂无动态')}</div>
       )}
     </div>
   );
