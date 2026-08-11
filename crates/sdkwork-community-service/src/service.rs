@@ -1201,6 +1201,53 @@ impl CommunityService {
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))
     }
 
+    /// Keeps the circle's display price in sync with the lowest purchasable
+    /// tier price after tier changes (purchase surface always settles on the
+    /// tier price; the category price is the 'from' price shown in lists).
+    async fn sync_category_price(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<(), CommunityServiceError> {
+        let tiers = self.list_tiers(tenant_id, category_id, true).await?;
+        if tiers.is_empty() {
+            return Ok(());
+        }
+        let lowest = tiers
+            .iter()
+            .map(|tier| tier.price)
+            .fold(f64::INFINITY, f64::min);
+        let category = self.retrieve_category(tenant_id, category_id).await?;
+        if category.price != Some(lowest) {
+            self.store
+                .update_category(
+                    tenant_id,
+                    category_id,
+                    &sdkwork_community_storage_sqlx::CommunityCategoryPatch {
+                        slug: None,
+                        title: None,
+                        description: None,
+                        cover_image: None,
+                        avatar: None,
+                        owner_id: None,
+                        member_count: None,
+                        member_limit: None,
+                        post_count: None,
+                        is_paid: None,
+                        price: Some(lowest),
+                        revenue_raised: None,
+                        revenue_target: None,
+                        tags: None,
+                        priority: None,
+                        enabled: None,
+                    },
+                )
+                .await
+                .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        }
+        Ok(())
+    }
+
     async fn require_manager(
         &self,
         tenant_id: &str,
@@ -1270,7 +1317,9 @@ impl CommunityService {
             })
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
-        self.retrieve_tier(tenant_id, category_id, &tier_id).await
+        let tier = self.retrieve_tier(tenant_id, category_id, &tier_id).await?;
+        self.sync_category_price(tenant_id, category_id).await?;
+        Ok(tier)
     }
 
     pub async fn update_tier(
@@ -1308,7 +1357,9 @@ impl CommunityService {
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
         let _ = existing;
-        self.retrieve_tier(tenant_id, category_id, tier_id).await
+        let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
+        self.sync_category_price(tenant_id, category_id).await?;
+        Ok(tier)
     }
 
     /// Publishes a tier: registers the membership package on the membership
@@ -1360,7 +1411,9 @@ impl CommunityService {
             )
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
-        self.retrieve_tier(tenant_id, category_id, tier_id).await
+        let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
+        self.sync_category_price(tenant_id, category_id).await?;
+        Ok(tier)
     }
 
     pub async fn unpublish_tier(
@@ -1390,7 +1443,9 @@ impl CommunityService {
             )
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
-        self.retrieve_tier(tenant_id, category_id, tier_id).await
+        let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
+        self.sync_category_price(tenant_id, category_id).await?;
+        Ok(tier)
     }
 
     pub async fn delete_tier(
@@ -1412,6 +1467,7 @@ impl CommunityService {
                 "tier {tier_id} not found"
             )));
         }
+        self.sync_category_price(tenant_id, category_id).await?;
         Ok(CommunityCommandAccepted {
             accepted: true,
             resource_id: Some(tier_id.to_owned()),

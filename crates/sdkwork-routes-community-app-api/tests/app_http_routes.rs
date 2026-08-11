@@ -356,6 +356,179 @@ async fn app_circle_flow_creates_joins_manages_members_and_groups() {
     fixture.close().await;
 }
 
+#[tokio::test]
+async fn app_tier_management_flow_requires_owner_and_cruds_tiers() {
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    let app = build_app_router(fixture.host.clone())
+        .layer(Extension(test_iam_context("100001", "user_1")));
+
+    // Create a paid circle owned by user_1.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri("/app/v3/api/community/categories")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"title":"付费测试圈","isPaid":true,"price":99}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .expect("create circle response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    let category_id = payload["data"]["id"]
+        .as_str()
+        .expect("circle id")
+        .to_owned();
+
+    // Create a tier (unpublished by default).
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!("/app/v3/api/community/categories/{category_id}/tiers"))
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"name":"高级会员","price":199,"durationDays":365,"benefits":["内容","群"]}"#))
+                .unwrap(),
+        )
+        .await
+        .expect("create tier response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    let tier_id = payload["data"]["id"].as_str().expect("tier id").to_owned();
+    assert_eq!(payload["data"]["enabled"], false);
+
+    // Unpublished tiers are hidden from the purchase surface.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/tiers"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("tiers list response");
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["items"].as_array().expect("items").len(), 0);
+
+    // Owner management list includes unpublished tiers.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/tiers?includeDisabled=true"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("tiers management list response");
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["items"].as_array().expect("items").len(), 1);
+
+    // Publishing requires the membership backend; without configuration the
+    // request fails with an internal error instead of a silent success.
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/tiers/{tier_id}/publish"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("publish tier response");
+    assert!(
+        response.status().is_server_error(),
+        "publish without a membership backend must fail closed"
+    );
+
+    // Update the tier (price validation rejects negatives).
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::PATCH)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/tiers/{tier_id}"
+                ))
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"name":"高级会员","price":-1}"#))
+                .unwrap(),
+        )
+        .await
+        .expect("negative price tier response");
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::PATCH)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/tiers/{tier_id}"
+                ))
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"name":"高级会员","price":299}"#))
+                .unwrap(),
+        )
+        .await
+        .expect("update tier response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    assert_eq!(payload["data"]["price"], 299.0);
+
+    // Non-manager members cannot create tiers.
+    let stranger = build_app_router(fixture.host.clone())
+        .layer(Extension(test_iam_context("100001", "user_9")));
+    let response = stranger
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/tiers"
+                ))
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"name":"越权等级","price":1}"#))
+                .unwrap(),
+        )
+        .await
+        .expect("stranger create tier response");
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+
+    // Paid circles reject direct joins (membership purchase is required).
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method(Method::POST)
+                .uri(format!(
+                    "/app/v3/api/community/categories/{category_id}/join"
+                ))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("paid join response");
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+
+    fixture.close().await;
+}
+
 fn assert_route_mounted(response: &axum::http::Response<Body>, method: &str, path: &str) {
     assert!(
         response

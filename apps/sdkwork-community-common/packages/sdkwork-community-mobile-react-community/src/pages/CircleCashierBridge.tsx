@@ -30,7 +30,6 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [tierId, setTierId] = useState<string | null>(null);
-  const [activated, setActivated] = useState(false);
   const activatedRef = useRef(false);
 
   // The cashier deep-link may carry the tier id as a query param so the
@@ -80,7 +79,6 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
         showToast("支付成功，但会员激活未完成，请重新进入圈子重试");
       }
       if (!cancelled) {
-        setActivated(true);
         showToast("支付成功，已开通圈子会员");
         navigate(`/community/${communityId}`, { replace: true });
       }
@@ -110,5 +108,3 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
     />
   );
 };
-
-export { OrderService };
