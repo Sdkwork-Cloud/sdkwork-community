@@ -1305,6 +1305,11 @@ impl CommunityService {
         self.require_manager(tenant_id, category_id, actor_user_id)
             .await?;
         let existing = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
+        if command.price < 0.0 {
+            return Err(CommunityServiceError::Validation(
+                "tier price must not be negative".to_owned(),
+            ));
+        }
         self.store
             .update_tier(
                 tenant_id,
@@ -1454,16 +1459,19 @@ impl CommunityService {
                 "membership tier is not purchasable".to_owned(),
             ));
         }
-        let paid = self
+        let verification = self
             .commerce
             .verify_order_paid(&command.order_id)
             .await
             .map_err(CommunityServiceError::Integration)?;
-        if !paid {
+        if !verification.paid {
             return Err(CommunityServiceError::Validation(
                 "order is not paid".to_owned(),
             ));
         }
+        // Accumulate the actual paid amount from the order (the tier price may
+        // have changed since the package was registered).
+        let paid_amount = verification.paid_amount.unwrap_or(tier.price);
         let now = Utc::now().to_rfc3339();
         let expires_at = chrono::DateTime::parse_from_rfc3339(&now)
             .map(|value| value + chrono::Duration::days(tier.duration_days))
@@ -1481,7 +1489,7 @@ impl CommunityService {
                 return Ok(member);
             }
         }
-        self.ensure_revenue_capacity(tenant_id, category_id, tier.price)
+        self.ensure_revenue_capacity(tenant_id, category_id, paid_amount)
             .await?;
         if self
             .current_member(tenant_id, category_id, user_id)
@@ -1527,7 +1535,7 @@ impl CommunityService {
             )
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
-        self.accumulate_revenue(tenant_id, category_id, tier.price)
+        self.accumulate_revenue(tenant_id, category_id, paid_amount)
             .await?;
         self.current_member(tenant_id, category_id, user_id)
             .await?

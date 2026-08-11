@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { CashierPage, OrderService } from "@sdkwork/order-mobile-react-orders";
 import { CommunityService } from "../services/CommunityService";
 import {
@@ -28,19 +28,21 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
 }) => {
   const { id: communityId, orderId } = useParams<{ id: string; orderId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [tierId, setTierId] = useState<string | null>(null);
   const [activated, setActivated] = useState(false);
   const activatedRef = useRef(false);
 
   // The cashier deep-link may carry the tier id as a query param so the
-  // bridge knows which tier to activate after payment.
+  // bridge knows which tier to activate after payment. Read it through the
+  // router so both history and hash routing work (WeChat OAuth returns on a
+  // hash route per the order cashier contract).
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tier = params.get("tierId");
+    const tier = searchParams.get("tierId");
     if (tier) {
       setTierId(tier);
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!communityId || !orderId || activatedRef.current) {

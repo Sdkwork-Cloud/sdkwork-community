@@ -63,6 +63,12 @@ pub struct RegisteredMembershipPackage {
 }
 
 #[derive(Debug, Clone)]
+pub struct OrderPaymentVerification {
+    pub paid: bool,
+    pub paid_amount: Option<f64>,
+}
+
+#[derive(Debug, Clone)]
 pub struct CommerceIntegration {
     config: Arc<CommerceIntegrationConfig>,
     http: reqwest::Client,
@@ -164,9 +170,13 @@ impl CommerceIntegration {
         })
     }
 
-    /// Verifies that an order has been paid by querying the order backend.
-    /// Returns true only when the order status indicates a settled payment.
-    pub async fn verify_order_paid(&self, order_id: &str) -> Result<bool, String> {
+    /// Verifies that an order has been paid by querying the order backend and
+    /// returns the paid amount (when present) so the community can accumulate
+    /// the actual paid revenue instead of a possibly stale tier price.
+    pub async fn verify_order_paid(
+        &self,
+        order_id: &str,
+    ) -> Result<OrderPaymentVerification, String> {
         let base_url = self.config.order_backend_base_url.clone().ok_or_else(|| {
             "order backend is not configured (SDKWORK_ORDER_BACKEND_API_BASE_URL)".to_owned()
         })?;
@@ -193,7 +203,10 @@ impl CommerceIntegration {
             .map_err(|error| format!("order verification request failed: {error}"))?;
 
         if response.status() == reqwest::StatusCode::NOT_FOUND {
-            return Ok(false);
+            return Ok(OrderPaymentVerification {
+                paid: false,
+                paid_amount: None,
+            });
         }
         if !response.status().is_success() {
             let status = response.status();
@@ -214,7 +227,13 @@ impl CommerceIntegration {
             .and_then(|value| value.as_str())
             .unwrap_or_default()
             .to_lowercase();
-        Ok(is_paid_order_status(&status))
+        let paid = is_paid_order_status(&status);
+        let paid_amount = item
+            .get("paidAmount")
+            .or_else(|| item.get("totalAmount"))
+            .and_then(|value| value.as_str())
+            .and_then(|value| value.parse::<f64>().ok());
+        Ok(OrderPaymentVerification { paid, paid_amount })
     }
 }
 

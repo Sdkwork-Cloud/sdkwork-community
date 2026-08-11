@@ -30,6 +30,15 @@ import { getRuntime } from "./runtime";
  *   purchase flow settles on the order service.
  */
 
+
+function createIdempotencyKey(): string {
+  const random = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `community-${random}`;
+}
+
 function createWechatPaymentOAuthChannel(): WechatPaymentOAuthChannel {
   return {
     async fetchAuthorizeUrl(redirect: string): Promise<string> {
@@ -77,7 +86,7 @@ export function bootstrapCommunityPort(): void {
           paymentProduct: "mobile_cashier_h5",
           source: options.source ?? "community-circle",
         },
-        { idempotencyKey: crypto.randomUUID() },
+        { idempotencyKey: createIdempotencyKey() },
       );
       return {
         orderId: result.orderId,

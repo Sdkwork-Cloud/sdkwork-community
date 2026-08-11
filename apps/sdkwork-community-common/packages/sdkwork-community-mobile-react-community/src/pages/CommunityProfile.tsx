@@ -8,6 +8,10 @@ import { ChevronLeft, ChevronRight, Camera, Image as ImageIcon, QrCode } from "l
 import { AVAILABLE_TABS } from "./CommunityEditTabs";
 import { TierManagementPanel } from "../components/TierManagementPanel";
 
+function formatAmount(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+}
+
 export const CommunityProfile: React.FC = () => {
   const { t } = useTranslation();
 const { id } = useParams<{ id: string }>();
@@ -166,7 +170,7 @@ const { id } = useParams<{ id: string }>();
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
                  <span className="text-[15px] text-text-sub truncate">
                    {community.revenueTarget
-                     ? `已募 ¥${community.revenueRaised ?? 0} / 目标 ¥${community.revenueTarget}`
+                     ? `已募 ¥${formatAmount(community.revenueRaised ?? 0)} / 目标 ¥${formatAmount(community.revenueTarget)}`
                      : '不限制'}
                  </span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
