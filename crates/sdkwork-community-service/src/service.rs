@@ -30,6 +30,8 @@ pub struct CommunityCategoryView {
     pub post_count: i64,
     pub is_paid: bool,
     pub price: Option<f64>,
+    pub revenue_target: Option<f64>,
+    pub revenue_raised: f64,
     pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
@@ -168,6 +170,7 @@ pub struct CommunityCircleCommand {
     pub is_paid: Option<bool>,
     pub member_limit: Option<i64>,
     pub price: Option<f64>,
+    pub revenue_target: Option<f64>,
     pub tags: Option<Vec<String>>,
 }
 
@@ -635,6 +638,7 @@ impl CommunityService {
                 member_limit: None,
                 is_paid: false,
                 price: None,
+                revenue_target: None,
                 tags: Vec::new(),
                 priority: command.priority.unwrap_or(0),
                 enabled: command.enabled.unwrap_or(true),
@@ -673,6 +677,8 @@ impl CommunityService {
                     member_limit: None,
                     post_count: None,
                     is_paid: None,
+                    revenue_raised: None,
+                    revenue_target: None,
                     price: None,
                     tags: None,
                     priority: command.priority,
@@ -744,6 +750,7 @@ impl CommunityService {
                 member_limit: validate_member_limit(command.member_limit)?,
                 is_paid: command.is_paid.unwrap_or(false),
                 price: command.price,
+                revenue_target: validate_revenue_target(command.revenue_target)?,
                 tags: command.tags.unwrap_or_default(),
                 priority: 0,
                 enabled: true,
@@ -793,6 +800,8 @@ impl CommunityService {
                     member_limit: validate_member_limit(command.member_limit)?,
                     post_count: None,
                     is_paid: command.is_paid,
+                    revenue_raised: None,
+                    revenue_target: validate_revenue_target(command.revenue_target)?,
                     price: command.price,
                     tags: command.tags,
                     priority: None,
@@ -1111,6 +1120,8 @@ impl CommunityService {
                     member_count: Some((category.member_count + member_delta).max(0)),
                     member_limit: None,
                     post_count: Some((category.post_count + post_delta).max(0)),
+                    revenue_raised: None,
+                    revenue_target: None,
                     is_paid: None,
                     price: None,
                     tags: None,
@@ -1153,6 +1164,60 @@ impl CommunityService {
             }
         }
         Ok(())
+    }
+
+    /// Rejects activation when the raise target would be exceeded by the
+    /// tier price (funding/angel-round cap; NULL target means no cap).
+    async fn ensure_revenue_capacity(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        tier_price: f64,
+    ) -> Result<(), CommunityServiceError> {
+        let category = self.retrieve_category(tenant_id, category_id).await?;
+        if let Some(target) = category.revenue_target {
+            if category.revenue_raised + tier_price > target {
+                return Err(CommunityServiceError::Conflict(
+                    "circle revenue target reached; purchases are closed".to_owned(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Adds the tier price to the circle's raised revenue after activation.
+    async fn accumulate_revenue(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        tier_price: f64,
+    ) -> Result<(), CommunityServiceError> {
+        let category = self.retrieve_category(tenant_id, category_id).await?;
+        self.store
+            .update_category(
+                tenant_id,
+                category_id,
+                &sdkwork_community_storage_sqlx::CommunityCategoryPatch {
+                    slug: None,
+                    title: None,
+                    description: None,
+                    cover_image: None,
+                    avatar: None,
+                    owner_id: None,
+                    member_count: None,
+                    member_limit: None,
+                    post_count: None,
+                    is_paid: None,
+                    price: None,
+                    revenue_raised: Some(category.revenue_raised + tier_price),
+                    revenue_target: None,
+                    tags: None,
+                    priority: None,
+                    enabled: None,
+                },
+            )
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
     }
 
     async fn require_manager(
@@ -1406,6 +1471,8 @@ impl CommunityService {
             })
             .to_rfc3339();
 
+        self.ensure_revenue_capacity(tenant_id, category_id, tier.price)
+            .await?;
         if self
             .current_member(tenant_id, category_id, user_id)
             .await?
@@ -1449,6 +1516,8 @@ impl CommunityService {
             )
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        self.accumulate_revenue(tenant_id, category_id, tier.price)
+            .await?;
         self.current_member(tenant_id, category_id, user_id)
             .await?
             .ok_or_else(|| {
@@ -1585,6 +1654,8 @@ fn map_category(category: CommunityStoredCategory) -> CommunityCategoryView {
         post_count: category.post_count,
         is_paid: category.is_paid,
         price: category.price,
+        revenue_target: category.revenue_target,
+        revenue_raised: category.revenue_raised,
         tags: category.tags,
         priority: category.priority,
         enabled: category.enabled,
@@ -1696,6 +1767,16 @@ fn validate_member_limit(value: Option<i64>) -> Result<Option<i64>, CommunitySer
             "member limit must be positive or empty".to_owned(),
         )),
         Some(limit) => Ok(Some(limit)),
+    }
+}
+
+fn validate_revenue_target(value: Option<f64>) -> Result<Option<f64>, CommunityServiceError> {
+    match value {
+        None | Some(0.0) => Ok(None),
+        Some(target) if target < 0.0 => Err(CommunityServiceError::Validation(
+            "revenue target must be positive or empty".to_owned(),
+        )),
+        Some(target) => Ok(Some(target)),
     }
 }
 

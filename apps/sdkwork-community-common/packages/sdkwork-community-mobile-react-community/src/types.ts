@@ -8,6 +8,10 @@ export interface Community {
   /** Maximum member count; undefined means unlimited (默认不限制). */
   memberLimit?: number;
   postCount: number;
+  /** Funding/raise target amount; undefined means no revenue cap. */
+  revenueTarget?: number;
+  /** Amount raised from paid memberships so far. */
+  revenueRaised?: number;
   tags: string[];
   tabs?: string[];
   isJoined?: boolean;

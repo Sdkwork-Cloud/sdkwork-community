@@ -1147,6 +1147,14 @@
             "type": "number",
             "format": "double"
           },
+          "revenueRaised": {
+            "type": "number",
+            "format": "double"
+          },
+          "revenueTarget": {
+            "type": "number",
+            "format": "double"
+          },
           "tags": {
             "type": "array",
             "items": {
@@ -1188,6 +1196,10 @@
             "format": "int64"
           },
           "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "revenueTarget": {
             "type": "number",
             "format": "double"
           },

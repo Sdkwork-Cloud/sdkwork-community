@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS community_category (
     post_count INTEGER NOT NULL DEFAULT 0,
     is_paid BOOLEAN NOT NULL DEFAULT FALSE,
     price NUMERIC,
+    revenue_target NUMERIC,
+    revenue_raised NUMERIC NOT NULL DEFAULT 0,
     tags TEXT[] NOT NULL DEFAULT '{}',
     priority INTEGER NOT NULL DEFAULT 0,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,

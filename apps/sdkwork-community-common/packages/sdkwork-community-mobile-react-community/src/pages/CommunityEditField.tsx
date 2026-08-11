@@ -10,7 +10,7 @@ export const CommunityEditField: React.FC = () => {
   const { t } = useTranslation();
 const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const field = searchParams.get('field') as 'name' | 'description' | 'tags' | 'memberLimit' || 'name';
+  const field = searchParams.get('field') as 'name' | 'description' | 'tags' | 'memberLimit' | 'revenueTarget' || 'name';
   const navigate = useNavigate();
 
   const [community, setCommunity] = useState<Community | null>(null);
@@ -26,6 +26,8 @@ const { id } = useParams<{ id: string }>();
             setValue(c.tags.join(" "));
           } else if (field === 'memberLimit') {
             setValue(c.memberLimit ? String(c.memberLimit) : "");
+          } else if (field === 'revenueTarget') {
+            setValue(c.revenueTarget ? String(c.revenueTarget) : "");
           } else {
             setValue(c[field] || "");
           }
@@ -45,6 +47,8 @@ const { id } = useParams<{ id: string }>();
          updates.tags = value.split(" ").filter(t => t.trim());
        } else if (field === 'memberLimit') {
          updates.memberLimit = value.trim() ? Number(value.trim()) : undefined;
+       } else if (field === 'revenueTarget') {
+         updates.revenueTarget = value.trim() ? Number(value.trim()) : undefined;
        } else {
          updates[field] = value.trim();
        }
@@ -62,7 +66,8 @@ const { id } = useParams<{ id: string }>();
     name: '圈子名称',
     description: '圈子简介',
     tags: '圈子标签',
-    memberLimit: '会员人数上限'
+    memberLimit: '会员人数上限',
+    revenueTarget: '融资目标金额'
   };
 
   return (
@@ -102,6 +107,9 @@ const { id } = useParams<{ id: string }>();
           )}
           {field === 'memberLimit' && (
             <div className="px-4 py-2 text-[13px] text-text-sub">不填表示不限制；达到上限后新成员无法加入</div>
+          )}
+          {field === 'revenueTarget' && (
+            <div className="px-4 py-2 text-[13px] text-text-sub">不填表示不限制；会员购买金额累计达到目标后停止销售</div>
           )}
        </div>
     </div>

@@ -18,7 +18,8 @@ pub async fn list_categories(
     let rows = sqlx::query(
         r#"
         SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
-               member_count, member_limit, post_count, is_paid, price::float8, tags, priority, enabled
+               member_count, member_limit, post_count, is_paid, price::float8,
+               revenue_target::float8, revenue_raised::float8, tags, priority, enabled
         FROM community_category
         WHERE tenant_id = $1 AND enabled = TRUE
         ORDER BY priority DESC, slug ASC
@@ -43,6 +44,8 @@ pub async fn list_categories(
             post_count: integer_cell(row, "post_count"),
             is_paid: bool_cell(row, "is_paid"),
             price: optional_f64_cell(row, "price"),
+            revenue_target: optional_f64_cell(row, "revenue_target"),
+            revenue_raised: optional_f64_cell(row, "revenue_raised").unwrap_or(0.0),
             tags: text_array_cell(row, "tags"),
             priority: integer_cell(row, "priority"),
             enabled: bool_cell(row, "enabled"),
@@ -109,8 +112,10 @@ pub async fn create_category(
         r#"
         INSERT INTO community_category
             (id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
-             member_count, member_limit, post_count, is_paid, price, tags, priority, enabled, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::numeric, $13::text[], $14, $15, $16, $17, $18)
+             member_count, member_limit, post_count, is_paid, price, revenue_target,
+             tags, priority, enabled, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::numeric, $13::numeric,
+                $14::text[], $15, $16, $17, $18, $19)
         "#,
     )
     .bind(input.id)
@@ -126,6 +131,7 @@ pub async fn create_category(
     .bind(input.member_limit)
     .bind(input.is_paid)
     .bind(input.price)
+    .bind(input.revenue_target)
     .bind(&input.tags)
     .bind(input.priority)
     .bind(input.enabled)
@@ -151,9 +157,10 @@ pub async fn update_category(
         UPDATE community_category
         SET slug = $1, title = $2, description = $3, cover_image = $4, avatar = $5,
             owner_id = $6, member_count = $7, member_limit = $8, post_count = $9,
-            is_paid = $10, price = $11::numeric, tags = $12::text[], priority = $13,
-            enabled = $14, updated_at = $15
-        WHERE tenant_id = $16 AND id = $17
+            is_paid = $10, price = $11::numeric, revenue_raised = $12::numeric,
+            revenue_target = $13::numeric, tags = $14::text[], priority = $15,
+            enabled = $16, updated_at = $17
+        WHERE tenant_id = $18 AND id = $19
         "#,
     )
     .bind(patch.slug.as_ref().unwrap_or(&existing.slug))
@@ -167,6 +174,8 @@ pub async fn update_category(
     .bind(patch.post_count.unwrap_or(existing.post_count))
     .bind(patch.is_paid.unwrap_or(existing.is_paid))
     .bind(patch.price.or(existing.price))
+    .bind(patch.revenue_raised.or(Some(existing.revenue_raised)))
+    .bind(patch.revenue_target.or(existing.revenue_target))
     .bind(patch.tags.as_ref().unwrap_or(&existing.tags))
     .bind(patch.priority.unwrap_or(existing.priority))
     .bind(patch.enabled.unwrap_or(existing.enabled))

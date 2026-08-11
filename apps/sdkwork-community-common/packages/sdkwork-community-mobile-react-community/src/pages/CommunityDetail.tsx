@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { CommunityService, isMemberLimitError } from "../services/CommunityService";
+import { CommunityService, isMemberLimitError, isRevenueTargetError } from "../services/CommunityService";
 import { getCommunityOrderRuntime } from "../services/communityOrderRuntime";
 import { Community, Post, Resource, CommunityGroup, MembershipTier } from "../types";
 import { cn, IconButton, showToast, Tabs } from "@sdkwork/ui-mobile-react";
@@ -90,7 +90,7 @@ const { id } = useParams<{ id: string }>();
 
       setShowSuccessModal(true);
     } catch (error) {
-      showToast(isMemberLimitError(error) ? '圈子人数已满，无法加入' : t('community.auto_fn_2f078e83', '操作失败'));
+      showToast(isRevenueTargetError(error) ? '融资目标已达成，认购已截止' : isMemberLimitError(error) ? '圈子人数已满，无法加入' : t('community.auto_fn_2f078e83', '操作失败'));
       setIsPaySheetOpen(false);
     }
   };

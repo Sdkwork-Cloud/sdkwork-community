@@ -73,6 +73,9 @@ pub struct CommunityCategoryResponse {
     pub is_paid: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revenue_target: Option<f64>,
+    pub revenue_raised: f64,
     pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
@@ -204,6 +207,8 @@ pub fn map_category(category: CommunityCategoryView) -> CommunityCategoryRespons
         post_count: category.post_count,
         is_paid: category.is_paid,
         price: category.price,
+        revenue_target: category.revenue_target,
+        revenue_raised: category.revenue_raised,
         tags: category.tags,
         priority: category.priority,
         enabled: category.enabled,

@@ -65,6 +65,8 @@ function mapCategoryToCommunity(category: SdkworkCommunityCategory, isJoined: bo
     memberCount: category.memberCount ?? 0,
     memberLimit: category.memberLimit,
     postCount: category.postCount ?? 0,
+    revenueTarget: category.revenueTarget,
+    revenueRaised: category.revenueRaised ?? 0,
     tags: category.tags ? [...category.tags] : [],
     tabs: category.tabs ? [...category.tabs] : undefined,
     isJoined,
@@ -163,6 +165,12 @@ export function isMemberLimitError(error: unknown): boolean {
   return message.includes("limit") || message.includes("满");
 }
 
+/** True when the circle's funding target was reached and purchases are closed. */
+export function isRevenueTargetError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("revenue target") || message.includes("融资") || message.includes("目标已达成");
+}
+
 function truncate(value: string, length: number): string {
   const normalized = value.trim();
   return normalized.length <= length ? normalized : `${normalized.slice(0, length)}…`;
@@ -205,6 +213,7 @@ export const CommunityService = {
       isPaid: community.isPaid,
       memberLimit: community.memberLimit,
       price: community.price,
+      revenueTarget: community.revenueTarget,
       tags: community.tags,
     });
     return mapCategoryToCommunity(category, true);
@@ -314,6 +323,7 @@ export const CommunityService = {
       isPaid: updates.isPaid,
       memberLimit: updates.memberLimit,
       price: updates.price,
+      revenueTarget: updates.revenueTarget,
       tags: updates.tags,
     });
   },

@@ -6,5 +6,6 @@ export interface CommunityCircleCommand {
   isPaid?: boolean;
   memberLimit?: string;
   price?: number;
+  revenueTarget?: number;
   tags?: string[];
 }

@@ -50,6 +50,8 @@ pub struct CommunityCategoryPatch {
     pub post_count: Option<i64>,
     pub is_paid: Option<bool>,
     pub price: Option<f64>,
+    pub revenue_raised: Option<f64>,
+    pub revenue_target: Option<f64>,
     pub tags: Option<Vec<String>>,
     pub priority: Option<i64>,
     pub enabled: Option<bool>,

@@ -12,6 +12,8 @@ export interface CommunityCategory {
   postCount: string;
   isPaid: boolean;
   price?: number;
+  revenueRaised?: number;
+  revenueTarget?: number;
   tags: string[];
   priority: number;
   enabled: boolean;

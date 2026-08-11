@@ -159,6 +159,21 @@ const { id } = useParams<{ id: string }>();
              </div>
 
              <div 
+               className="flex items-center justify-between py-4 pr-4 border-b border-black/5 dark:border-white/5 cursor-pointer active:opacity-70 transition-opacity"
+               onClick={() => navigate(`/community/${id}/profile/edit?field=revenueTarget`)}
+             >
+               <span className="text-[16px] whitespace-nowrap">融资目标金额</span>
+               <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
+                 <span className="text-[15px] text-text-sub truncate">
+                   {community.revenueTarget
+                     ? `已募 ¥${community.revenueRaised ?? 0} / 目标 ¥${community.revenueTarget}`
+                     : '不限制'}
+                 </span>
+                 <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
+               </div>
+             </div>
+
+             <div 
                className="flex items-center justify-between py-4 pr-4 cursor-pointer active:opacity-70 transition-opacity"
                onClick={() => navigate(`/community/${id}/profile/qrcode`)}
              >

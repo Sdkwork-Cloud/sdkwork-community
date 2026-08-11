@@ -81,6 +81,9 @@ export interface SdkworkCommunityCategory {
   ownerId?: string;
   postCount?: number;
   price?: number;
+  /** Funding/raise target amount; absent means no revenue cap (默认不限制). */
+  revenueRaised?: number;
+  revenueTarget?: number;
   priority: number;
   slug: string;
   tabs?: readonly string[];
@@ -161,6 +164,8 @@ export interface SdkworkCommunityCircleCommand {
   /** Maximum member count; absent keeps the current value (unlimited by default). */
   memberLimit?: number;
   price?: number;
+  /** Funding/raise target amount; absent keeps the current value. */
+  revenueTarget?: number;
   tags?: readonly string[];
   title: string;
 }

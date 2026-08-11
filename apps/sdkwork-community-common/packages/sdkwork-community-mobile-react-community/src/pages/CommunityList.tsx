@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { CommunityService, isMemberLimitError } from "../services/CommunityService";
+import { CommunityService, isMemberLimitError, isRevenueTargetError } from "../services/CommunityService";
 import { getCommunityOrderRuntime } from "../services/communityOrderRuntime";
 import { Community, MembershipTier } from "../types";
 import { cn, IconButton, showToast, Tabs, ActionSheet } from "@sdkwork/ui-mobile-react";
@@ -74,7 +74,7 @@ const navigate = useNavigate();
       setSelectedPaidCommunity(comm);
       setShowSuccessModal(true);
     } catch (error) {
-      showToast(isMemberLimitError(error) ? '圈子人数已满，无法加入' : t('community.auto_fn_26cc0f99', '加入失败'));
+      showToast(isRevenueTargetError(error) ? '融资目标已达成，认购已截止' : isMemberLimitError(error) ? '圈子人数已满，无法加入' : t('community.auto_fn_26cc0f99', '加入失败'));
     }
   };
 

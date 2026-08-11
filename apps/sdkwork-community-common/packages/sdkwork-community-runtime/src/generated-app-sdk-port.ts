@@ -151,6 +151,8 @@ function mapCategory(record: Record<string, unknown>): SdkworkCommunityCategory 
     ownerId: record.ownerId ? String(record.ownerId) : undefined,
     postCount: record.postCount === undefined ? undefined : Number(record.postCount),
     price: record.price === undefined ? undefined : Number(record.price),
+    revenueRaised: record.revenueRaised === undefined ? undefined : Number(record.revenueRaised),
+    revenueTarget: record.revenueTarget === undefined ? undefined : Number(record.revenueTarget),
     priority: Number(record.priority ?? 0),
     slug: String(record.slug ?? ""),
     tags: Array.isArray(record.tags) ? record.tags.map((tag) => String(tag)) : undefined,
@@ -226,6 +228,7 @@ function toCircleCommand(command: SdkworkCommunityCircleCommand): CommunityCircl
     ...(command.isPaid !== undefined ? { isPaid: command.isPaid } : {}),
     ...(command.memberLimit !== undefined ? { memberLimit: String(command.memberLimit) } : {}),
     ...(command.price !== undefined ? { price: command.price } : {}),
+    ...(command.revenueTarget !== undefined ? { revenueTarget: command.revenueTarget } : {}),
     ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
   };
 }
@@ -350,6 +353,9 @@ export function createGeneratedCommunityAppSdkPort(
             ...(command.isPaid !== undefined ? { isPaid: command.isPaid } : {}),
             ...(command.memberLimit !== undefined ? { memberLimit: command.memberLimit } : {}),
             ...(command.price !== undefined ? { price: command.price } : {}),
+            ...(command.revenueTarget !== undefined
+              ? { revenueTarget: command.revenueTarget }
+              : {}),
             ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
           });
           const item = await client.community.categories.update(categoryId, body);
