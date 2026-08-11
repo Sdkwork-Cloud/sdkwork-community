@@ -69,7 +69,7 @@ export const CommunityMembers: React.FC = () => {
     
     try {
       await CommunityService.updateMemberStatus(id, selectedMember.id, 'banned');
-      showToast(`已禁言 (${durationText})`);
+      showToast(t('community.auto_banned_toast', '已禁言 ({{duration}})', { duration: durationText }));
       loadMembers();
     } catch {
       showToast(t('community.auto_fn_2f078e83', '操作失败'));
@@ -128,9 +128,9 @@ export const CommunityMembers: React.FC = () => {
        <div className="bg-white dark:bg-[#1C1C1E] shrink-0 border-b border-black/5 dark:border-white/5 z-20 relative">
           <Tabs
              tabs={[
-                { id: 'all', name: '全部成员' },
-                { id: 'admins', name: '管理员' },
-                { id: 'blocked', name: '小黑屋' }
+                { id: 'all', name: t('community.tabs.all_members', '全部成员') },
+                { id: 'admins', name: t('community.tabs.admins', '管理员') },
+                { id: 'blocked', name: t('community.tabs.blocked', '小黑屋') }
              ]}
              activeTab={activeTab}
              onChange={(tabId) => setActiveTab(tabId as any)}

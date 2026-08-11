@@ -113,7 +113,7 @@ const { id } = useParams<{ id: string }>();
                 />
              </div>
 
-             <div className="text-[13px] text-gray-400">{t('community.auto_n78043323', '邀请你加入【{community.name}】')}</div>
+             <div className="text-[13px] text-gray-400">{t('community.auto_n78043323', '邀请你加入【{{name}}】', { name: community?.name ?? '' })}</div>
           </div>
        </div>
 

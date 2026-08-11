@@ -5,7 +5,6 @@ import { CommunityService } from "../services/CommunityService";
 import { Community } from "../types";
 import { cn, IconButton, showToast } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, ChevronRight, Camera, Image as ImageIcon, QrCode } from "lucide-react";
-import { AVAILABLE_TABS } from "./CommunityEditTabs";
 import { TierManagementPanel } from "../components/TierManagementPanel";
 
 function formatAmount(value: number): string {
@@ -144,7 +143,7 @@ const { id } = useParams<{ id: string }>();
              >
                <span className="text-[16px] whitespace-nowrap">展示模块</span>
                <div className="flex items-center gap-2 flex-1 justify-end overflow-hidden pl-4">
-                 <span className="text-[15px] text-text-sub truncate">{community.tabs?.length ? `${community.tabs.length}个模块已选` : '3个模块已选'}</span>
+                 <span className="text-[15px] text-text-sub truncate">{community.tabs?.length ? t('community.auto_modules_selected', '{{count}}个模块已选', { count: community.tabs.length }) : t('community.auto_modules_selected_default', '3个模块已选')}</span>
                  <ChevronRight className="w-5 h-5 text-text-sub opacity-50 shrink-0" />
                </div>
              </div>

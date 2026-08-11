@@ -76,7 +76,7 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[17px] font-bold text-text-main">{t('community.auto_n150cf9c5', '开通圈子会员')}</h3>
+          <h3 className="text-[17px] font-bold text-text-main">{t('community.auto_open_membership', '开通圈子会员')}</h3>
           <IconButton icon={<X className="w-5 h-5" />} onClick={onClose} aria-label="close" />
         </div>
 
@@ -109,8 +109,8 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
                 )}
                 <span className="text-[12px] text-text-sub">
                   {tier.durationDays >= 365
-                    ? `${Math.round(tier.durationDays / 365)} 年有效`
-                    : `${tier.durationDays} 天有效`}
+                    ? t('community.auto_duration_years', '{{years}} 年有效', { years: Math.round(tier.durationDays / 365) })
+                    : t('community.auto_duration_days', '{{days}} 天有效', { days: tier.durationDays })}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -151,7 +151,7 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
                   selectedPayment === 'wechat_pay' ? "border-[#07C160] bg-[#07C160]/10 text-[#07C160]" : "border-black/10 dark:border-white/10 text-text-main",
                 )}
               >
-                <MessageSquare className="w-4 h-4" /> 微信支付
+                <MessageSquare className="w-4 h-4" /> {t('community.auto_2cb6c4bc', '微信支付')}
               </button>
               <button
                 onClick={() => setSelectedPayment('alipay')}
@@ -160,7 +160,7 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
                   selectedPayment === 'alipay' ? "border-[#1677FF] bg-[#1677FF]/10 text-[#1677FF]" : "border-black/10 dark:border-white/10 text-text-main",
                 )}
               >
-                支付宝支付
+                {t('community.auto_185bd34', '支付宝')}
               </button>
             </div>
           </div>
@@ -172,12 +172,12 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
           disabled={!selectedTier}
           className="w-full rounded-xl bg-blue-500 py-3 text-[15px] font-semibold text-white disabled:opacity-40"
         >
-          {selectedTier ? `立即支付 ¥${selectedTier.price}` : t('community.auto_n150cf9c5', '请选择会员等级')}
+          {selectedTier ? t('community.auto_pay_now', '立即支付 ¥{{price}}', { price: selectedTier.price }) : t('community.auto_select_tier', '请选择会员等级')}
         </button>
 
         <div className="mt-3 flex items-center justify-center gap-1 text-[12px] text-text-sub">
           <Lock className="w-3 h-3" />
-          {t('community.auto_n150cf9c5', '支付将通过安全收银台完成')}
+          {t('community.auto_secure_cashier', '支付将通过安全收银台完成')}
         </div>
       </div>
     </div>

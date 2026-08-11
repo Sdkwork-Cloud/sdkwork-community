@@ -39,7 +39,7 @@ export const MemberActionSheets: React.FC<MemberActionSheetsProps> = ({
           <div className="bg-[#F2F2F7] dark:bg-[#1C1C1E] rounded-t-2xl w-full max-w-md mx-auto relative z-10 overflow-hidden pb-safe animate-in slide-in-from-bottom duration-300">
             <div className="p-4 flex items-center justify-center border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#2C2C2E]">
               <span className="text-[13px] text-text-sub">
-                对 {selectedMember.name} 的管理操作
+                {t('community.auto_n35bc449b', '对 {{name}} 的管理操作', { name: selectedMember.name })}
               </span>
             </div>
 
@@ -114,7 +114,7 @@ export const MemberActionSheets: React.FC<MemberActionSheetsProps> = ({
           <div className="bg-[#F2F2F7] dark:bg-[#1C1C1E] rounded-t-2xl w-full max-w-md mx-auto relative z-10 overflow-hidden pb-safe animate-in slide-in-from-bottom duration-300">
             <div className="p-4 flex items-center justify-center border-b border-black/5 dark:border-white/5 bg-white dark:bg-[#2C2C2E]">
               <span className="text-[13px] text-text-sub">
-                设置 {selectedMember.name} 的禁言时间
+                {t('community.auto_n2748dd7b', '设置 {{name}} 的禁言时间', { name: selectedMember.name })}
               </span>
             </div>
 

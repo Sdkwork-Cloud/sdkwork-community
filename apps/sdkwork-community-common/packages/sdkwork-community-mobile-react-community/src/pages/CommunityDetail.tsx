@@ -167,14 +167,14 @@ const { id } = useParams<{ id: string }>();
   };
 
   const platformNameMap: Record<string, string> = {
-    wechat: '微信',
-    qq: 'QQ',
-    feishu: '飞书',
-    dingtalk: '钉钉',
-    telegram: 'Telegram',
-    discord: 'Discord',
-    whatsapp: 'WhatsApp',
-    other: '其他'
+    wechat: t('community.platforms.wechat', '微信'),
+    qq: t('community.platforms.qq', 'QQ'),
+    feishu: t('community.platforms.feishu', '飞书'),
+    dingtalk: t('community.platforms.dingtalk', '钉钉'),
+    telegram: t('community.platforms.telegram', 'Telegram'),
+    discord: t('community.platforms.discord', 'Discord'),
+    whatsapp: t('community.platforms.whatsapp', 'WhatsApp'),
+    other: t('community.platforms.other', '其他')
   };
 
   if (isLoading) {
@@ -226,13 +226,13 @@ const { id } = useParams<{ id: string }>();
               <div className="bg-white dark:bg-[#1C1C1E] flex items-center shrink-0 border-b border-black/5 dark:border-white/5">
                 <Tabs
                    tabs={[
-                     { id: 'feeds', name: '动态' },
-                     { id: 'resources', name: '资源' },
-                     { id: 'groups', name: '群组' },
-                     { id: 'news', name: '新闻' },
-                     { id: 'docs', name: '文档' },
-                     { id: 'repos', name: '开源' },
-                     { id: 'software', name: '软件' }
+                     { id: 'feeds', name: t('community.tabs.feeds', '动态') },
+                     { id: 'resources', name: t('community.tabs.resources', '资源') },
+                     { id: 'groups', name: t('community.tabs.groups', '群组') },
+                     { id: 'news', name: t('community.tabs.news_detail', '新闻') },
+                     { id: 'docs', name: t('community.tabs.docs', '文档') },
+                     { id: 'repos', name: t('community.tabs.repos', '开源') },
+                     { id: 'software', name: t('community.tabs.software', '软件') }
                    ].filter(tab => {
                      const allowed = community.tabs || ['feeds', 'resources', 'groups'];
                      return allowed.includes(tab.id);

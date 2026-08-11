@@ -244,7 +244,7 @@ const { id } = useParams<{ id: string }>();
        </div>
 
        <div className="pb-safe pt-8 pb-10 flex flex-col items-center shrink-0 w-full relative z-20 pointer-events-none">
-          <p className="text-[14px] text-white/50">{t('community.auto_n7a576645', '点击图片更换{isAvatar ? "头像" : "背景"}')}</p>
+          <p className="text-[14px] text-white/50">{t('community.auto_n7a576645', '点击图片更换{{target}}', { target: isAvatar ? t('community.auto_avatar', '头像') : t('community.auto_cover', '背景') })}</p>
        </div>
     </div>
   );

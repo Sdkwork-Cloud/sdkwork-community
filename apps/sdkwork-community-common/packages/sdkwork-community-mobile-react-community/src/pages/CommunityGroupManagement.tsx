@@ -71,14 +71,14 @@ const { id } = useParams<{ id: string }>();
   };
 
   const platformNameMap: Record<string, string> = {
-    wechat: '微信',
-    qq: 'QQ',
-    feishu: '飞书',
-    dingtalk: '钉钉',
-    telegram: 'Telegram',
-    discord: 'Discord',
-    whatsapp: 'WhatsApp',
-    other: '其他'
+    wechat: t('community.platforms.wechat', '微信'),
+    qq: t('community.platforms.qq', 'QQ'),
+    feishu: t('community.platforms.feishu', '飞书'),
+    dingtalk: t('community.platforms.dingtalk', '钉钉'),
+    telegram: t('community.platforms.telegram', 'Telegram'),
+    discord: t('community.platforms.discord', 'Discord'),
+    whatsapp: t('community.platforms.whatsapp', 'WhatsApp'),
+    other: t('community.platforms.other', '其他')
   };
 
   if (isLoading) {
@@ -121,7 +121,7 @@ const { id } = useParams<{ id: string }>();
                              <div className="flex items-center gap-2 mt-1">
                                <span className="text-[11px] font-medium px-1.5 py-0.5 bg-black/5 dark:bg-white/10 rounded text-text-sub">{platformNameMap[group.platform] || group.platform}</span>
                                <div className="flex items-center gap-1 text-[12px] text-text-sub">
-                                 <QrCode className="w-3.5 h-3.5" />{t('community.auto_n7d01998b', '{totalQrs} 码')}</div>
+                                 <QrCode className="w-3.5 h-3.5" />{t('community.auto_n7d01998b', '{{totalQrs}} 码', { totalQrs })}</div>
                              </div>
                           </div>
                        </div>

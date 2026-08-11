@@ -26,8 +26,8 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
   };
 
   const getRoleLabel = (role: string) => {
-    if (role === "owner") return "圈主";
-    if (role === "admin") return "管理员";
+    if (role === "owner") return t("community.auto_owner", "圈主");
+    if (role === "admin") return t("community.auto_admin", "管理员");
     return "";
   };
 
@@ -71,11 +71,11 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
           )}
         </div>
         <div className="text-[13px] text-text-sub mt-0.5 truncate">
-          {member.bio || "暂无简介"}
+          {member.bio || t('community.auto_no_bio', '暂无简介')}
         </div>
       </div>
       <div className="pr-4 hidden md:block text-[13px] text-text-sub">
-        加入于 {new Date(member.joinDate).toLocaleDateString()}
+        {t('community.auto_3f9231ed', '加入于 {{date}}', { date: new Date(member.joinDate).toLocaleDateString() })}
       </div>
       <div className="pr-4 flex items-center justify-center -mr-2">
         <IconButton

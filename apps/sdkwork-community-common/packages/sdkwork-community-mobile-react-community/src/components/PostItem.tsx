@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Post } from "../types";
 import { cn } from "@sdkwork/ui-mobile-react";
 import { Heart, MessageCircle } from "lucide-react";
@@ -10,6 +11,7 @@ interface PostItemProps {
 }
 
 export const PostItem: React.FC<PostItemProps> = ({ post, onLike, onCommentClick }) => {
+  const { t } = useTranslation();
   return (
     <div className="bg-white dark:bg-[#1C1C1E] px-4 pt-4 pb-3">
       <div className="flex items-center justify-between mb-3">
@@ -36,14 +38,14 @@ export const PostItem: React.FC<PostItemProps> = ({ post, onLike, onCommentClick
           onClick={() => onLike(post.id)}
         >
           <Heart className={cn("w-5 h-5", post.isLiked ? "text-rose-500 fill-rose-500" : "")} />
-          <span className={cn("text-[13px]", post.isLiked && "text-rose-500")}>{post.likes > 0 ? post.likes : '赞'}</span>
+          <span className={cn("text-[13px]", post.isLiked && "text-rose-500")}>{post.likes > 0 ? post.likes : t('community.auto_like', '赞')}</span>
         </div>
         <div 
           className="flex items-center gap-1.5 cursor-pointer active:opacity-70 transition-opacity"
           onClick={() => onCommentClick(post.id)}
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="text-[13px]">{post.comments > 0 ? post.comments : '评论'}</span>
+          <span className="text-[13px]">{post.comments > 0 ? post.comments : t('community.auto_comment', '评论')}</span>
         </div>
       </div>
 
@@ -55,7 +57,7 @@ export const PostItem: React.FC<PostItemProps> = ({ post, onLike, onCommentClick
             </span>
           ))}
           {post.commentsList.length > 3 && (
-            <span className="text-[13px] text-blue-500 font-medium cursor-pointer">查看全部 {post.comments} 条评论</span>
+            <span className="text-[13px] text-blue-500 font-medium cursor-pointer">{t('community.auto_n61c356d', '查看全部 {{count}} 条评论', { count: post.comments })}</span>
           )}
         </div>
       )}

@@ -65,37 +65,37 @@ return (
           {community.description}
         </p>
 
-        <div className="flex items-center justify-between mt-1">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-text-sub">
-              <Users className="w-4 h-4" />
-              <span className="text-[12px]">
-                {t('community.auto_n4e746140', '{community.memberCount} 成员')}
+        <div className="flex items-center justify-between gap-2 mt-1">
+          <div className="flex items-center gap-4 min-w-0 overflow-hidden">
+            <div className="flex items-center gap-1 text-text-sub shrink-0">
+              <Users className="w-4 h-4 shrink-0" />
+              <span className="text-[12px] whitespace-nowrap">
+                {t('community.auto_n4e746140', '{{memberCount}} 成员', { memberCount: community.memberCount })}
                 {community.memberLimit ? `/${community.memberLimit}` : ""}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-text-sub">
-              <MessageSquare className="w-4 h-4" />
-              <span className="text-[12px]">{t('community.auto_ndae6275', '{community.postCount} 动态')}</span>
+            <div className="flex items-center gap-1 text-text-sub shrink-0">
+              <MessageSquare className="w-4 h-4 shrink-0" />
+              <span className="text-[12px] whitespace-nowrap">{t('community.auto_ndae6275', '{{postCount}} 动态', { postCount: community.postCount })}</span>
             </div>
           </div>
 
           {onJoinClick && (
-            <div className="pointer-events-auto">
+            <div className="pointer-events-auto shrink-0">
               {community.isJoined ? (
                 <div className="px-3 py-1.5 rounded-full border border-black/10 dark:border-white/10 text-text-sub flex items-center gap-1 bg-black/5 dark:bg-white/5">
-                  <Check className="w-3.5 h-3.5" />
-                  <span className="text-[13px] font-medium">{t('community.auto_16afc37', '已加入')}</span>
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-[13px] font-medium whitespace-nowrap">{t('community.auto_16afc37', '已加入')}</span>
                 </div>
               ) : community.isPaid ? (
                 <button
                   onClick={onJoinClick}
-                  className="px-4 py-1.5 rounded-full bg-orange-500 text-white font-medium text-[13px] shadow-sm shadow-orange-500/20 active:scale-[0.98] transition-transform"
-                >{t('community.auto_n3990cdea', '¥{community.price} 加入')}</button>
+                  className="px-4 py-1.5 rounded-full bg-orange-500 text-white font-medium text-[13px] shadow-sm shadow-orange-500/20 active:scale-[0.98] transition-transform whitespace-nowrap shrink-0"
+                >{t('community.auto_n3990cdea', '¥{{price}} 加入', { price: community.price })}</button>
               ) : (
                 <button
                   onClick={onJoinClick}
-                  className="px-4 py-1.5 rounded-full bg-blue-500 text-white font-medium text-[13px] shadow-sm shadow-blue-500/20 active:scale-[0.98] transition-transform"
+                  className="px-4 py-1.5 rounded-full bg-blue-500 text-white font-medium text-[13px] shadow-sm shadow-blue-500/20 active:scale-[0.98] transition-transform whitespace-nowrap shrink-0"
                 >{t('community.auto_27118551', '免费加入')}</button>
               )}
             </div>

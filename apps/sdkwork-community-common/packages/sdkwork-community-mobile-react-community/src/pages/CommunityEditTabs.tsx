@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { CommunityService } from "../services/CommunityService";
@@ -6,21 +7,26 @@ import { Community } from "../types";
 import { cn, IconButton, showToast } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, Check } from "lucide-react";
 
-export const AVAILABLE_TABS = [
-  { id: 'feeds', name: '动态' },
-  { id: 'resources', name: '资源' },
-  { id: 'groups', name: '群组' },
-  { id: 'news', name: '新闻' },
-  { id: 'docs', name: '文档' },
-  { id: 'repos', name: '开源' },
-  { id: 'software', name: '软件' }
-];
+export const AVAILABLE_TAB_IDS = ['feeds', 'resources', 'groups', 'news', 'docs', 'repos', 'software'] as const;
+
+export function resolveAvailableTabs(t: TFunction) {
+  return [
+    { id: 'feeds', name: t('community.tabs.feeds', '动态') },
+    { id: 'resources', name: t('community.tabs.resources', '资源') },
+    { id: 'groups', name: t('community.tabs.groups', '群组') },
+    { id: 'news', name: t('community.tabs.news_detail', '新闻') },
+    { id: 'docs', name: t('community.tabs.docs', '文档') },
+    { id: 'repos', name: t('community.tabs.repos', '开源') },
+    { id: 'software', name: t('community.tabs.software', '软件') }
+  ];
+}
 
 export const CommunityEditTabs: React.FC = () => {
   const { t } = useTranslation();
 const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const availableTabs = resolveAvailableTabs(t);
   const [community, setCommunity] = useState<Community | null>(null);
   const [selectedTabs, setSelectedTabs] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,7 +80,7 @@ const { id } = useParams<{ id: string }>();
 
        <div className="flex-1 overflow-y-auto pb-safe pt-4">
           <div className="bg-white dark:bg-[#1C1C1E] pl-4 border-y border-black/5 dark:border-white/5">
-            {AVAILABLE_TABS.map((tab, index) => {
+            {availableTabs.map((tab, index) => {
               const checked = selectedTabs.includes(tab.id);
               return (
                 <div 
@@ -82,7 +88,7 @@ const { id } = useParams<{ id: string }>();
                   onClick={() => toggleTab(tab.id)}
                   className={cn(
                     "flex items-center justify-between py-3 pr-4 cursor-pointer active:opacity-70 transition-opacity",
-                    index < AVAILABLE_TABS.length - 1 && "border-b border-black/5 dark:border-white/5"
+                    index < availableTabs.length - 1 && "border-b border-black/5 dark:border-white/5"
                   )}
                 >
                   <span className="text-[16px]">{tab.name}</span>

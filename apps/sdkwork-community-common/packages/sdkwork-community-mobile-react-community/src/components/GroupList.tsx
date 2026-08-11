@@ -28,9 +28,9 @@ const navigate = useNavigate();
                 <h3 className="text-[16px] font-bold text-text-main truncate">{group.name}</h3>
                 <div className="flex items-center gap-1 mt-0.5">
                   <span className="text-[12px] font-medium px-1 py-0.5 bg-black/5 dark:bg-white/10 text-text-sub">{platformNameMap[group.platform] || group.platform}</span>
-                  <span className="text-[12px] text-text-sub">{t('community.auto_n26d9d2a6', '{group.memberCount} 人已加')}</span>
+                  <span className="text-[12px] text-text-sub">{t('community.auto_n26d9d2a6', '{{memberCount}} 人已加', { memberCount: group.memberCount })}</span>
                   <div className="flex items-center gap-1 text-[12px] text-text-sub ml-1 border-l border-black/10 dark:border-white/10 pl-1">
-                    <QrCode className="w-3.5 h-3.5" />{t('community.auto_n248999bf', '{(group.qrCodes?.length || 0) + (group.qrCodeUrl && !group.qrCodes?.length ? 1 : 0)} 码')}</div>
+                    <QrCode className="w-3.5 h-3.5" />{t('community.auto_n248999bf', '{{count}} 码', { count: group.qrCodes?.length ?? (group.qrCodeUrl ? 1 : 0) })}</div>
                 </div>
               </div>
             </div>

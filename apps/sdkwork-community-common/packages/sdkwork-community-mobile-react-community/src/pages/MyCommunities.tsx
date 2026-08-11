@@ -103,8 +103,8 @@ const navigate = useNavigate();
       <div className="bg-white dark:bg-[#1E1E1E] shrink-0 border-b border-black/5 dark:border-white/5">
          <Tabs
             tabs={[
-              { id: 'joined', name: '我加入的' },
-              { id: 'created', name: '我创建的' },
+              { id: 'joined', name: t('community.tabs.joined', '我加入的') },
+              { id: 'created', name: t('community.tabs.created', '我创建的') },
             ]}
             activeTab={activeTab}
             onChange={setActiveTab}
@@ -150,17 +150,17 @@ const navigate = useNavigate();
       {actionSheetCommunity && (
         <ActionSheet
           isOpen={true}
-          title={`${actionSheetCommunity.name} - 操作`}
+          title={`${actionSheetCommunity.name} - ${t('community.actions.operate', '操作')}`}
           options={
             activeTab === 'created' 
             ? [
-                { label: '修改圈子信息', onClick: () => handleActionSheetSelect('edit') },
-                { label: '分享圈子', onClick: () => handleActionSheetSelect('share') },
-                { label: '删除圈子', danger: true, onClick: () => handleActionSheetSelect('delete') }
+                { label: t('community.actions.edit', '修改圈子信息'), onClick: () => handleActionSheetSelect('edit') },
+                { label: t('community.actions.share', '分享圈子'), onClick: () => handleActionSheetSelect('share') },
+                { label: t('community.actions.delete', '删除圈子'), danger: true, onClick: () => handleActionSheetSelect('delete') }
               ]
             : [
-                { label: '分享圈子', onClick: () => handleActionSheetSelect('share') },
-                { label: '退出圈子', danger: true, onClick: () => handleActionSheetSelect('leave') }
+                { label: t('community.actions.share', '分享圈子'), onClick: () => handleActionSheetSelect('share') },
+                { label: t('community.actions.leave', '退出圈子'), danger: true, onClick: () => handleActionSheetSelect('leave') }
               ]
           }
           onClose={() => setActionSheetCommunity(null)}

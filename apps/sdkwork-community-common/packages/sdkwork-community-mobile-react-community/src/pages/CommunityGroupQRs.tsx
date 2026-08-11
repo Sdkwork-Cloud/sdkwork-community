@@ -32,14 +32,14 @@ const { id, groupId } = useParams<{ id: string, groupId: string }>();
   };
 
   const platformNameMap: Record<string, string> = {
-    wechat: '微信',
-    qq: 'QQ',
-    feishu: '飞书',
-    dingtalk: '钉钉',
-    telegram: 'Telegram',
-    discord: 'Discord',
-    whatsapp: 'WhatsApp',
-    other: '其他'
+    wechat: t('community.platforms.wechat', '微信'),
+    qq: t('community.platforms.qq', 'QQ'),
+    feishu: t('community.platforms.feishu', '飞书'),
+    dingtalk: t('community.platforms.dingtalk', '钉钉'),
+    telegram: t('community.platforms.telegram', 'Telegram'),
+    discord: t('community.platforms.discord', 'Discord'),
+    whatsapp: t('community.platforms.whatsapp', 'WhatsApp'),
+    other: t('community.platforms.other', '其他')
   };
 
   const handleSaveImage = (url: string) => {

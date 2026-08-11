@@ -172,15 +172,15 @@ const navigate = useNavigate();
       <div className="bg-white dark:bg-[#1E1E1E] shrink-0 border-b border-black/5 dark:border-white/5">
          <Tabs
             tabs={[
-              { id: 'recommend', name: '推荐' },
-              { id: 'hot', name: '热门' },
-              { id: 'ai', name: 'AI前沿' },
-              { id: 'career', name: '搞钱出海' },
-              { id: 'life', name: '数码生活' },
-              { id: 'joined', name: '我加入的' },
-              { id: 'news', name: '最新动态' },
-              { id: 'tools', name: '实用工具' },
-              { id: 'games', name: '游戏天地' }
+              { id: 'recommend', name: t('community.tabs.recommend', '推荐') },
+              { id: 'hot', name: t('community.tabs.hot', '热门') },
+              { id: 'ai', name: t('community.tabs.ai', 'AI前沿') },
+              { id: 'career', name: t('community.tabs.career', '搞钱出海') },
+              { id: 'life', name: t('community.tabs.life', '数码生活') },
+              { id: 'joined', name: t('community.tabs.joined', '我加入的') },
+              { id: 'news', name: t('community.tabs.news', '最新动态') },
+              { id: 'tools', name: t('community.tabs.tools', '实用工具') },
+              { id: 'games', name: t('community.tabs.games', '游戏天地') }
             ]}
             activeTab={activeTab}
             onChange={setActiveTab}
@@ -262,10 +262,10 @@ const navigate = useNavigate();
       {actionSheetCommunity && (
         <ActionSheet
           isOpen={true}
-          title={`${actionSheetCommunity.name} - 操作`}
+          title={`${actionSheetCommunity.name} - ${t('community.actions.operate', '操作')}`}
           options={[
-            { label: '分享圈子', onClick: () => handleActionSheetSelect('share') },
-            ...(actionSheetCommunity.isJoined ? [{ label: '退出圈子', danger: true, onClick: () => handleActionSheetSelect('leave') }] : [])
+            { label: t('community.actions.share', '分享圈子'), onClick: () => handleActionSheetSelect('share') },
+            ...(actionSheetCommunity.isJoined ? [{ label: t('community.actions.leave', '退出圈子'), danger: true, onClick: () => handleActionSheetSelect('leave') }] : [])
           ]}
           onClose={() => setActionSheetCommunity(null)}
         />

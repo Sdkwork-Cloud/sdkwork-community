@@ -40,14 +40,14 @@ return (
               onClick={() => onLike(post.id)}
             >
               <Heart className={cn("w-5 h-5", post.isLiked ? "text-rose-500 fill-rose-500" : "")} />
-              <span className={cn("text-[13px]", post.isLiked && "text-rose-500")}>{post.likes > 0 ? post.likes : '赞'}</span>
+              <span className={cn("text-[13px]", post.isLiked && "text-rose-500")}>{post.likes > 0 ? post.likes : t('community.auto_like', '赞')}</span>
             </div>
             <div 
               className="flex items-center gap-1.5 cursor-pointer active:opacity-70 transition-opacity"
               onClick={() => onCommentClick(post.id)}
             >
               <MessageCircle className="w-5 h-5" />
-              <span className="text-[13px]">{post.comments > 0 ? post.comments : '评论'}</span>
+              <span className="text-[13px]">{post.comments > 0 ? post.comments : t('community.auto_comment', '评论')}</span>
             </div>
           </div>
 
@@ -59,7 +59,7 @@ return (
                 </span>
               ))}
               {post.commentsList.length > 3 && (
-                <span className="text-[13px] text-blue-500 font-medium cursor-pointer">查看全部 {post.comments} 条评论</span>
+                <span className="text-[13px] text-blue-500 font-medium cursor-pointer">{t('community.auto_n61c356d', '查看全部 {{count}} 条评论', { count: post.comments })}</span>
               )}
             </div>
           )}
