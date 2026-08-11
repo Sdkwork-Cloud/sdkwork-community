@@ -274,5 +274,6 @@
   "auto_product": "商品",
   "auto_shared_to": "已分享到{{target}}",
   "auto_wechat_friend": "微信好友",
-  "auto_moments": "朋友圈"
+  "auto_moments": "朋友圈",
+  "auto_paid_badge": "付费"
 }

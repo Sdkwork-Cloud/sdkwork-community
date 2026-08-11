@@ -274,5 +274,6 @@
   "auto_product": "product",
   "auto_shared_to": "Shared to {{target}}",
   "auto_wechat_friend": "WeChat contact",
-  "auto_moments": "Moments"
+  "auto_moments": "Moments",
+  "auto_paid_badge": "Paid"
 }

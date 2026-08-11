@@ -89,7 +89,7 @@ const { id } = useParams<{ id: string }>();
              className="w-full max-w-[340px] bg-white rounded-xl shadow-lg flex flex-col p-6 items-center"
           >
              <div className="flex items-center w-full gap-4 mb-8">
-                <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 shrink-0">
                    <CommunityImage src={community.avatar} alt="avatar" fallbackSeed={community.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex flex-col flex-1 overflow-hidden">

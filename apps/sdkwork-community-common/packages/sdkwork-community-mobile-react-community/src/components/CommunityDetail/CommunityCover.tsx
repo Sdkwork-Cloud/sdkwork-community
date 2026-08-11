@@ -40,7 +40,7 @@ const navigate = useNavigate();
       <div className="absolute bottom-4 left-4 right-4 text-white">
           <div className="flex items-center gap-4">
             {community.avatar && (
-              <div className="w-16 h-16 rounded-2xl border-2 border-white/20 overflow-hidden shrink-0 bg-black/20 backdrop-blur-md">
+              <div className="w-16 h-16 rounded-full border-2 border-white/20 overflow-hidden shrink-0 bg-black/20 backdrop-blur-md">
                 <CommunityImage src={community.avatar} alt="Avatar" fallbackSeed={community.name} className="w-full h-full object-cover" />
               </div>
             )}
