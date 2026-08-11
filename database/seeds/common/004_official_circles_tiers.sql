@@ -223,6 +223,12 @@ VALUES
     ('community-tier-official-angel-vip', '100001', 'community-circle-official-angel-investment',
      '董事会员', '高级会员权益 + 线下闭门交流与项目对接', 39999, 365,
      '["圈子全部内容", "官方交流群", "行业情报", "项目研判", "路演回放", "线下闭门交流", "项目对接"]', NULL, 3, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('community-tier-official-angel-partner', '100001', 'community-circle-official-angel-investment',
+     '合伙人', '董事会员权益 + 一对一投融资咨询与季度尽调报告', 59999, 365,
+     '["圈子全部内容", "官方交流群", "行业情报", "项目研判", "路演回放", "线下闭门交流", "项目对接", "一对一投融资咨询", "季度尽调报告"]', NULL, 4, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('community-tier-official-angel-founding-partner', '100001', 'community-circle-official-angel-investment',
+     '创始合伙人', '合伙人权益 + 年度投资峰会席位与联合投资机会', 99999, 365,
+     '["圈子全部内容", "官方交流群", "行业情报", "项目研判", "路演回放", "线下闭门交流", "项目对接", "一对一投融资咨询", "季度尽调报告", "年度投资峰会席位", "联合投资机会"]', NULL, 5, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
     -- 人工智能私董会
     ('community-tier-official-board-member', '100001', 'community-circle-official-ai-board',
