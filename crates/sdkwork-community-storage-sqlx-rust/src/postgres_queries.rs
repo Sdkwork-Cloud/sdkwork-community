@@ -1230,6 +1230,28 @@ pub async fn list_tiers(
         .collect())
 }
 
+pub async fn accumulate_category_revenue(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    amount: f64,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        r#"
+        UPDATE community_category
+        SET revenue_raised = revenue_raised + $3::numeric, updated_at = $4
+        WHERE tenant_id = $1 AND id = $2
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(amount)
+    .bind(chrono::Utc::now().to_rfc3339())
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
 pub async fn create_tier(pool: &PgPool, input: NewCommunityTier) -> Result<(), sqlx::Error> {
     sqlx::query(
         r#"

@@ -60,9 +60,9 @@ INSERT INTO community_member (
     joined_at, created_at, updated_at
 )
 SELECT
-    'community-member-' || category_id || '-official-owner',
+    'community-member-' || community_category.id || '-official-owner',
     '100001',
-    category_id,
+    community_category.id,
     'sdkwork-official',
     'SDKWork 官方',
     'owner',
@@ -72,8 +72,8 @@ SELECT
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 FROM community_category
-WHERE tenant_id = '100001'
-  AND owner_id = 'sdkwork-official'
+WHERE community_category.tenant_id = '100001'
+  AND community_category.owner_id = 'sdkwork-official'
 ON CONFLICT (tenant_id, category_id, user_id) DO UPDATE SET
     user_name = EXCLUDED.user_name,
     role = EXCLUDED.role,
@@ -153,19 +153,19 @@ INSERT INTO community_group (
     qr_codes, created_at, updated_at
 )
 SELECT
-    'community-group-' || category_id || '-official-wechat',
+    'community-group-' || community_category.id || '-official-wechat',
     '100001',
-    category_id,
-    title || '官方交流群',
+    community_category.id,
+    community_category.title || '官方交流群',
     'wechat',
-    title || '的官方微信交流群，扫码加入与官方团队和其他成员交流。',
+    community_category.title || '的官方微信交流群，扫码加入与官方团队和其他成员交流。',
     1,
     '[]'::jsonb,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 FROM community_category
-WHERE tenant_id = '100001'
-  AND owner_id = 'sdkwork-official'
+WHERE community_category.tenant_id = '100001'
+  AND community_category.owner_id = 'sdkwork-official'
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     description = EXCLUDED.description,

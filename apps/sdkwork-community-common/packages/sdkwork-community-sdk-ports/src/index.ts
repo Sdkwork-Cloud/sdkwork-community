@@ -212,6 +212,12 @@ export function createInMemoryCommunityAppSdkPort(
     return tier;
   }
 
+  function assertMemberCapacity(category: SdkworkCommunityCategory): void {
+    if (category.memberLimit !== undefined && (category.memberCount ?? 0) >= category.memberLimit) {
+      throw new Error("circle member limit reached");
+    }
+  }
+
   function findMember(communityId: string, memberId: string): SdkworkCommunityMember {
     const member = communityMembers(communityId).find((candidate) => candidate.id === memberId);
     if (!member) {
@@ -385,11 +391,12 @@ export function createInMemoryCommunityAppSdkPort(
           return communityMembers(communityId).find((member) => member.id === userId);
         },
         async join(communityId) {
-          findCategory(communityId);
+          const category = findCategory(communityId);
           const existing = await this.current(communityId);
           if (existing) {
             return existing;
           }
+          assertMemberCapacity(category);
           const member: SdkworkCommunityMember = {
             bio: undefined,
             communityId,
@@ -400,7 +407,6 @@ export function createInMemoryCommunityAppSdkPort(
             user: { id: currentUserId, name: "Local User" },
           };
           communityMembers(communityId).push(member);
-          const category = findCategory(communityId);
           category.memberCount = (category.memberCount ?? 0) + 1;
           return member;
         },
@@ -435,6 +441,7 @@ export function createInMemoryCommunityAppSdkPort(
           if (!tier) {
             throw new Error(`community membership tier not found: ${command.tierId}`);
           }
+          const category = findCategory(communityId);
           const userId = `${currentUserId}-membership`;
           const existing = communityMembers(communityId).find(
             (candidate) => candidate.id === userId,
@@ -444,6 +451,7 @@ export function createInMemoryCommunityAppSdkPort(
           }
           let member = existing;
           if (!member) {
+            assertMemberCapacity(category);
             member = {
               bio: undefined,
               communityId,
@@ -454,7 +462,6 @@ export function createInMemoryCommunityAppSdkPort(
               user: { id: currentUserId, name: "Local User" },
             };
             communityMembers(communityId).push(member);
-            const category = findCategory(communityId);
             category.memberCount = (category.memberCount ?? 0) + 1;
           }
           const expiresAt = new Date(

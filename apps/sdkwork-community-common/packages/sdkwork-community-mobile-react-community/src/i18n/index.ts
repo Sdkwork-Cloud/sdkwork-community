@@ -21,8 +21,16 @@ export const COMMUNITY_I18N_RESOURCES = {
 } as const;
 
 export function registerCommunityMobileI18n(): void {
-  i18next.addResourceBundle("zh", "translation", communityZhTranslation, true, true);
-  i18next.addResourceBundle("en", "translation", communityEnTranslation, true, true);
+  // i18next v26 ESM no longer exposes addResourceBundle on the default
+  // instance; hosts merge COMMUNITY_I18N_RESOURCES at init instead. The
+  // side-effect registration stays as a best-effort fallback so older
+  // i18next versions and CJS interop keep working.
+  try {
+    i18next.addResourceBundle("zh", "translation", communityZhTranslation, true, true);
+    i18next.addResourceBundle("en", "translation", communityEnTranslation, true, true);
+  } catch {
+    // Resources remain available through COMMUNITY_I18N_RESOURCES.
+  }
 }
 
 registerCommunityMobileI18n();

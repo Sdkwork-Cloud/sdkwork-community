@@ -381,6 +381,23 @@ impl CommunitySqlxStore {
         .await
     }
 
+    /// Atomically adds the paid amount to the circle's raised revenue
+    /// (concurrent activations must not lose increments).
+    pub async fn accumulate_category_revenue(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        amount: f64,
+    ) -> Result<(), sqlx::Error> {
+        super::postgres_queries::accumulate_category_revenue(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
+            amount,
+        )
+        .await
+    }
+
     pub async fn create_tier(&self, input: super::NewCommunityTier) -> Result<(), sqlx::Error> {
         super::postgres_queries::create_tier(self.postgres_pool(), input).await
     }

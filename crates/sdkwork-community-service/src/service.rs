@@ -1187,37 +1187,16 @@ impl CommunityService {
         Ok(())
     }
 
-    /// Adds the tier price to the circle's raised revenue after activation.
+    /// Adds the paid amount to the circle's raised revenue after activation
+    /// (atomic SQL increment so concurrent activations never lose amounts).
     async fn accumulate_revenue(
         &self,
         tenant_id: &str,
         category_id: &str,
-        tier_price: f64,
+        paid_amount: f64,
     ) -> Result<(), CommunityServiceError> {
-        let category = self.retrieve_category(tenant_id, category_id).await?;
         self.store
-            .update_category(
-                tenant_id,
-                category_id,
-                &sdkwork_community_storage_sqlx::CommunityCategoryPatch {
-                    slug: None,
-                    title: None,
-                    description: None,
-                    cover_image: None,
-                    avatar: None,
-                    owner_id: None,
-                    member_count: None,
-                    member_limit: None,
-                    post_count: None,
-                    is_paid: None,
-                    price: None,
-                    revenue_raised: Some(category.revenue_raised + tier_price),
-                    revenue_target: None,
-                    tags: None,
-                    priority: None,
-                    enabled: None,
-                },
-            )
+            .accumulate_category_revenue(tenant_id, category_id, paid_amount)
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))
     }

@@ -25,7 +25,8 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
   const [selectedTierId, setSelectedTierId] = useState<string | null>(
     tiers[0]?.id ?? null,
   );
-  const [selectedPayment, setSelectedPayment] = useState<'wechat'|'alipay'|null>(null);
+  // Payment method values follow the sdkwork-order contract (wechat_pay/alipay).
+  const [selectedPayment, setSelectedPayment] = useState<'wechat_pay'|'alipay'|null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
   const [isAlipay, setIsAlipay] = useState(false);
 
@@ -144,10 +145,10 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
             <span className="text-[13px] text-text-sub">{t('community.auto_2b2c2b90', '支付方式')}</span>
             <div className="flex gap-2">
               <button
-                onClick={() => setSelectedPayment('wechat')}
+                onClick={() => setSelectedPayment('wechat_pay')}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-[14px] font-medium",
-                  selectedPayment === 'wechat' ? "border-[#07C160] bg-[#07C160]/10 text-[#07C160]" : "border-black/10 dark:border-white/10 text-text-main",
+                  selectedPayment === 'wechat_pay' ? "border-[#07C160] bg-[#07C160]/10 text-[#07C160]" : "border-black/10 dark:border-white/10 text-text-main",
                 )}
               >
                 <MessageSquare className="w-4 h-4" /> 微信支付
