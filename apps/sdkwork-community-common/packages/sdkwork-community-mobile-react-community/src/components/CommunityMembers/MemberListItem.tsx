@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Shield, ShieldAlert, MoreVertical } from "lucide-react";
 import { cn, IconButton } from "@sdkwork/ui-mobile-react";
 import { CommunityMember } from "../../types";
+import { CommunityImage } from "../CommunityImage";
 
 interface MemberListItemProps {
   member: CommunityMember;
@@ -40,9 +41,10 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
       onClick={() => onSelect(member)}
     >
       <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 dark:bg-[#2C2C2E] shrink-0 mr-3">
-        <img
+        <CommunityImage
           src={member.avatar}
           alt={member.name}
+          fallbackSeed={member.name}
           className="w-full h-full object-cover"
         />
       </div>

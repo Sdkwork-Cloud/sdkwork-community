@@ -20,8 +20,8 @@ VALUES
         'community-circle-official-angel-investment', '100001', 'official-angel-investment',
         'SDKWORK智能云天使投资群',
         '官方天使投资圈层：聚焦 AI 与智能云赛道的早期项目研判、投资逻辑、行业情报与路演对接，链接创业者与投资人。',
-        'https://cdn.sdkwork.com/community/circles/official-angel-investment-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-angel-investment-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Angel+Investment',
+        'https://api.dicebear.com/7.x/initials/png?seed=Angel+Investment&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 9999,
         ARRAY['投资', 'AI 创业', '天使投资', '官方'], 35, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -30,8 +30,8 @@ VALUES
         'community-circle-official-ai-board', '100001', 'official-ai-board',
         '人工智能私董会',
         '官方高端私董圈层：AI 高管决策、战略闭门研讨、资源对接与深度陪伴，面向企业决策者与行业领军人物。',
-        'https://cdn.sdkwork.com/community/circles/official-ai-board-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-ai-board-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AI+Board',
+        'https://api.dicebear.com/7.x/initials/png?seed=AI+Board&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 2999,
         ARRAY['私董会', '高管', 'AI 战略', '官方'], 30, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP

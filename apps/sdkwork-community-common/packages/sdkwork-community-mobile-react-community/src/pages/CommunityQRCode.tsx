@@ -7,6 +7,7 @@ import { cn, IconButton, showToast } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, MoreVertical, Download, Share2, MessageCircle } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { toPng } from "html-to-image";
+import { CommunityImage } from "../components/CommunityImage";
 
 export const CommunityQRCode: React.FC = () => {
   const { t } = useTranslation();
@@ -89,7 +90,7 @@ const { id } = useParams<{ id: string }>();
           >
              <div className="flex items-center w-full gap-4 mb-8">
                 <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0">
-                   <img src={community.avatar} alt="avatar" crossOrigin="anonymous" className="w-full h-full object-cover" />
+                   <CommunityImage src={community.avatar} alt="avatar" fallbackSeed={community.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex flex-col flex-1 overflow-hidden">
                    <span className="text-[17px] font-semibold text-black truncate">{community.name}</span>

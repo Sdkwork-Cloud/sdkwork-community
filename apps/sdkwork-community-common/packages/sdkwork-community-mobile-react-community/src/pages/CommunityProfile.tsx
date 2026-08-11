@@ -6,6 +6,7 @@ import { Community } from "../types";
 import { cn, IconButton, showToast } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, ChevronRight, Camera, Image as ImageIcon, QrCode } from "lucide-react";
 import { TierManagementPanel } from "../components/TierManagementPanel";
+import { CommunityImage } from "../components/CommunityImage";
 
 function formatAmount(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
@@ -76,7 +77,7 @@ const { id } = useParams<{ id: string }>();
                <div className="flex items-center gap-2">
                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-[#2C2C2E] overflow-hidden flex items-center justify-center">
                     {community.avatar ? (
-                       <img src={community.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                       <CommunityImage src={community.avatar} alt="Avatar" fallbackSeed={community.name} className="w-full h-full object-cover" />
                     ) : (
                        <ImageIcon className="w-5 h-5 text-text-sub opacity-50" />
                     )}

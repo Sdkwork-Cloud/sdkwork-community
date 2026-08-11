@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Post } from "../types";
 import { cn } from "@sdkwork/ui-mobile-react";
 import { Heart, MessageCircle } from "lucide-react";
+import { CommunityImage } from "./CommunityImage";
 
 interface PostItemProps {
   post: Post;
@@ -16,7 +17,7 @@ export const PostItem: React.FC<PostItemProps> = ({ post, onLike, onCommentClick
     <div className="bg-white dark:bg-[#1C1C1E] px-4 pt-4 pb-3">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
-          <img src={post.authorAvatar} alt="" className="w-10 h-10 rounded-full border border-black/5 dark:border-white/5" />
+          <CommunityImage src={post.authorAvatar} alt="" fallbackSeed={post.authorName} className="w-10 h-10 rounded-full border border-black/5 dark:border-white/5" />
           <div className="flex flex-col">
             <span className="text-[15px] font-bold text-text-main">{post.authorName}</span>
             <span className="text-[12px] text-text-sub">{new Date(post.createdAt).toLocaleString()}</span>

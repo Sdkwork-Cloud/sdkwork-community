@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React from "react";
 import { cn, IconButton } from "@sdkwork/ui-mobile-react";
+import { CommunityImage } from "./CommunityImage";
 import { Users, MessageSquare, Check, MoreHorizontal } from "lucide-react";
 import { Community } from "../types";
 import { useNavigate } from "react-router";
@@ -28,9 +29,11 @@ return (
       {...onLongPressProps}
     >
       <div className="h-[120px] w-full relative overflow-hidden pointer-events-none">
-        <img
+        <CommunityImage
           src={community.coverImage}
           alt={community.name}
+          fallbackSeed={community.name}
+          kind="cover"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>

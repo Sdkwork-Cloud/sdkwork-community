@@ -5,6 +5,7 @@ import { MessageSquare, Check, X, Lock } from "lucide-react";
 import { getCommunityCurrentUser } from "../services/communityAuthSessionPort";
 import { useNavigate, useLocation } from "react-router";
 import type { MembershipTier } from "../types";
+import { CommunityImage } from "./CommunityImage";
 
 interface PaymentSheetProps {
   communityName: string;
@@ -82,7 +83,7 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
 
         {/* 圈子信息 */}
         <div className="flex items-center gap-3 mb-4">
-          <img src={communityCoverImage} alt="" className="w-12 h-12 rounded-xl object-cover" />
+          <CommunityImage src={communityCoverImage} alt="" fallbackSeed={communityName} className="w-12 h-12 rounded-xl object-cover" />
           <div className="flex flex-col">
             <span className="text-[15px] font-semibold text-text-main">{communityName}</span>
             <span className="text-[12px] text-text-sub">{t('community.auto_25f42a69', '付费圈子')}</span>

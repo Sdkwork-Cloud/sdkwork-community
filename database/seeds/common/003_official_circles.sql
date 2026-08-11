@@ -21,8 +21,8 @@ VALUES
         'community-circle-official-ai-learning', '100001', 'official-ai-learning',
         '官方 AI 学习圈',
         'SDKWork 官方出品的人工智能入门与进阶学习圈：AI 基础、机器学习、大模型应用、学习路线与答疑，一站式开启你的 AI 学习之旅。',
-        'https://cdn.sdkwork.com/community/circles/official-ai-learning-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-ai-learning-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AI+Learning',
+        'https://api.dicebear.com/7.x/initials/png?seed=AI+Learning&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 2, FALSE, NULL,
         ARRAY['AI', '机器学习', '大模型', '官方'], 100, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -31,8 +31,8 @@ VALUES
         'community-circle-official-announcements', '100001', 'official-announcements',
         '官方公告圈',
         'SDKWork 平台官方公告：产品更新、功能上线、活动通知与使用指南，第一时间掌握平台动态。',
-        'https://cdn.sdkwork.com/community/circles/official-announcements-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-announcements-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Announcements',
+        'https://api.dicebear.com/7.x/initials/png?seed=Announcements&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, FALSE, NULL,
         ARRAY['官方', '公告'], 90, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -41,8 +41,8 @@ VALUES
         'community-circle-official-product-managers', '100001', 'official-product-managers',
         '产品经理交流圈',
         '官方产品经理社区：产品方法论、需求分析、增长与商业化实战，与优秀的产品人一起成长。',
-        'https://cdn.sdkwork.com/community/circles/official-product-managers-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-product-managers-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Product+Managers',
+        'https://api.dicebear.com/7.x/initials/png?seed=Product+Managers&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, FALSE, NULL,
         ARRAY['产品', '增长', '方法论'], 80, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -51,8 +51,8 @@ VALUES
         'community-circle-official-indie-hackers', '100001', 'official-indie-hackers',
         '独立开发者聚集地',
         '官方独立开发者社区：一人公司、出海经验、变现思路与技术选型，一起把想法变成产品。',
-        'https://cdn.sdkwork.com/community/circles/official-indie-hackers-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-indie-hackers-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Indie+Hackers',
+        'https://api.dicebear.com/7.x/initials/png?seed=Indie+Hackers&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, FALSE, NULL,
         ARRAY['独立开发', '出海', '变现'], 70, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -61,8 +61,8 @@ VALUES
         'community-circle-official-llm-advanced', '100001', 'official-llm-advanced',
         'AI 大模型实战进阶（付费）',
         '官方付费圈：大模型应用开发实战、RAG 架构、微调与评估、Agent 编排，面向有基础的开发者深度进阶。',
-        'https://cdn.sdkwork.com/community/circles/official-llm-advanced-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-llm-advanced-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=LLM+Advanced',
+        'https://api.dicebear.com/7.x/initials/png?seed=LLM+Advanced&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 199,
         ARRAY['大模型', 'RAG', '微调', 'Agent'], 60, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -71,8 +71,8 @@ VALUES
         'community-circle-official-aigc-creation', '100001', 'official-aigc-creation',
         'AIGC 创作训练营（付费）',
         '官方付费圈：提示词工程、AI 绘画、AI 视频与内容创作实战，从灵感生成到作品落地的完整训练。',
-        'https://cdn.sdkwork.com/community/circles/official-aigc-creation-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-aigc-creation-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AIGC+Creation',
+        'https://api.dicebear.com/7.x/initials/png?seed=AIGC+Creation&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 99,
         ARRAY['AIGC', '提示词', 'AI 绘画', 'AI 视频'], 50, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -81,8 +81,8 @@ VALUES
         'community-circle-official-ai-product', '100001', 'official-ai-product',
         'AI 产品经理实战（付费）',
         '官方付费圈：AI 产品设计、需求洞察、商业化路径与落地案例，培养面向 AI 时代的顶尖产品经理。',
-        'https://cdn.sdkwork.com/community/circles/official-ai-product-cover.png',
-        'https://cdn.sdkwork.com/community/circles/official-ai-product-avatar.png',
+        'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AI+Product',
+        'https://api.dicebear.com/7.x/initials/png?seed=AI+Product&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 99,
         ARRAY['AI 产品', '商业化', '实战'], 40, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
@@ -106,7 +106,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- 2. Official membership (community_member): owner of every official circle
 -- ---------------------------------------------------------------------------
 INSERT INTO community_member (
-    id, tenant_id, category_id, user_id, user_name, role, status, bio,
+    id, tenant_id, category_id, user_id, user_name, role, status, bio, avatar,
     joined_at, created_at, updated_at
 )
 SELECT
@@ -118,6 +118,7 @@ SELECT
     'owner',
     'active',
     'SDKWork 官方团队，负责圈子内容运营与答疑。',
+    'https://api.dicebear.com/7.x/initials/png?seed=SDKWork&backgroundColor=2b5ce7',
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP

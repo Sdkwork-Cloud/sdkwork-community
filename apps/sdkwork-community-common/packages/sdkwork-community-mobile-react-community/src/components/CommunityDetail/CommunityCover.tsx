@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronLeft, Share2, Settings2, Users } from "lucide-react";
 import { IconButton } from "@sdkwork/ui-mobile-react";
+import { CommunityImage } from "../CommunityImage";
 import { useNavigate } from "react-router";
 import { Community } from "../../types";
 import { useTranslation } from "react-i18next";
@@ -13,7 +14,7 @@ const navigate = useNavigate();
 
   return (
     <div className="relative h-[240px] shrink-0">
-      <img src={community.coverImage} alt={community.name} className="w-full h-full object-cover" />
+      <CommunityImage src={community.coverImage} alt={community.name} fallbackSeed={community.name} kind="cover" className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
       
       <header className="absolute top-0 left-0 right-0 h-[56px] px-4 flex items-center justify-between pt-safe z-10">
@@ -40,7 +41,7 @@ const navigate = useNavigate();
           <div className="flex items-center gap-4">
             {community.avatar && (
               <div className="w-16 h-16 rounded-2xl border-2 border-white/20 overflow-hidden shrink-0 bg-black/20 backdrop-blur-md">
-                <img src={community.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                <CommunityImage src={community.avatar} alt="Avatar" fallbackSeed={community.name} className="w-full h-full object-cover" />
               </div>
             )}
             <div>
