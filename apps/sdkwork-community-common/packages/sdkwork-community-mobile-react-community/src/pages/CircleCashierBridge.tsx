@@ -75,6 +75,7 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
         // The order is paid; activation failure is surfaced but the payer is
         // still returned to the circle so they can retry activation.
         console.error("circle membership activation failed", error);
+        showToast("支付成功，但会员激活未完成，请重新进入圈子重试");
       }
       if (!cancelled) {
         setActivated(true);

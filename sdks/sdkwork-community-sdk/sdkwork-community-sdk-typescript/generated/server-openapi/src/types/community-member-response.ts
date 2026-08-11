@@ -7,5 +7,6 @@ export interface CommunityMemberResponse {
   role: string;
   status: string;
   bio?: string;
+  lastOrderId?: string;
   joinedAt: string;
 }

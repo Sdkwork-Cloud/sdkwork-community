@@ -9,12 +9,11 @@
     "protocol": "http",
     "packageName": "sdkwork-community-app-sdk-generated-typescript"
   },
-  "changeFingerprint": "4bd8fc6f4faf9ba201fe97f8eb85dd8b7b3fbb0741001f1157b2294b01182c6a",
+  "changeFingerprint": "ee0078c4231d06ba7033efbe2dde6272ec8cda28b600c6d713f72575eca16d2a",
   "changes": {
     "createdGeneratedFiles": [],
     "updatedGeneratedFiles": [
-      "src/types/community-category.ts",
-      "src/types/community-circle-command.ts"
+      "src/types/community-member-response.ts"
     ],
     "unchangedGeneratedFiles": [
       "bin/publish-core.mjs",
@@ -40,6 +39,8 @@
       "src/types/community-activate-membership-command.ts",
       "src/types/community-author.ts",
       "src/types/community-category-command.ts",
+      "src/types/community-category.ts",
+      "src/types/community-circle-command.ts",
       "src/types/community-comment-command.ts",
       "src/types/community-comment.ts",
       "src/types/community-entry-command.ts",
@@ -49,7 +50,6 @@
       "src/types/community-group-qr.ts",
       "src/types/community-group-response.ts",
       "src/types/community-member-patch-command.ts",
-      "src/types/community-member-response.ts",
       "src/types/community-membership-tier.ts",
       "src/types/community-moderation-command.ts",
       "src/types/community-publication-readiness.ts",
@@ -89,8 +89,7 @@
       {
         "area": "models",
         "paths": [
-          "src/types/community-category.ts",
-          "src/types/community-circle-command.ts"
+          "src/types/community-member-response.ts"
         ]
       }
     ],

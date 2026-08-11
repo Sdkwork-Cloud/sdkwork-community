@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS community_member (
     tier_id TEXT,
     tier_name TEXT,
     membership_expires_at TEXT,
+    last_order_id TEXT,
     joined_at TEXT NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,

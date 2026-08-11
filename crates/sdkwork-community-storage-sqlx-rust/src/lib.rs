@@ -137,6 +137,7 @@ pub struct CommunityStoredMember {
     pub tier_id: Option<String>,
     pub tier_name: Option<String>,
     pub membership_expires_at: Option<String>,
+    pub last_order_id: Option<String>,
     pub joined_at: String,
 }
 
@@ -159,6 +160,7 @@ pub struct CommunityMemberPatch {
     pub tier_id: Option<String>,
     pub tier_name: Option<String>,
     pub membership_expires_at: Option<String>,
+    pub last_order_id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq)]

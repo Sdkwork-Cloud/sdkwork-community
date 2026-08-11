@@ -12,7 +12,7 @@
   "mode": "apply",
   "hasChanges": true,
   "hasDestructiveChanges": false,
-  "changeFingerprint": "912af5b1e2c7941649986f2703915b55186eed04b1d34be9deab1b43f9762af4",
+  "changeFingerprint": "a7c63f389b5dc8c4907fab89988e9462836209461c5689c00a2da444117ed64a",
   "changeImpact": {
     "schemaVersion": 1,
     "areas": [
@@ -22,8 +22,7 @@
       {
         "area": "models",
         "paths": [
-          "src/types/community-category.ts",
-          "src/types/community-circle-command.ts"
+          "src/types/community-member-response.ts"
         ]
       }
     ],
@@ -149,17 +148,16 @@
   "syncSummary": {
     "dryRun": false,
     "controlPlaneEnabled": true,
-    "writtenFiles": 2,
+    "writtenFiles": 1,
     "skippedScaffoldFiles": 2,
-    "skippedUnchangedGeneratedFiles": 54,
+    "skippedUnchangedGeneratedFiles": 55,
     "deletedGeneratedFiles": 0,
     "changeSummaryPath": ".sdkwork/sdkwork-generator-changes.json",
-    "changeFingerprint": "912af5b1e2c7941649986f2703915b55186eed04b1d34be9deab1b43f9762af4",
+    "changeFingerprint": "a7c63f389b5dc8c4907fab89988e9462836209461c5689c00a2da444117ed64a",
     "changes": {
       "createdGeneratedFiles": [],
       "updatedGeneratedFiles": [
-        "src/types/community-category.ts",
-        "src/types/community-circle-command.ts"
+        "src/types/community-member-response.ts"
       ],
       "unchangedGeneratedFiles": [
         "bin/publish-core.mjs",
@@ -185,6 +183,8 @@
         "src/types/community-activate-membership-command.ts",
         "src/types/community-author.ts",
         "src/types/community-category-command.ts",
+        "src/types/community-category.ts",
+        "src/types/community-circle-command.ts",
         "src/types/community-comment-command.ts",
         "src/types/community-comment.ts",
         "src/types/community-entry-command.ts",
@@ -194,7 +194,6 @@
         "src/types/community-group-qr.ts",
         "src/types/community-group-response.ts",
         "src/types/community-member-patch-command.ts",
-        "src/types/community-member-response.ts",
         "src/types/community-membership-tier.ts",
         "src/types/community-moderation-command.ts",
         "src/types/community-publication-readiness.ts",
@@ -234,8 +233,7 @@
         {
           "area": "models",
           "paths": [
-            "src/types/community-category.ts",
-            "src/types/community-circle-command.ts"
+            "src/types/community-member-response.ts"
           ]
         }
       ],

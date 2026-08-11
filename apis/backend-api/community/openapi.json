@@ -1249,6 +1249,9 @@
           "bio": {
             "type": "string"
           },
+          "lastOrderId": {
+            "type": "string"
+          },
           "joinedAt": {
             "type": "string"
           }

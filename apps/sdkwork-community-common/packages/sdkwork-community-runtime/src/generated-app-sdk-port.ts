@@ -174,6 +174,7 @@ function mapMember(record: Record<string, unknown>): SdkworkCommunityMember {
     communityId: String(record.communityId ?? ""),
     id: String(record.id ?? ""),
     joinedAt: String(record.joinedAt ?? record.createdAt ?? new Date().toISOString()),
+    lastOrderId: record.lastOrderId ? String(record.lastOrderId) : undefined,
     membershipExpiresAt: record.membershipExpiresAt
       ? String(record.membershipExpiresAt)
       : undefined,

@@ -212,8 +212,9 @@ impl CommerceIntegration {
         let status = item
             .get("status")
             .and_then(|value| value.as_str())
-            .unwrap_or_default();
-        Ok(is_paid_order_status(status))
+            .unwrap_or_default()
+            .to_lowercase();
+        Ok(is_paid_order_status(&status))
     }
 }
 

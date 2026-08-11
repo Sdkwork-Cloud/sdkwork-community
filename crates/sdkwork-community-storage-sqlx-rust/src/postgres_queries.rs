@@ -920,7 +920,7 @@ pub async fn list_members(
     let rows = sqlx::query(
         r#"
         SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio,
-               tier_id, tier_name, membership_expires_at, joined_at
+               tier_id, tier_name, membership_expires_at, last_order_id, joined_at
         FROM community_member
         WHERE tenant_id = $1 AND category_id = $2
         ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, joined_at ASC
@@ -944,6 +944,7 @@ pub async fn list_members(
             tier_id: optional_string_cell(row, "tier_id"),
             tier_name: optional_string_cell(row, "tier_name"),
             membership_expires_at: optional_string_cell(row, "membership_expires_at"),
+            last_order_id: optional_string_cell(row, "last_order_id"),
             joined_at: string_cell(row, "joined_at"),
         })
         .collect())
@@ -958,7 +959,7 @@ pub async fn current_member(
     let row = sqlx::query(
         r#"
         SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio,
-               tier_id, tier_name, membership_expires_at, joined_at
+               tier_id, tier_name, membership_expires_at, last_order_id, joined_at
         FROM community_member
         WHERE tenant_id = $1 AND category_id = $2 AND user_id = $3
         "#,
@@ -980,6 +981,7 @@ pub async fn current_member(
         tier_id: optional_string_cell(&row, "tier_id"),
         tier_name: optional_string_cell(&row, "tier_name"),
         membership_expires_at: optional_string_cell(&row, "membership_expires_at"),
+        last_order_id: optional_string_cell(&row, "last_order_id"),
         joined_at: string_cell(&row, "joined_at"),
     }))
 }
@@ -1023,8 +1025,8 @@ pub async fn update_member(
         r#"
         UPDATE community_member
         SET role = $1, status = $2, tier_id = $3, tier_name = $4,
-            membership_expires_at = $5, updated_at = $6
-        WHERE tenant_id = $7 AND category_id = $8 AND id = $9
+            membership_expires_at = $5, last_order_id = $6, updated_at = $7
+        WHERE tenant_id = $8 AND category_id = $9 AND id = $10
         "#,
     )
     .bind(patch.role.as_ref().unwrap_or(&existing.role))
@@ -1036,6 +1038,12 @@ pub async fn update_member(
             .membership_expires_at
             .as_ref()
             .or(existing.membership_expires_at.as_ref()),
+    )
+    .bind(
+        patch
+            .last_order_id
+            .as_ref()
+            .or(existing.last_order_id.as_ref()),
     )
     .bind(chrono::Utc::now().to_rfc3339())
     .bind(tenant_id)

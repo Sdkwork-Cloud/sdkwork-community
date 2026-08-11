@@ -436,7 +436,13 @@ export function createInMemoryCommunityAppSdkPort(
             throw new Error(`community membership tier not found: ${command.tierId}`);
           }
           const userId = `${currentUserId}-membership`;
-          let member = communityMembers(communityId).find((candidate) => candidate.id === userId);
+          const existing = communityMembers(communityId).find(
+            (candidate) => candidate.id === userId,
+          );
+          if (existing?.lastOrderId === command.orderId) {
+            return existing;
+          }
+          let member = existing;
           if (!member) {
             member = {
               bio: undefined,
@@ -457,6 +463,7 @@ export function createInMemoryCommunityAppSdkPort(
           member.tierId = tier.id;
           member.tierName = tier.name;
           member.membershipExpiresAt = expiresAt;
+          member.lastOrderId = command.orderId;
           return member;
         },
       },

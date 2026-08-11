@@ -97,6 +97,8 @@ export interface SdkworkCommunityMember {
   communityId: string;
   id: string;
   joinedAt: Date | number | string;
+  /** Last order id used for activation idempotency. */
+  lastOrderId?: string;
   membershipExpiresAt?: Date | number | string | null;
   role: SdkworkCommunityMemberRole;
   status: SdkworkCommunityMemberStatus;

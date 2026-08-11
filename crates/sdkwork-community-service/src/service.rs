@@ -50,6 +50,7 @@ pub struct CommunityMemberView {
     pub tier_id: Option<String>,
     pub tier_name: Option<String>,
     pub membership_expires_at: Option<String>,
+    pub last_order_id: Option<String>,
     pub joined_at: String,
 }
 
@@ -937,6 +938,7 @@ impl CommunityService {
                     tier_id: None,
                     tier_name: None,
                     membership_expires_at: None,
+                    last_order_id: None,
                 },
             )
             .await
@@ -1471,6 +1473,14 @@ impl CommunityService {
             })
             .to_rfc3339();
 
+        // Idempotency: replaying the same paid order must not double-count
+        // revenue nor extend the membership twice, and must succeed even
+        // after the raise target has been reached.
+        if let Some(member) = self.current_member(tenant_id, category_id, user_id).await? {
+            if member.last_order_id.as_deref() == Some(command.order_id.as_str()) {
+                return Ok(member);
+            }
+        }
         self.ensure_revenue_capacity(tenant_id, category_id, tier.price)
             .await?;
         if self
@@ -1512,6 +1522,7 @@ impl CommunityService {
                     tier_id: Some(tier.id.clone()),
                     tier_name: Some(tier.name),
                     membership_expires_at: Some(expires_at),
+                    last_order_id: Some(command.order_id.clone()),
                 },
             )
             .await
@@ -1675,6 +1686,7 @@ fn map_member(member: CommunityStoredMember) -> CommunityMemberView {
         tier_id: member.tier_id,
         tier_name: member.tier_name,
         membership_expires_at: member.membership_expires_at,
+        last_order_id: member.last_order_id,
         joined_at: member.joined_at,
     }
 }

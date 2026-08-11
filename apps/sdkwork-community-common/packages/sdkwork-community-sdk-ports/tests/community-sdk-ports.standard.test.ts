@@ -89,6 +89,13 @@ describe("@sdkwork/community-sdk-ports", () => {
     });
     expect(member.membershipExpiresAt).toBeTruthy();
 
+    // Replaying the same paid order is idempotent (no double expiry/raise).
+    const memberAfterReplay = await client.community.members.activate("comm-paid", {
+      orderId: "order-1",
+      tierId: created.id,
+    });
+    expect(memberAfterReplay.membershipExpiresAt).toBe(member.membershipExpiresAt);
+
     // Unpublish hides the tier again; removing deletes it.
     await client.community.tiers.unpublish("comm-paid", created.id);
     await expect(client.community.tiers.list("comm-paid")).resolves.toEqual([]);

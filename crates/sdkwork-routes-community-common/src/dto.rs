@@ -99,6 +99,8 @@ pub struct CommunityMemberResponse {
     pub tier_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub membership_expires_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_order_id: Option<String>,
     pub joined_at: String,
 }
 
@@ -228,6 +230,7 @@ pub fn map_member(member: CommunityMemberView) -> CommunityMemberResponse {
         tier_id: member.tier_id,
         tier_name: member.tier_name,
         membership_expires_at: member.membership_expires_at,
+        last_order_id: member.last_order_id,
         joined_at: member.joined_at,
     }
 }

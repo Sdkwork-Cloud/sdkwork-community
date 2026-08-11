@@ -82,6 +82,7 @@ const domainSchemas = {
       role: { type: "string" },
       status: { type: "string" },
       bio: { type: "string" },
+      lastOrderId: { type: "string" },
       joinedAt: { type: "string" },
     },
   },

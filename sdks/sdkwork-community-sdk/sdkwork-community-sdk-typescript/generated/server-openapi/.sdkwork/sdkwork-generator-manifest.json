@@ -148,7 +148,7 @@
     },
     {
       "path": "src/types/community-member-response.ts",
-      "sha256": "9acd30feb88a197ba0afe0a34b2a8bc41c4bd0267d71e8f819e75fad5a45547f"
+      "sha256": "b5b5f0a3d408351cf6d411afabe45b7d0e238663b17503a3169b2a4152d6e7a1"
     },
     {
       "path": "src/types/community-membership-tier.ts",
