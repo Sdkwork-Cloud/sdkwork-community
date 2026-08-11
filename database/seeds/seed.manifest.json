@@ -17,21 +17,13 @@
   ],
   "profiles": {
     "minimal": {
-      "common": [
-        "common/001_bootstrap.sql"
-      ],
+      "common": [],
       "locales": {
         "zh-CN": []
       }
     },
     "standard": {
-      "common": [
-        "common/001_bootstrap.sql",
-        "common/002_agents_inspiration.sql",
-        "001_bootstrap.sql",
-        "common/003_official_circles.sql",
-        "common/004_official_circles_tiers.sql"
-      ],
+      "common": [],
       "locales": {
         "zh-CN": []
       }

@@ -237,6 +237,14 @@
             "permission": "community.categories.write"
           },
           {
+            "operationId": "categories.retrieve",
+            "permission": "community.categories.read"
+          },
+          {
+            "operationId": "categories.delete",
+            "permission": "community.categories.write"
+          },
+          {
             "operationId": "categories.join",
             "permission": "community.members.write"
           },

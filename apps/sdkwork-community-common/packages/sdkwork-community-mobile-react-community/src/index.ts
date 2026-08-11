@@ -4,6 +4,7 @@ export * from './types';
 export * from './services/CommunityService';
 export * from './services/communityAuthSessionPort';
 export * from './services/communityRuntimePort';
+export * from './services/communityMediaRuntimePort';
 export * from './services/communityOrderRuntime';
 export * from './pages/CommunityList';
 export * from './pages/CommunityDetail';

@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { CommunityService } from "../services/CommunityService";
+import { isCommunityMediaRuntimeConfigured } from "../services/communityMediaRuntimePort";
 import { showToast, cn } from "@sdkwork/ui-mobile-react";
 import { X, Plus, MapPin, Hash, AtSign } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -13,8 +14,17 @@ export const CommunityPostCreate: React.FC = () => {
 const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [images, setImages] = useState<string[]>([]);
+  // Upload-ready File objects; data-URL previews are derived for display.
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [mediaUploadEnabled, setMediaUploadEnabled] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Hosts without a drive-backed media runtime (e.g. standalone community
+    // H5) cannot upload images; hide the picker instead of faking media.
+    setMediaUploadEnabled(isCommunityMediaRuntimeConfigured());
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -56,7 +66,8 @@ const { id } = useParams<{ id: string }>();
     }
 
     try {
-      const filePromises = filesProcess.map(file => {
+      // Keep the File objects for upload; read data-URLs only for preview.
+      const previewPromises = filesProcess.map(file => {
         return new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = (event) => {
@@ -70,8 +81,9 @@ const { id } = useParams<{ id: string }>();
         });
       });
 
-      const newImages = await Promise.all(filePromises);
-      setImages(prev => [...prev, ...newImages]);
+      const newPreviews = await Promise.all(previewPromises);
+      setImages(prev => [...prev, ...filesProcess]);
+      setImagePreviews(prev => [...prev, ...newPreviews]);
     } catch (err) {
        console.error("Image loading failed:", err);
        showToast(t('community.auto_fn_e0f746b', '图片读取失败，请重试'));
@@ -80,6 +92,7 @@ const { id } = useParams<{ id: string }>();
 
   const removeImage = (indexToRemove: number) => {
   setImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
+  setImagePreviews(prev => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const handleSubmit = async () => {
@@ -91,9 +104,7 @@ const { id } = useParams<{ id: string }>();
     }
     setIsSubmitting(true);
     try {
-      // Create post payload ideally would accept images, we pass content.
-      // (Assuming the backend might extract HTML or similar in fully developed version)
-      await CommunityService.createPost(id, content);
+      await CommunityService.createPost(id, content, images);
       showToast(t('community.auto_fn_28260f86', '发表成功'));
       // We just go back. For actual replace we would need the previous path, 
       // but going back is usually sufficient for create pages.
@@ -152,7 +163,7 @@ const { id } = useParams<{ id: string }>();
          {/* Internal Image Grid */}
          <div className="px-4 pb-4">
             <div className="grid grid-cols-3 gap-2">
-                {images.map((img, index) => (
+                {imagePreviews.map((img, index) => (
                     <div key={index} className="relative aspect-square rounded-md overflow-hidden bg-[#F2F2F7] dark:bg-[#2C2C2E]">
                         <img src={img} alt="" className="w-full h-full object-cover" />
                         <button 
@@ -164,7 +175,7 @@ const { id } = useParams<{ id: string }>();
                     </div>
                 ))}
                 
-                {images.length < 9 && (
+                {mediaUploadEnabled && images.length < 9 && (
                     <div 
                         className="aspect-square rounded-md bg-[#F2F2F7] dark:bg-[#2C2C2E] flex flex-col items-center justify-center cursor-pointer active:bg-[#E5E5EA] dark:active:bg-[#3A3A3C] transition-colors"
                         onClick={handleImagePick}

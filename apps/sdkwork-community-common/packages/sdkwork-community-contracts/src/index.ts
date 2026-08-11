@@ -61,6 +61,8 @@ export interface SdkworkCommunityEntry {
   isPinned?: boolean;
   kind: SdkworkCommunityEntryKind;
   lastActivityAt?: Date | number | string | null;
+  /** Uploaded media URLs (drive-backed) attached to the entry. */
+  media?: readonly string[];
   publishedAt?: Date | number | string | null;
   reviewState: SdkworkCommunityReviewState;
   stats: SdkworkCommunityStats;

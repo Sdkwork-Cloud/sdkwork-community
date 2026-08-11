@@ -29,6 +29,7 @@ fn category_from_row(row: &sqlx::postgres::PgRow) -> CommunityStoredCategory {
         revenue_target: optional_f64_cell(row, "revenue_target"),
         revenue_raised: optional_f64_cell(row, "revenue_raised").unwrap_or(0.0),
         tags: text_array_cell(row, "tags"),
+        tabs: text_array_cell(row, "tabs"),
         priority: integer_cell(row, "priority"),
         enabled: bool_cell(row, "enabled"),
         is_joined: bool_cell(row, "is_joined"),
@@ -43,7 +44,7 @@ pub async fn list_categories(
         r#"
         SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
                member_count, member_limit, post_count, is_paid, price::float8,
-               revenue_target::float8, revenue_raised::float8, tags, priority, enabled,
+               revenue_target::float8, revenue_raised::float8, tags, tabs, priority, enabled,
                FALSE AS is_joined
         FROM community_category
         WHERE tenant_id = $1 AND enabled = TRUE
@@ -69,7 +70,7 @@ pub async fn list_categories_with_membership(
         SELECT c.id, c.tenant_id, c.slug, c.title, c.description, c.cover_image,
                c.avatar, c.owner_id, c.member_count, c.member_limit, c.post_count,
                c.is_paid, c.price::float8, c.revenue_target::float8,
-               c.revenue_raised::float8, c.tags, c.priority, c.enabled,
+               c.revenue_raised::float8, c.tags, c.tabs, c.priority, c.enabled,
                (cm.id IS NOT NULL) AS is_joined
         FROM community_category c
         LEFT JOIN community_member cm
@@ -86,6 +87,39 @@ pub async fn list_categories_with_membership(
     .fetch_all(pool)
     .await?;
     Ok(rows.iter().map(category_from_row).collect())
+}
+
+/// Retrieves a single enabled circle together with the requesting user's
+/// membership state (used by the app GET /categories/{categoryId} route).
+pub async fn retrieve_category_with_membership(
+    pool: &PgPool,
+    tenant_id: &str,
+    category_id: &str,
+    user_id: &str,
+) -> Result<Option<CommunityStoredCategory>, sqlx::Error> {
+    let row = sqlx::query(
+        r#"
+        SELECT c.id, c.tenant_id, c.slug, c.title, c.description, c.cover_image,
+               c.avatar, c.owner_id, c.member_count, c.member_limit, c.post_count,
+               c.is_paid, c.price::float8, c.revenue_target::float8,
+               c.revenue_raised::float8, c.tags, c.tabs, c.priority, c.enabled,
+               (cm.id IS NOT NULL) AS is_joined
+        FROM community_category c
+        LEFT JOIN community_member cm
+          ON cm.category_id = c.id
+         AND cm.tenant_id = c.tenant_id
+         AND cm.user_id = $3
+         AND cm.status = 'active'
+        WHERE c.tenant_id = $1 AND c.id = $2 AND c.enabled = TRUE
+        LIMIT 1
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(category_id)
+    .bind(user_id)
+    .fetch_optional(pool)
+    .await?;
+    Ok(row.map(|row| category_from_row(&row)))
 }
 
 pub async fn count_comments(
@@ -148,9 +182,9 @@ pub async fn create_category(
         INSERT INTO community_category
             (id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
              member_count, member_limit, post_count, is_paid, price, revenue_target,
-             tags, priority, enabled, created_at, updated_at)
+             tags, tabs, priority, enabled, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::numeric, $13::numeric,
-                $14::text[], $15, $16, $17, $18, $19)
+                $14::text[], $15::jsonb, $16, $17, $18, $19)
         "#,
     )
     .bind(input.id)
@@ -168,6 +202,7 @@ pub async fn create_category(
     .bind(input.price)
     .bind(input.revenue_target)
     .bind(&input.tags)
+    .bind(serde_json::to_string(&input.tabs).unwrap_or_else(|_| "[]".to_owned()))
     .bind(input.priority)
     .bind(input.enabled)
     .bind(&input.now)
@@ -193,9 +228,9 @@ pub async fn update_category(
         SET slug = $1, title = $2, description = $3, cover_image = $4, avatar = $5,
             owner_id = $6, member_count = $7, member_limit = $8, post_count = $9,
             is_paid = $10, price = $11::numeric, revenue_raised = $12::numeric,
-            revenue_target = $13::numeric, tags = $14::text[], priority = $15,
-            enabled = $16, updated_at = $17
-        WHERE tenant_id = $18 AND id = $19
+            revenue_target = $13::numeric, tags = $14::text[], tabs = $15::jsonb,
+            priority = $16, enabled = $17, updated_at = $18
+        WHERE tenant_id = $19 AND id = $20
         "#,
     )
     .bind(patch.slug.as_ref().unwrap_or(&existing.slug))
@@ -212,6 +247,10 @@ pub async fn update_category(
     .bind(patch.revenue_raised.or(Some(existing.revenue_raised)))
     .bind(patch.revenue_target.or(existing.revenue_target))
     .bind(patch.tags.as_ref().unwrap_or(&existing.tags))
+    .bind(
+        serde_json::to_string(patch.tabs.as_ref().unwrap_or(&existing.tabs))
+            .unwrap_or_else(|_| "[]".to_owned()),
+    )
     .bind(patch.priority.unwrap_or(existing.priority))
     .bind(patch.enabled.unwrap_or(existing.enabled))
     .bind(chrono::Utc::now().to_rfc3339())
@@ -242,9 +281,10 @@ pub async fn create_entry(pool: &PgPool, input: NewCommunityEntry) -> Result<(),
         INSERT INTO community_entry
             (id, tenant_id, category_id, author_id, author_name, slug, kind, title, excerpt,
              review_state, is_featured, is_pinned, has_accepted_answer, comment_count,
-             reaction_count, share_count, view_count, published_at, last_activity_at, created_at, updated_at)
+             reaction_count, share_count, view_count, media, published_at, last_activity_at, created_at, updated_at)
         VALUES
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'draft', FALSE, FALSE, FALSE, 0, 0, 0, 0, NULL, $10, $11, $12)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'draft', FALSE, FALSE, FALSE, 0, 0, 0, 0,
+             $10::jsonb, NULL, $11, $12, $13)
         "#,
     )
     .bind(&input.id)
@@ -256,6 +296,7 @@ pub async fn create_entry(pool: &PgPool, input: NewCommunityEntry) -> Result<(),
     .bind(&input.kind)
     .bind(&input.title)
     .bind(&input.excerpt)
+    .bind(serde_json::to_string(&input.media).unwrap_or_else(|_| "[]".to_owned()))
     .bind(&input.now)
     .bind(&input.now)
     .bind(&input.now)
@@ -287,14 +328,19 @@ pub async fn update_entry(
         sqlx::query(
             r#"
             UPDATE community_entry
-            SET category_id = $1, kind = $2, title = $3, excerpt = $4, updated_at = $5
-            WHERE tenant_id = $6 AND id = $7
+            SET category_id = $1, kind = $2, title = $3, excerpt = $4,
+                media = $5::jsonb, updated_at = $6
+            WHERE tenant_id = $7 AND id = $8
             "#,
         )
         .bind(patch.category_id.as_ref().unwrap_or(&entry.category_id))
         .bind(patch.kind.as_ref().unwrap_or(&entry.kind))
         .bind(patch.title.as_ref().unwrap_or(&entry.title))
         .bind(patch.excerpt.as_ref().unwrap_or(&entry.excerpt))
+        .bind(
+            serde_json::to_string(patch.media.as_ref().unwrap_or(&entry.media))
+                .unwrap_or_else(|_| "[]".to_owned()),
+        )
         .bind(&now)
         .bind(tenant_id)
         .bind(entry_id)
@@ -388,7 +434,7 @@ pub async fn list_feed(
         SELECT e.id, e.tenant_id, e.category_id, e.author_id, e.author_name, e.slug, e.kind,
                e.title, e.excerpt, b.body_markdown, e.review_state, e.is_featured, e.is_pinned,
                e.has_accepted_answer, e.comment_count, e.reaction_count, e.share_count,
-               e.view_count, e.published_at, e.last_activity_at, e.updated_at
+               e.view_count, e.media, e.published_at, e.last_activity_at, e.updated_at
         FROM community_entry e
         JOIN community_entry_body b ON b.entry_id = e.id
         WHERE e.tenant_id = $1
@@ -456,7 +502,7 @@ pub async fn retrieve_entry_by_id(
         SELECT e.id, e.tenant_id, e.category_id, e.author_id, e.author_name, e.slug, e.kind,
                e.title, e.excerpt, b.body_markdown, e.review_state, e.is_featured, e.is_pinned,
                e.has_accepted_answer, e.comment_count, e.reaction_count, e.share_count,
-               e.view_count, e.published_at, e.last_activity_at, e.updated_at
+               e.view_count, e.media, e.published_at, e.last_activity_at, e.updated_at
         FROM community_entry e
         JOIN community_entry_body b ON b.entry_id = e.id
         WHERE e.tenant_id = $1 AND e.id = $2
@@ -485,7 +531,7 @@ pub async fn retrieve_entry_by_slug(
         SELECT e.id, e.tenant_id, e.category_id, e.author_id, e.author_name, e.slug, e.kind,
                e.title, e.excerpt, b.body_markdown, e.review_state, e.is_featured, e.is_pinned,
                e.has_accepted_answer, e.comment_count, e.reaction_count, e.share_count,
-               e.view_count, e.published_at, e.last_activity_at, e.updated_at
+               e.view_count, e.media, e.published_at, e.last_activity_at, e.updated_at
         FROM community_entry e
         JOIN community_entry_body b ON b.entry_id = e.id
         WHERE e.tenant_id = $1 AND e.slug = $2 AND e.review_state = 'approved'
@@ -837,6 +883,7 @@ async fn entry_from_row(
         reaction_count: integer_cell(&row, "reaction_count"),
         share_count: integer_cell(&row, "share_count"),
         view_count: integer_cell(&row, "view_count"),
+        media: text_array_cell(&row, "media"),
         tags,
         published_at: optional_string_cell(&row, "published_at"),
         last_activity_at: optional_string_cell(&row, "last_activity_at"),

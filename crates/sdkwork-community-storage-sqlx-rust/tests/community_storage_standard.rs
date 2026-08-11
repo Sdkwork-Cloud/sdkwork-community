@@ -112,6 +112,7 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
             revenue_target: None,
             price: None,
             tags: Vec::new(),
+            tabs: Vec::new(),
             priority: 1,
             enabled: true,
             now: "2026-06-06T00:00:00Z".to_owned(),
@@ -132,6 +133,7 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
             excerpt: "Generated community SDKs are ready.".to_owned(),
             body_markdown: "Community SDK body".to_owned(),
             tags: vec!["release".to_owned(), "sdk".to_owned()],
+            media: Vec::new(),
             now: "2026-06-06T00:01:00Z".to_owned(),
         })
         .await
@@ -174,6 +176,7 @@ async fn community_sqlx_store_migrates_creates_publishes_and_reads_feed() {
             excerpt: "A second paginated feed entry.".to_owned(),
             body_markdown: "Discussion body".to_owned(),
             tags: vec!["discussion".to_owned()],
+            media: Vec::new(),
             now: "2026-06-06T00:02:00Z".to_owned(),
         })
         .await
@@ -276,6 +279,7 @@ async fn community_sqlx_store_sets_and_unsets_reactions() {
             revenue_target: None,
             price: None,
             tags: Vec::new(),
+            tabs: Vec::new(),
             priority: 1,
             enabled: true,
             now: "2026-06-06T00:00:00Z".to_owned(),
@@ -296,6 +300,7 @@ async fn community_sqlx_store_sets_and_unsets_reactions() {
             excerpt: "Reaction excerpt".to_owned(),
             body_markdown: "Reaction body".to_owned(),
             tags: vec![],
+            media: Vec::new(),
             now: "2026-06-06T00:02:00Z".to_owned(),
         })
         .await

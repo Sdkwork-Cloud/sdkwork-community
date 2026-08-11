@@ -6,11 +6,13 @@ interface AuthGateProps {
 }
 
 /**
- * Renders the application once the IAM runtime finished initializing.
+ * Renders the application once the IAM runtime finished initializing and a
+ * session exists.
  *
- * The community package works without a session (seeded in-memory port), so
- * the gate only waits for runtime readiness; authenticated data flows through
- * the generated App SDK port configured by `bootstrapCommunityPort`.
+ * All community data and entity ids come from the backend service through the
+ * generated App SDK port, which is only configured once a session exists
+ * (`bootstrapCommunityPort`). Without a session the gate fails closed instead
+ * of serving demo data.
  */
 export function AuthGate({ children }: AuthGateProps) {
   const [isReady, setIsReady] = useState(false);
@@ -42,6 +44,14 @@ export function AuthGate({ children }: AuthGateProps) {
 
   if (failed) {
     return <div className="p-8 text-center text-text-sub">运行环境初始化失败</div>;
+  }
+
+  if (!getRuntime().getCurrentUser()?.id) {
+    return (
+      <div className="p-8 text-center text-text-sub">
+        请先登录后使用圈子功能
+      </div>
+    );
   }
 
   return <>{children}</>;

@@ -6,11 +6,16 @@ import { Community } from "../../types";
 export const CommunityLockedView = ({
   community,
   onJoin,
+  tierCount = 0,
 }: {
   community: Community;
   onJoin: () => void;
+  /** Number of purchasable tiers; >1 means the circle offers multiple prices. */
+  tierCount?: number;
 }) => {
   const { t } = useTranslation();
+
+  const isMultiPrice = tierCount > 1;
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-[#1C1C1E] p-8 -mt-2 z-10">
@@ -24,11 +29,19 @@ export const CommunityLockedView = ({
         {t("community.auto_n3a0b56d", "解锁专享内容、群组资源以及与优质圈友互动。")}
       </p>
 
+      {tierCount === 0 && (
+        <p className="text-[13px] text-text-sub text-center mb-8 leading-relaxed">
+          {t("community.auto_no_purchasable_tiers", "该圈子暂无可购买的会员套餐，请稍后再试或联系圈主")}
+        </p>
+      )}
+
       <button
         className="w-full max-w-[240px] py-3.5 bg-blue-500 text-white rounded-full font-bold text-[16px] shadow-lg shadow-blue-500/30 active:scale-95 transition-transform flex items-center justify-center gap-2"
         onClick={onJoin}
       >
-        {t("community.auto_20ed0b2", "¥{{price}} 购买解锁", { price: community.price })}
+        {isMultiPrice
+          ? t("community.auto_price_from", "¥{{price}} 起 · 选择套餐", { price: community.price })
+          : t("community.auto_20ed0b2", "¥{{price}} 购买解锁", { price: community.price })}
       </button>
     </div>
   );

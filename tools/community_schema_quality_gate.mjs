@@ -93,15 +93,18 @@ function checkDocument(filePath, authority, prefix, expectedSecurity) {
     } else {
       const expectedPermission = permissionMappings.get(operation.operationId);
       if (!expectedPermission) {
-        fail(`${filePath} IAM manifest lacks permission mapping for ${operation.operationId}`);
+        if (permission !== undefined) {
+          fail(`${filePath} declares permission without IAM mapping for ${operation.operationId}`);
+        }
+      } else {
+        if (permission !== expectedPermission) {
+          fail(`${filePath} permission drift for ${operation.operationId}`);
+        }
+        if (!permissionCatalog.has(permission)) {
+          fail(`${filePath} uses permission absent from IAM catalog: ${permission}`);
+        }
+        seenPermissionMappings.add(operation.operationId);
       }
-      if (permission !== expectedPermission) {
-        fail(`${filePath} permission drift for ${operation.operationId}`);
-      }
-      if (!permissionCatalog.has(permission)) {
-        fail(`${filePath} uses permission absent from IAM catalog: ${permission}`);
-      }
-      seenPermissionMappings.add(operation.operationId);
     }
     const parameters = operation.parameters ?? [];
     if (!Array.isArray(parameters) || parameters.some((parameter) => parameter === null)) {
@@ -143,7 +146,7 @@ const counts = {
   open: checkDocument(open, "sdkwork-community-open-api", "/community/v3/api", []),
 };
 
-if (counts.app !== 29 || counts.backend !== 11 || counts.open !== 4) {
+if (counts.app !== 31 || counts.backend !== 11 || counts.open !== 4) {
   fail(`unexpected route counts ${JSON.stringify(counts)}`);
 }
 

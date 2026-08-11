@@ -7,4 +7,5 @@ export interface CommunityEntryCommand {
   excerpt?: string;
   body?: string;
   tags?: string[];
+  media?: string[];
 }

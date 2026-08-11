@@ -6,6 +6,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}",
         "operationId": "groups.delete",
         "surface": "app-api"
@@ -36,6 +43,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories",
         "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.retrieve",
         "surface": "app-api"
       },
       {
@@ -316,6 +330,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}",
         "operationId": "groups.delete",
         "surface": "app-api"
@@ -346,6 +367,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories",
         "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.retrieve",
         "surface": "app-api"
       },
       {
@@ -626,6 +654,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}",
         "operationId": "groups.delete",
         "surface": "app-api"
@@ -656,6 +691,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories",
         "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.retrieve",
         "surface": "app-api"
       },
       {
@@ -936,6 +978,13 @@
       {
         "authProfile": "dual-token",
         "method": "DELETE",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.delete",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "DELETE",
         "normalizedPath": "/app/v3/api/community/categories/{categoryId}/groups/{groupId}",
         "operationId": "groups.delete",
         "surface": "app-api"
@@ -966,6 +1015,13 @@
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/categories",
         "operationId": "categories.list",
+        "surface": "app-api"
+      },
+      {
+        "authProfile": "dual-token",
+        "method": "GET",
+        "normalizedPath": "/app/v3/api/community/categories/{categoryId}",
+        "operationId": "categories.retrieve",
         "surface": "app-api"
       },
       {

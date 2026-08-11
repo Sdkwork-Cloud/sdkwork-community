@@ -15,6 +15,7 @@ export interface CommunityCategory {
   revenueRaised?: number;
   revenueTarget?: number;
   tags: string[];
+  tabs?: string[];
   priority: number;
   enabled: boolean;
   isJoined: boolean;

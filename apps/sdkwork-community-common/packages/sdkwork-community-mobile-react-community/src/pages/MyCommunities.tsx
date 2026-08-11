@@ -30,7 +30,9 @@ const navigate = useNavigate();
       if (activeTab === 'joined') {
         setCommunities(all.filter(c => c.isJoined));
       } else {
-        setCommunities(all.slice(0, 2)); // Mocked
+        // "我创建的": circles that record an owner (seeded demo circles have
+        // no ownerId and are therefore not listed as created by the user).
+        setCommunities(all.filter(c => Boolean(c.ownerId)));
       }
     } catch {
     } finally {
@@ -71,19 +73,31 @@ const navigate = useNavigate();
     };
   };
 
-  const handleActionSheetSelect = (action: string) => {
+  const handleActionSheetSelect = async (action: string) => {
   if (!actionSheetCommunity) return;
-    
+    const target = actionSheetCommunity;
+
     if (action === 'edit') {
-       navigate(`/community/${actionSheetCommunity.id}/profile`);
+       navigate(`/community/${target.id}/profile`);
     } else if (action === 'delete') {
-       setCommunities(prev => prev.filter(c => c.id !== actionSheetCommunity.id));
-       showToast(t('community.auto_fn_16b31b6', '已删除'));
+       try {
+         // Owner-only delete: the backend rejects non-owners.
+         await CommunityService.deleteCommunity(target.id);
+         setCommunities(prev => prev.filter(c => c.id !== target.id));
+         showToast(t('community.auto_fn_16b31b6', '已删除'));
+       } catch {
+         showToast(t('community.auto_fn_2794e158', '删除失败'));
+       }
     } else if (action === 'leave') {
-       setCommunities(prev => prev.filter(c => c.id !== actionSheetCommunity.id));
-       showToast(t('community.auto_fn_1726b6c', '已退出'));
+       try {
+         await CommunityService.leaveCommunity(target.id);
+         setCommunities(prev => prev.filter(c => c.id !== target.id));
+         showToast(t('community.auto_fn_1726b6c', '已退出'));
+       } catch {
+         showToast(t('community.auto_fn_26cc0f99', '退出失败'));
+       }
     } else if (action === 'share') {
-       showToast(t('community.auto_fn_352d1b75', '已分享邀请链接'));
+       navigate(`/community/${target.id}/profile/qrcode`);
     }
     setActionSheetCommunity(null);
   };

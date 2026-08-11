@@ -4,6 +4,8 @@ export interface Community {
   description: string;
   coverImage: string;
   avatar?: string;
+  /** Owner (creator) user id; absent for seeded/demo circles. */
+  ownerId?: string;
   memberCount: number;
   /** Maximum member count; undefined means unlimited (默认不限制). */
   memberLimit?: number;

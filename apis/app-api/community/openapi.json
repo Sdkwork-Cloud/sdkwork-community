@@ -144,6 +144,72 @@
       }
     },
     "/app/v3/api/community/categories/{categoryId}": {
+      "get": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community categories.retrieve",
+        "operationId": "categories.retrieve",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SdkWorkResourceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "categories",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.categories.read"
+      },
       "patch": {
         "tags": [
           "community"
@@ -181,6 +247,65 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Problem detail",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "AuthToken": [],
+            "AccessToken": []
+          }
+        ],
+        "x-sdkwork-owner": "sdkwork-community",
+        "x-sdkwork-api-authority": "sdkwork-community-app-api",
+        "x-sdkwork-domain": "community",
+        "x-sdkwork-resource": "categories",
+        "x-sdkwork-public": false,
+        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-request-context": "WebRequestContext",
+        "x-sdkwork-api-surface": "app-api",
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "x-sdkwork-permission": "community.categories.write"
+      },
+      "delete": {
+        "tags": [
+          "community"
+        ],
+        "summary": "Community categories.delete",
+        "operationId": "categories.delete",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
           },
           "400": {
             "description": "Problem detail",
@@ -2568,6 +2693,12 @@
               "type": "string"
             }
           },
+          "tabs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "priority": {
             "type": "integer"
           },
@@ -2614,6 +2745,12 @@
             "format": "double"
           },
           "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tabs": {
             "type": "array",
             "items": {
               "type": "string"
@@ -3004,6 +3141,12 @@
               "type": "string"
             }
           },
+          "media": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
@@ -3087,6 +3230,12 @@
             "type": "string"
           },
           "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "media": {
             "type": "array",
             "items": {
               "type": "string"

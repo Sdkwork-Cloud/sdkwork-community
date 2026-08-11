@@ -15,5 +15,6 @@ serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 sdkwork-community-core-rust.workspace = true
 sdkwork-community-storage-sqlx-rust.workspace = true
+sdkwork-id-core.workspace = true
 sdkwork-utils-rust.workspace = true
 thiserror.workspace = true

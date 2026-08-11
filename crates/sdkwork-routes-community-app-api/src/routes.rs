@@ -47,7 +47,7 @@ pub fn build_app_router(host: Arc<sdkwork_community_service_host::CommunityServi
         )
         .route(
             "/app/v3/api/community/categories/{categoryId}",
-            patch(update_circle),
+            get(retrieve_circle).patch(update_circle).delete(delete_circle),
         )
         .route(
             "/app/v3/api/community/categories/{categoryId}/join",
@@ -527,6 +527,62 @@ async fn update_circle(
         Ok(item) => success_item(
             context.as_ref().map(|Extension(ctx)| ctx),
             map_category(item),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn retrieve_circle(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .retrieve_category_with_membership(&subject.tenant_id, &category_id, &subject.user_id)
+        .await
+    {
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_category(item),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn delete_circle(
+    State(state): State<AppState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match runtime_subject_from_extension(iam) {
+        Ok(subject) => subject,
+        Err(error) => {
+            return map_service_error(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+            )
+        }
+    };
+    match state
+        .service
+        .delete_circle(&subject.tenant_id, &subject.user_id, &category_id)
+        .await
+    {
+        Ok(item) => success_command(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            item,
         ),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }

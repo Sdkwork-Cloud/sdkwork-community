@@ -44,6 +44,7 @@ pub struct CommunityEntryResponse {
     pub has_accepted_answer: bool,
     pub stats: CommunityStatsResponse,
     pub tags: Vec<String>,
+    pub media: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub published_at: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -77,6 +78,7 @@ pub struct CommunityCategoryResponse {
     pub revenue_target: Option<f64>,
     pub revenue_raised: f64,
     pub tags: Vec<String>,
+    pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
     pub is_joined: bool,
@@ -189,6 +191,7 @@ pub fn map_entry(entry: CommunityEntryView) -> CommunityEntryResponse {
             view_count: entry.view_count,
         },
         tags: entry.tags,
+        media: entry.media,
         published_at: entry.published_at,
         last_activity_at: entry.last_activity_at,
         updated_at: entry.updated_at,
@@ -213,6 +216,7 @@ pub fn map_category(category: CommunityCategoryView) -> CommunityCategoryRespons
         revenue_target: category.revenue_target,
         revenue_raised: category.revenue_raised,
         tags: category.tags,
+        tabs: category.tabs,
         priority: category.priority,
         enabled: category.enabled,
         is_joined: category.is_joined,

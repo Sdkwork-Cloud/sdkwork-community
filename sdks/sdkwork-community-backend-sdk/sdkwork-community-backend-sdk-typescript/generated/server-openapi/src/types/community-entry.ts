@@ -20,6 +20,7 @@ export interface CommunityEntry {
   hasAcceptedAnswer?: boolean;
   stats: CommunityStats;
   tags?: string[];
+  media?: string[];
   publishedAt?: string;
   lastActivityAt?: string;
   updatedAt?: string;

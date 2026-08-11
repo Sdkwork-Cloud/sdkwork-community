@@ -1808,6 +1808,7 @@ dependencies = [
  "reqwest",
  "sdkwork-community-core-rust",
  "sdkwork-community-storage-sqlx-rust",
+ "sdkwork-id-core",
  "sdkwork-utils-rust",
  "serde",
  "serde_json",
@@ -1822,6 +1823,7 @@ dependencies = [
  "sdkwork-community-database-host",
  "sdkwork-community-service",
  "sdkwork-community-storage-sqlx-rust",
+ "sdkwork-database-id",
  "sdkwork-database-sqlx",
 ]
 

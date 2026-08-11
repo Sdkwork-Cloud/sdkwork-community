@@ -8,7 +8,8 @@ use sdkwork_community_storage_sqlx::{
     NewCommunityCategory, NewCommunityComment, NewCommunityEntry, NewCommunityGroup,
     NewCommunityMember, NewCommunityTier, SetCommunityReaction,
 };
-use sdkwork_utils_rust::{slugify, uuid, validated_offset_list_params};
+use sdkwork_id_core::{IdGenerator, SnowflakeIdGenerator};
+use sdkwork_utils_rust::{slugify, validated_offset_list_params};
 
 use crate::error::CommunityServiceError;
 use crate::integration::{
@@ -33,6 +34,7 @@ pub struct CommunityCategoryView {
     pub revenue_target: Option<f64>,
     pub revenue_raised: f64,
     pub tags: Vec<String>,
+    pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
     pub is_joined: bool,
@@ -112,6 +114,7 @@ pub struct CommunityEntryView {
     pub share_count: i64,
     pub view_count: i64,
     pub tags: Vec<String>,
+    pub media: Vec<String>,
     pub published_at: Option<String>,
     pub last_activity_at: Option<String>,
     pub updated_at: String,
@@ -148,6 +151,7 @@ pub struct CommunityEntryCommand {
     pub excerpt: Option<String>,
     pub body: Option<String>,
     pub tags: Vec<String>,
+    pub media: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -174,6 +178,7 @@ pub struct CommunityCircleCommand {
     pub price: Option<f64>,
     pub revenue_target: Option<f64>,
     pub tags: Option<Vec<String>>,
+    pub tabs: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -264,27 +269,75 @@ pub struct CommunityCommandAccepted {
 pub struct CommunityService {
     store: Arc<CommunitySqlxStore>,
     commerce: Arc<CommerceIntegration>,
+    id_generator: Arc<dyn IdGenerator>,
+}
+
+/// Default generator for tests and dev bootstrap: snowflake node 0 with the
+/// canonical SDKWork epoch. Production hosts inject a database-allocated
+/// generator through [`CommunityService::with_id_generator`].
+fn default_id_generator() -> Arc<dyn IdGenerator> {
+    Arc::new(
+        SnowflakeIdGenerator::new(0).expect("snowflake node 0 must initialize"),
+    )
 }
 
 impl CommunityService {
     pub fn new(store: Arc<CommunitySqlxStore>) -> Self {
-        Self {
+        Self::with_commerce(
             store,
-            commerce: Arc::new(CommerceIntegration::new(
+            Arc::new(CommerceIntegration::new(
                 CommerceIntegrationConfig::from_env(),
             )),
-        }
+        )
     }
 
     pub fn with_commerce(
         store: Arc<CommunitySqlxStore>,
         commerce: Arc<CommerceIntegration>,
     ) -> Self {
-        Self { store, commerce }
+        Self::with_id_generator(store, commerce, default_id_generator())
+    }
+
+    /// Builds a service with a host-provided snowflake generator and the
+    /// environment-configured commerce integration (runtime host path).
+    pub fn with_runtime_id_generator(
+        store: Arc<CommunitySqlxStore>,
+        id_generator: Arc<dyn IdGenerator>,
+    ) -> Self {
+        Self::with_id_generator(
+            store,
+            Arc::new(CommerceIntegration::new(CommerceIntegrationConfig::from_env())),
+            id_generator,
+        )
+    }
+
+    pub fn with_id_generator(
+        store: Arc<CommunitySqlxStore>,
+        commerce: Arc<CommerceIntegration>,
+        id_generator: Arc<dyn IdGenerator>,
+    ) -> Self {
+        Self {
+            store,
+            commerce,
+            id_generator,
+        }
     }
 
     pub fn commerce(&self) -> &CommerceIntegration {
         &self.commerce
+    }
+
+    pub fn id_generator(&self) -> &Arc<dyn IdGenerator> {
+        &self.id_generator
+    }
+
+    /// Generates the next entity id (snowflake, backend-owned). All community
+    /// entity ids — circles, entries, comments, reactions, members, groups,
+    /// tiers — come from the injected generator; clients never mint ids.
+    fn next_entity_id(&self) -> Result<String, CommunityServiceError> {
+        self.id_generator
+            .next_id()
+            .map_err(|error| CommunityServiceError::Storage(format!("id generation failed: {error}")))
     }
 
     pub async fn list_categories(
@@ -380,7 +433,7 @@ impl CommunityService {
     ) -> Result<CommunityEntryView, CommunityServiceError> {
         validate_entry_command(&command)?;
         let now = Utc::now().to_rfc3339();
-        let entry_id = uuid();
+        let entry_id = self.next_entity_id()?;
         let slug = slugify(&command.title);
         let category_id = command.category_id.clone();
         let input = NewCommunityEntry {
@@ -395,6 +448,7 @@ impl CommunityService {
             excerpt: command.excerpt.unwrap_or_default(),
             body_markdown: command.body.unwrap_or_default(),
             tags: command.tags,
+            media: command.media.unwrap_or_default(),
             now,
         };
         self.store
@@ -429,6 +483,7 @@ impl CommunityService {
                     excerpt: command.excerpt,
                     body: command.body,
                     tags: Some(command.tags),
+                    media: command.media,
                 },
             )
             .await
@@ -558,7 +613,7 @@ impl CommunityService {
         }
         let _ = self.retrieve_entry(tenant_id, entry_id, false).await?;
         let now = Utc::now().to_rfc3339();
-        let comment_id = uuid();
+        let comment_id = self.next_entity_id()?;
         self.store
             .create_comment(NewCommunityComment {
                 id: comment_id.clone(),
@@ -597,7 +652,7 @@ impl CommunityService {
         let reaction_count = self
             .store
             .set_reaction(SetCommunityReaction {
-                id: uuid(),
+                id: self.next_entity_id()?,
                 tenant_id: tenant_id.to_owned(),
                 entry_id: entry_id.to_owned(),
                 user_id: user_id.to_owned(),
@@ -641,7 +696,7 @@ impl CommunityService {
             ));
         }
         let now = Utc::now().to_rfc3339();
-        let category_id = uuid();
+        let category_id = self.next_entity_id()?;
         self.store
             .create_category(NewCommunityCategory {
                 id: category_id.clone(),
@@ -657,6 +712,7 @@ impl CommunityService {
                 price: None,
                 revenue_target: None,
                 tags: Vec::new(),
+                tabs: Vec::new(),
                 priority: command.priority.unwrap_or(0),
                 enabled: command.enabled.unwrap_or(true),
                 now,
@@ -698,6 +754,7 @@ impl CommunityService {
                     revenue_target: None,
                     price: None,
                     tags: None,
+                    tabs: None,
                     priority: command.priority,
                     enabled: command.enabled,
                 },
@@ -714,6 +771,26 @@ impl CommunityService {
             .ok_or_else(|| {
                 CommunityServiceError::NotFound(format!("category {category_id} not found"))
             })
+    }
+
+    /// Deletes a circle (app API). Only the circle owner may delete it;
+    /// membership rows cascade with the category.
+    pub async fn delete_circle(
+        &self,
+        tenant_id: &str,
+        actor_user_id: &str,
+        category_id: &str,
+    ) -> Result<CommunityCommandAccepted, CommunityServiceError> {
+        let member = self.current_member(tenant_id, category_id, actor_user_id).await?;
+        match member.as_ref().map(|member| member.role.as_str()) {
+            Some("owner") => {}
+            _ => {
+                return Err(CommunityServiceError::Unauthorized(
+                    "owner role required to delete the circle".to_owned(),
+                ));
+            }
+        }
+        self.delete_category(tenant_id, category_id).await
     }
 
     pub async fn delete_category(
@@ -753,7 +830,7 @@ impl CommunityService {
             ));
         }
         let now = Utc::now().to_rfc3339();
-        let category_id = uuid();
+        let category_id = self.next_entity_id()?;
         self.store
             .create_category(NewCommunityCategory {
                 id: category_id.clone(),
@@ -769,6 +846,7 @@ impl CommunityService {
                 price: command.price,
                 revenue_target: validate_revenue_target(command.revenue_target)?,
                 tags: command.tags.unwrap_or_default(),
+                tabs: command.tabs.unwrap_or_default(),
                 priority: 0,
                 enabled: true,
                 now: now.clone(),
@@ -777,7 +855,7 @@ impl CommunityService {
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
         self.store
             .create_member(NewCommunityMember {
-                id: uuid(),
+                id: self.next_entity_id()?,
                 tenant_id: tenant_id.to_owned(),
                 category_id: category_id.clone(),
                 user_id: user_id.to_owned(),
@@ -790,7 +868,9 @@ impl CommunityService {
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
         self.adjust_category_counts(tenant_id, &category_id, 1, 0)
             .await?;
-        self.retrieve_category(tenant_id, &category_id).await
+        // The creator is an owner member; return the circle with is_joined.
+        self.retrieve_category_with_membership(tenant_id, &category_id, user_id)
+            .await
     }
 
     pub async fn update_circle(
@@ -821,6 +901,7 @@ impl CommunityService {
                     revenue_target: validate_revenue_target(command.revenue_target)?,
                     price: command.price,
                     tags: command.tags,
+                    tabs: command.tabs,
                     priority: None,
                     enabled: None,
                 },
@@ -841,6 +922,24 @@ impl CommunityService {
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
             .into_iter()
             .find(|category| category.id == category_id)
+            .map(map_category)
+            .ok_or_else(|| {
+                CommunityServiceError::NotFound(format!("category {category_id} not found"))
+            })
+    }
+
+    /// Retrieves a single circle together with the requesting user's
+    /// membership state (`is_joined`), matching the list behavior.
+    pub async fn retrieve_category_with_membership(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+    ) -> Result<CommunityCategoryView, CommunityServiceError> {
+        self.store
+            .retrieve_category_with_membership(tenant_id, category_id, user_id)
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?
             .map(map_category)
             .ok_or_else(|| {
                 CommunityServiceError::NotFound(format!("category {category_id} not found"))
@@ -899,7 +998,7 @@ impl CommunityService {
         }
         self.ensure_member_capacity(tenant_id, category_id).await?;
         let now = Utc::now().to_rfc3339();
-        let member_id = uuid();
+        let member_id = self.next_entity_id()?;
         self.store
             .create_member(NewCommunityMember {
                 id: member_id.clone(),
@@ -1021,7 +1120,7 @@ impl CommunityService {
             ));
         }
         let now = Utc::now().to_rfc3339();
-        let group_id = uuid();
+        let group_id = self.next_entity_id()?;
         self.store
             .create_group(NewCommunityGroup {
                 id: group_id.clone(),
@@ -1143,6 +1242,7 @@ impl CommunityService {
                     is_paid: None,
                     price: None,
                     tags: None,
+                    tabs: None,
                     priority: None,
                     enabled: None,
                 },
@@ -1254,6 +1354,7 @@ impl CommunityService {
                         revenue_raised: None,
                         revenue_target: None,
                         tags: None,
+                        tabs: None,
                         priority: None,
                         enabled: None,
                     },
@@ -1317,7 +1418,7 @@ impl CommunityService {
             ));
         }
         let now = Utc::now().to_rfc3339();
-        let tier_id = uuid();
+        let tier_id = self.next_entity_id()?;
         self.store
             .create_tier(NewCommunityTier {
                 id: tier_id.clone(),
@@ -1550,7 +1651,7 @@ impl CommunityService {
             self.ensure_member_capacity(tenant_id, category_id).await?;
             self.store
                 .create_member(NewCommunityMember {
-                    id: uuid(),
+                    id: self.next_entity_id()?,
                     tenant_id: tenant_id.to_owned(),
                     category_id: category_id.to_owned(),
                     user_id: user_id.to_owned(),
@@ -1727,6 +1828,7 @@ fn map_category(category: CommunityStoredCategory) -> CommunityCategoryView {
         revenue_target: category.revenue_target,
         revenue_raised: category.revenue_raised,
         tags: category.tags,
+        tabs: category.tabs,
         priority: category.priority,
         enabled: category.enabled,
         is_joined: category.is_joined,
@@ -1811,6 +1913,7 @@ fn map_entry(entry: CommunityStoredEntry) -> CommunityEntryView {
         share_count: entry.share_count,
         view_count: entry.view_count,
         tags: entry.tags,
+        media: entry.media,
         published_at: entry.published_at,
         last_activity_at: entry.last_activity_at,
         updated_at: entry.updated_at,

@@ -64,6 +64,7 @@ pub struct CommunityStoredCategory {
     pub revenue_target: Option<f64>,
     pub revenue_raised: f64,
     pub tags: Vec<String>,
+    pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
     pub is_joined: bool,
@@ -120,6 +121,7 @@ pub struct NewCommunityCategory {
     pub price: Option<f64>,
     pub revenue_target: Option<f64>,
     pub tags: Vec<String>,
+    pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
     pub now: String,
@@ -260,6 +262,7 @@ pub struct NewCommunityEntry {
     pub excerpt: String,
     pub body_markdown: String,
     pub tags: Vec<String>,
+    pub media: Vec<String>,
     pub now: String,
 }
 
@@ -284,6 +287,7 @@ pub struct CommunityStoredEntry {
     pub share_count: i64,
     pub view_count: i64,
     pub tags: Vec<String>,
+    pub media: Vec<String>,
     pub published_at: Option<String>,
     pub last_activity_at: Option<String>,
     pub updated_at: String,

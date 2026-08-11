@@ -28,6 +28,10 @@ export interface SdkworkCommunityListParams
   q?: string;
   reviewState?: SdkworkCommunityReviewState;
   tag?: string;
+  /** Offset page (1-based); the server caps the page size at 200. */
+  page?: number;
+  /** Page size; the server defaults to 20 when absent. */
+  pageSize?: number;
 }
 
 export interface SdkworkCommunityEntryCommand {
@@ -35,6 +39,8 @@ export interface SdkworkCommunityEntryCommand {
   categoryId: string;
   excerpt?: string;
   kind: SdkworkCommunityEntry["kind"];
+  /** Uploaded media URLs (drive-backed) attached to the entry. */
+  media?: readonly string[];
   tags?: readonly string[];
   title: string;
 }
@@ -60,10 +66,13 @@ export interface SdkworkCommunityAppSdkPort {
     categories: {
       create(command: SdkworkCommunityCircleCommand): Promise<SdkworkCommunityCategory>;
       list(): Promise<readonly SdkworkCommunityCategory[]>;
+      retrieve(categoryId: string): Promise<SdkworkCommunityCategory>;
       update(
         categoryId: string,
         command: Partial<SdkworkCommunityCircleCommand>,
       ): Promise<SdkworkCommunityCategory>;
+      /** Deletes a circle; the backend requires the owner role. */
+      remove(categoryId: string): Promise<void>;
     };
     comments: {
       create(entryId: string, command: SdkworkCommunityCommentCommand): Promise<SdkworkCommunityComment>;
@@ -302,6 +311,13 @@ export function createInMemoryCommunityAppSdkPort(
             isJoined: joined.has(category.id),
           }));
         },
+        async retrieve(categoryId) {
+          const category = findCategory(categoryId);
+          const joined = communityMembers(categoryId).some(
+            (member) => member.user?.id === currentUserId,
+          );
+          return { ...category, isJoined: joined };
+        },
         async update(categoryId, command) {
           const index = categories.findIndex((candidate) => candidate.id === categoryId);
           if (index === -1) {
@@ -310,6 +326,13 @@ export function createInMemoryCommunityAppSdkPort(
           const updated = { ...categories[index], ...command };
           categories[index] = updated;
           return updated;
+        },
+        async remove(categoryId) {
+          const index = categories.findIndex((candidate) => candidate.id === categoryId);
+          if (index === -1) {
+            throw new Error(`community category not found: ${categoryId}`);
+          }
+          categories.splice(index, 1);
         },
       },
       comments: {
@@ -333,7 +356,13 @@ export function createInMemoryCommunityAppSdkPort(
       },
       feed: {
         async list(params = {}) {
-          return filterCommunityEntries(entries, toFilterOptions(params));
+          // Mirror the server: offset paging over the filtered feed with a
+          // default page size of 20 (page size capped at 200 server-side).
+          const filtered = filterCommunityEntries(entries, toFilterOptions(params));
+          const page = Math.max(params.page ?? 1, 1);
+          const pageSize = Math.min(Math.max(params.pageSize ?? 20, 1), 200);
+          const start = (page - 1) * pageSize;
+          return filtered.slice(start, start + pageSize);
         },
       },
       reactions: {
@@ -368,6 +397,7 @@ export function createInMemoryCommunityAppSdkPort(
             excerpt: command.excerpt,
             id: nextSnowflakeId(),
             kind: command.kind,
+            media: command.media,
             reviewState: "draft",
             stats: {},
             tags: command.tags,

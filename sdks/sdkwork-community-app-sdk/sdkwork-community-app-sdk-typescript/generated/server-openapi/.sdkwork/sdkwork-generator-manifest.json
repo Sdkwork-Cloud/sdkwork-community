@@ -56,7 +56,7 @@
     },
     {
       "path": "src/api/community.ts",
-      "sha256": "458ef5851a9565cf40ed1230f32d3e66a05280753ca02c062445a9173e1a9c03"
+      "sha256": "407b35ba9df16e40c6ffcf4096c5b20fe83f82a07e8b0ca0163abd3687188c31"
     },
     {
       "path": "src/api/index.ts",
@@ -104,11 +104,11 @@
     },
     {
       "path": "src/types/community-category.ts",
-      "sha256": "dd6fe1748f0adb04e5052db3f2b8bbd504811e633a5d034bc512b2497713ccda"
+      "sha256": "03a9ac30951f83a71cdc5421885a23d4f4d883f86e250945a9c942798df332fe"
     },
     {
       "path": "src/types/community-circle-command.ts",
-      "sha256": "b31da52665c93765483eacd9d7a9a807873112e4f10cc3fc33b15424597450c5"
+      "sha256": "1c6b77eac6ab111b2309480ac06fcbe0151a9196413e2f170748dd564ea95793"
     },
     {
       "path": "src/types/community-comment-command.ts",
@@ -120,7 +120,7 @@
     },
     {
       "path": "src/types/community-entry-command.ts",
-      "sha256": "ecbdfcff93f5fab1b551dee0d47b0abd3dd42ce80e3486b13d9a243013d78b6b"
+      "sha256": "415f8194c2b620b5b10ca133bb9596713cf0b13ff14b12e1cc3260922d42e60b"
     },
     {
       "path": "src/types/community-entry-kind.ts",
@@ -128,7 +128,7 @@
     },
     {
       "path": "src/types/community-entry.ts",
-      "sha256": "58030a2fa1171b9fdef8d312ffd9abb443c1122419d5d859ff58aef49023bf45"
+      "sha256": "0bbf632e7853fb128909e74c748923d621d29c26adbc7d12f813e6bfed51ff83"
     },
     {
       "path": "src/types/community-group-command.ts",

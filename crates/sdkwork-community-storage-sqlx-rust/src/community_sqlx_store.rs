@@ -35,6 +35,7 @@ pub struct CommunityEntryPatch {
     pub excerpt: Option<String>,
     pub body: Option<String>,
     pub tags: Option<Vec<String>>,
+    pub media: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug)]
@@ -53,6 +54,7 @@ pub struct CommunityCategoryPatch {
     pub revenue_raised: Option<f64>,
     pub revenue_target: Option<f64>,
     pub tags: Option<Vec<String>>,
+    pub tabs: Option<Vec<String>>,
     pub priority: Option<i64>,
     pub enabled: Option<bool>,
 }
@@ -98,6 +100,21 @@ impl CommunitySqlxStore {
         super::postgres_queries::list_categories_with_membership(
             self.postgres_pool(),
             tenant_id,
+            user_id,
+        )
+        .await
+    }
+
+    pub async fn retrieve_category_with_membership(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+        user_id: &str,
+    ) -> Result<Option<super::CommunityStoredCategory>, sqlx::Error> {
+        super::postgres_queries::retrieve_category_with_membership(
+            self.postgres_pool(),
+            tenant_id,
+            category_id,
             user_id,
         )
         .await

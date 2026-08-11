@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { CommunityService } from "../services/CommunityService";
 import { CommunityGroup } from "../types";
@@ -31,13 +31,16 @@ const { id } = useParams<{ id: string }>();
   };
 
   const [actionSheetGroup, setActionSheetGroup] = useState<CommunityGroup | null>(null);
+  const longPressFiredRef = useRef(false);
 
   const startLongPress = (group: CommunityGroup) => {
+  const fireLongPress = () => {
+        longPressFiredRef.current = true;
+        setActionSheetGroup(group);
+      };
   return {
       onTouchStart: () => {
-        (window as any).longPressTimeout = setTimeout(() => {
-          setActionSheetGroup(group);
-        }, 500);
+        (window as any).longPressTimeout = setTimeout(fireLongPress, 500);
       },
       onTouchEnd: () => {
         clearTimeout((window as any).longPressTimeout);
@@ -46,9 +49,7 @@ const { id } = useParams<{ id: string }>();
         clearTimeout((window as any).longPressTimeout);
       },
       onMouseDown: () => {
-        (window as any).longPressTimeout = setTimeout(() => {
-          setActionSheetGroup(group);
-        }, 500);
+        (window as any).longPressTimeout = setTimeout(fireLongPress, 500);
       },
       onMouseUp: () => {
         clearTimeout((window as any).longPressTimeout);
@@ -110,6 +111,13 @@ const { id } = useParams<{ id: string }>();
                    key={group.id} 
                    className="p-0 flex flex-col border-b border-black/5 dark:border-white/5 active:bg-black/5 dark:active:bg-white/5 transition-colors cursor-pointer select-none"
                    {...startLongPress(group)}
+                   onClick={() => {
+                     if (longPressFiredRef.current) {
+                       longPressFiredRef.current = false;
+                       return;
+                     }
+                     navigate(`/community/${id}/group/${group.id}`);
+                   }}
                  >
                     <div className="flex items-start justify-between mb-0">
                        <div className="flex items-center gap-0 flex-1 overflow-hidden pointer-events-none">

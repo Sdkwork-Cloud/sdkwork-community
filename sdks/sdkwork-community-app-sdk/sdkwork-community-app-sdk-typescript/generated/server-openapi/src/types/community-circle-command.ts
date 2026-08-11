@@ -8,4 +8,5 @@ export interface CommunityCircleCommand {
   price?: number;
   revenueTarget?: number;
   tags?: string[];
+  tabs?: string[];
 }

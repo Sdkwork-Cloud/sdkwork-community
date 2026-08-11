@@ -52,13 +52,23 @@ const navigate = useNavigate();
     if (!comm) return;
 
     if (comm.isPaid) {
-       setSelectedPaidCommunity(comm);
-       setIsPaySheetOpen(true);
+       // Load the purchasable tiers first so the sheet opens with the price
+       // options ready; on failure or an empty list the user gets a clear
+       // message instead of a dead "请选择会员等级" sheet.
+       let fetched: MembershipTier[] = [];
        try {
-         setSelectedTiers(await CommunityService.getMembershipTiers(id));
+         fetched = await CommunityService.getMembershipTiers(id);
        } catch {
          showToast(t('community.auto_fn_2796529c', '获取圈子配置失败'));
+         return;
        }
+       if (fetched.length === 0) {
+         showToast(t('community.auto_no_purchasable_tiers', '该圈子暂无可购买的会员套餐，请稍后再试或联系圈主'));
+         return;
+       }
+       setSelectedTiers(fetched);
+       setSelectedPaidCommunity(comm);
+       setIsPaySheetOpen(true);
        return;
     }
 
@@ -133,13 +143,19 @@ const navigate = useNavigate();
     };
   };
 
-  const handleActionSheetSelect = (action: string) => {
+  const handleActionSheetSelect = async (action: string) => {
   if (!actionSheetCommunity) return;
+    const target = actionSheetCommunity;
     if (action === 'share') {
-      showToast(t('community.auto_fn_16ae6d7', '已分享'));
+      navigate(`/community/${target.id}/profile/qrcode`);
     } else if (action === 'leave') {
-      setCommunities(prev => prev.map(c => c.id === actionSheetCommunity.id ? { ...c, isJoined: false, memberCount: Math.max(0, c.memberCount - 1) } : c));
-      showToast(t('community.auto_fn_1726b6c', '已退出'));
+      try {
+        await CommunityService.leaveCommunity(target.id);
+        setCommunities(prev => prev.map(c => c.id === target.id ? { ...c, isJoined: false, memberCount: Math.max(0, c.memberCount - 1) } : c));
+        showToast(t('community.auto_fn_1726b6c', '已退出'));
+      } catch {
+        showToast(t('community.auto_fn_26cc0f99', '退出失败'));
+      }
     }
     setActionSheetCommunity(null);
   };
@@ -250,11 +266,11 @@ const navigate = useNavigate();
             }}
             onEnterGroups={() => {
                setShowSuccessModal(false);
-               navigate(`/community/${selectedPaidCommunity.id}/profile/tabs?tab=groups`);
+               navigate(`/community/${selectedPaidCommunity.id}?tab=groups`);
             }}
             onEnterResources={() => {
                setShowSuccessModal(false);
-               navigate(`/community/${selectedPaidCommunity.id}/profile/tabs?tab=resources`);
+               navigate(`/community/${selectedPaidCommunity.id}?tab=resources`);
             }}
          />
       )}

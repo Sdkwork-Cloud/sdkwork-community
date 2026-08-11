@@ -675,6 +675,12 @@
               "type": "string"
             }
           },
+          "tabs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "priority": {
             "type": "integer"
           },
@@ -721,6 +727,12 @@
             "format": "double"
           },
           "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tabs": {
             "type": "array",
             "items": {
               "type": "string"
@@ -1111,6 +1123,12 @@
               "type": "string"
             }
           },
+          "media": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
@@ -1194,6 +1212,12 @@
             "type": "string"
           },
           "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "media": {
             "type": "array",
             "items": {
               "type": "string"

@@ -7,51 +7,22 @@ import type {
   SdkworkCommunityMembershipTier,
 } from "@sdkwork/community-contracts";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
-import { nextSnowflakeId } from "@sdkwork/community-sdk-ports";
 import { getCommunityRuntimePort } from "./communityRuntimePort";
-import { SEED_COMMUNITY_IDS } from "./communityRuntimePort";
+import { getCommunityMediaRuntime } from "./communityMediaRuntimePort";
 import type { Community, CommunityGroup, CommunityMember, MembershipTier, Post, PostComment, Resource } from "../types";
 
 /**
  * Community (圈子) service facade for the mobile React UI.
  *
- * Keeps the original method surface and signatures unchanged; the data layer
- * delegates to the configured community App SDK port (default: seeded
- * in-memory port). Resources stay client-local, matching the original
- * implementation.
+ * Every read and write delegates to the configured community App SDK port
+ * (generated SDK backed by the backend service). There is deliberately no
+ * client-local data: circles, posts, comments, media, resources, groups and
+ * memberships all come from the backend, and all entity ids are minted
+ * server-side (snowflake).
  */
 
-// Client-local resources (original implementation kept resources local).
-// Keyed by the seeded circle snowflake id so the demo circle shows resources.
-const LOCAL_RESOURCES: Record<string, Resource[]> = {
-  [SEED_COMMUNITY_IDS.aiDevelopers]: [
-    {
-      id: nextSnowflakeId(),
-      communityId: SEED_COMMUNITY_IDS.aiDevelopers,
-      title: "2026年AI行业发展白皮书.pdf",
-      type: "pdf",
-      size: "4.5MB",
-      url: "#",
-      uploadedBy: "Admin",
-      createdAt: "2026-05-25T10:00:00Z",
-    },
-    {
-      id: nextSnowflakeId(),
-      communityId: SEED_COMMUNITY_IDS.aiDevelopers,
-      title: "斯坦福深度学习课程笔记.md",
-      type: "doc",
-      size: "1.2MB",
-      url: "#",
-      uploadedBy: "LearnBot",
-      createdAt: "2026-05-20T12:00:00Z",
-    },
-  ],
-};
-
-// Session-local post images (entry media is not part of the App API surface).
-const POST_IMAGES = new Map<string, string[]>();
-
-// Session-local liked post ids (reactions are per-viewer).
+// Session-local liked post ids (reactions are per-viewer; the backend keeps
+// the authoritative reaction count, the set only tracks the viewer's state).
 const LIKED_POST_IDS = new Set<string>();
 
 function port(): SdkworkCommunityAppSdkPort {
@@ -96,12 +67,26 @@ function mapEntryToPost(entry: SdkworkCommunityEntry, commentsList?: PostComment
     authorName: entry.author.name,
     authorAvatar: entry.author.avatar?.publicUrl ?? "",
     content: entry.body ?? entry.excerpt ?? entry.title,
-    images: POST_IMAGES.get(entry.id),
+    images: entry.media ? [...entry.media] : undefined,
     createdAt: String(entry.publishedAt ?? entry.lastActivityAt ?? ""),
     likes: entry.stats.reactionCount ?? 0,
     comments: commentsList?.length ?? entry.stats.commentCount ?? 0,
     commentsList,
     isLiked: LIKED_POST_IDS.has(entry.id),
+  };
+}
+
+/** Maps a backend entry of kind "resource" to the resources-tab view. */
+function mapEntryToResource(entry: SdkworkCommunityEntry): Resource {
+  return {
+    id: entry.id,
+    communityId: entry.categoryId,
+    title: entry.title,
+    // Entries carry the resource type through their first tag (pdf/doc/...).
+    type: entry.tags?.[0] ?? "link",
+    url: entry.media?.[0] ?? "#",
+    uploadedBy: entry.author.name,
+    createdAt: String(entry.publishedAt ?? entry.lastActivityAt ?? ""),
   };
 }
 
@@ -153,7 +138,6 @@ function mapTierToMembershipTier(tier: SdkworkCommunityMembershipTier): Membersh
     catalogPackageId: tier.catalogPackageId,
   };
 }
-
 
 /** True when the error indicates the circle member limit was reached. */
 export function isMemberLimitError(error: unknown): boolean {
@@ -211,6 +195,7 @@ export const CommunityService = {
       price: community.price,
       revenueTarget: community.revenueTarget,
       tags: community.tags,
+      tabs: community.tabs,
     });
     return mapCategoryToCommunity(category, true);
   },
@@ -225,9 +210,13 @@ export const CommunityService = {
   },
 
   async getCommunityById(id: string): Promise<Community | undefined> {
-    const categories = await port().community.categories.list();
-    const category = categories.find((candidate) => candidate.id === id);
-    return category ? mapCategoryToCommunity(category, Boolean(category.isJoined)) : undefined;
+    try {
+      const category = await port().community.categories.retrieve(id);
+      return mapCategoryToCommunity(category, Boolean(category.isJoined));
+    } catch {
+      // The backend returns not-found for missing or disabled circles.
+      return undefined;
+    }
   },
 
   async joinCommunity(id: string): Promise<void> {
@@ -243,8 +232,17 @@ export const CommunityService = {
     await port().community.members.remove(communityId, member.id);
   },
 
+  /** Deletes a circle; the backend requires the owner role. */
+  async deleteCommunity(communityId: string): Promise<void> {
+    await port().community.categories.remove(communityId);
+  },
+
   async getPostsByCommunity(communityId: string): Promise<Post[]> {
-    const entries = await port().community.feed.list({ categoryId: communityId });
+    // 动态 tab shows non-resource entries; resources have their own tab.
+    const entries = await port().community.feed.list({
+      categoryId: communityId,
+      kinds: ["announcement", "discussion", "question", "service"],
+    });
     return Promise.all(
       entries.map(async (entry) => {
         const comments = await port().community.comments.list(entry.id);
@@ -253,22 +251,29 @@ export const CommunityService = {
     );
   },
 
-  async createPost(communityId: string, content: string, images?: string[]): Promise<Post> {
+  /**
+   * Creates a post. Images are uploaded through the host-injected media
+   * runtime (drive-backed) and stored on the backend entry as media URLs;
+   * the backend mints the post id.
+   */
+  async createPost(communityId: string, content: string, images?: File[]): Promise<Post> {
+    const media =
+      images && images.length > 0 ? await getCommunityMediaRuntime().uploadImages(images) : [];
     const entry = await port().community.entries.create({
       categoryId: communityId,
       kind: "discussion",
       title: truncate(content.split("\n")[0] ?? "", 120) || "Untitled",
       excerpt: truncate(content, 240),
       body: content,
+      media,
     });
-    if (images && images.length > 0) {
-      POST_IMAGES.set(entry.id, images);
-    }
     return mapEntryToPost(entry);
   },
 
-  async addComment(communityId: string, postId: string, text: string): Promise<void> {
-    await port().community.comments.create(postId, { body: text });
+  /** Creates a comment and returns the backend-minted comment (id included). */
+  async addComment(communityId: string, postId: string, text: string): Promise<PostComment> {
+    const comment = await port().community.comments.create(postId, { body: text });
+    return mapCommentToPostComment(comment);
   },
 
   async toggleLikePost(communityId: string, postId: string): Promise<void> {
@@ -281,8 +286,13 @@ export const CommunityService = {
     }
   },
 
+  /** Resources are backend entries of kind "resource" within the circle. */
   async getResourcesByCommunity(communityId: string): Promise<Resource[]> {
-    return LOCAL_RESOURCES[communityId] ?? [];
+    const entries = await port().community.feed.list({
+      categoryId: communityId,
+      kinds: ["resource"],
+    });
+    return entries.map(mapEntryToResource);
   },
 
   async getGroupsByCommunity(communityId: string): Promise<CommunityGroup[]> {
@@ -320,8 +330,7 @@ export const CommunityService = {
   },
 
   async updateCommunity(communityId: string, updates: Partial<Community>): Promise<void> {
-    // Only defined fields are sent; sending `undefined` values through the
-    // in-memory port would overwrite existing fields with undefined.
+    // Only defined fields are sent; the backend keeps the remaining fields.
     await port().community.categories.update(communityId, {
       ...(updates.name !== undefined ? { title: updates.name } : {}),
       ...(updates.description !== undefined ? { description: updates.description } : {}),

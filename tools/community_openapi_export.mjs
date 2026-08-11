@@ -49,6 +49,7 @@ const domainSchemas = {
       revenueRaised: { type: "number", format: "double" },
       revenueTarget: { type: "number", format: "double" },
       tags: { type: "array", items: { type: "string" } },
+      tabs: { type: "array", items: { type: "string" } },
       priority: { type: "integer" },
       enabled: { type: "boolean" },
       isJoined: { type: "boolean" },
@@ -68,6 +69,7 @@ const domainSchemas = {
       price: { type: "number", format: "double" },
       revenueTarget: { type: "number", format: "double" },
       tags: { type: "array", items: { type: "string" } },
+      tabs: { type: "array", items: { type: "string" } },
     },
   },
   CommunityMemberResponse: {
@@ -232,6 +234,7 @@ const domainSchemas = {
       hasAcceptedAnswer: { type: "boolean" },
       stats: { $ref: "#/components/schemas/CommunityStats" },
       tags: { type: "array", items: { type: "string" } },
+      media: { type: "array", items: { type: "string" } },
       publishedAt: { type: "string", format: "date-time" },
       lastActivityAt: { type: "string", format: "date-time" },
       updatedAt: { type: "string", format: "date-time" },
@@ -264,6 +267,7 @@ const domainSchemas = {
       excerpt: { type: "string" },
       body: { type: "string" },
       tags: { type: "array", items: { type: "string" } },
+      media: { type: "array", items: { type: "string" } },
     },
   },
   CommunityCategoryCommand: {
@@ -335,7 +339,9 @@ const schemas = {
 const appRoutes = [
   route("get", "/app/v3/api/community/categories", "categories.list", false),
   route("post", "/app/v3/api/community/categories", "categories.create", false, [], "CommunityCircleCommand"),
+  route("get", "/app/v3/api/community/categories/{categoryId}", "categories.retrieve", false, [pathParam("categoryId")]),
   route("patch", "/app/v3/api/community/categories/{categoryId}", "categories.update", false, [pathParam("categoryId")], "CommunityCircleCommand"),
+  route("delete", "/app/v3/api/community/categories/{categoryId}", "categories.delete", false, [pathParam("categoryId")]),
   route("post", "/app/v3/api/community/categories/{categoryId}/join", "categories.join", false, [pathParam("categoryId")]),
   route("get", "/app/v3/api/community/categories/{categoryId}/members", "members.list", false, [pathParam("categoryId")]),
   route("get", "/app/v3/api/community/categories/{categoryId}/members/current", "members.current", false, [pathParam("categoryId")]),

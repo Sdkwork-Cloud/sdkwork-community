@@ -23,9 +23,7 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
   onConfirm,
 }) => {
   const { t } = useTranslation();
-  const [selectedTierId, setSelectedTierId] = useState<string | null>(
-    tiers[0]?.id ?? null,
-  );
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
   // Payment method values follow the sdkwork-order contract (wechat_pay/alipay).
   const [selectedPayment, setSelectedPayment] = useState<'wechat_pay'|'alipay'|null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
@@ -33,6 +31,23 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Callers open the sheet before tiers resolve, so preselect the first tier
+  // once the list arrives. Also recover a stale selection (e.g. the tier list
+  // was refreshed and the previously chosen tier no longer exists) instead of
+  // leaving the sheet with a dead "请选择会员等级" state.
+  useEffect(() => {
+    if (tiers.length === 0) {
+      if (selectedTierId !== null) {
+        setSelectedTierId(null);
+      }
+      return;
+    }
+    if (selectedTierId && tiers.some((tier) => tier.id === selectedTierId)) {
+      return;
+    }
+    setSelectedTierId(tiers[0].id);
+  }, [tiers, selectedTierId]);
 
   useEffect(() => {
     // 检测是否登录（auth session port 由宿主注入）
@@ -91,6 +106,23 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
         </div>
 
         {/* 会员等级选择 */}
+        {tiers.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
+              <Lock className="w-6 h-6 text-blue-500" />
+            </div>
+            <p className="text-[14px] text-text-sub text-center leading-relaxed px-4">
+              {t('community.auto_no_purchasable_tiers', '该圈子暂无可购买的会员套餐，请稍后再试或联系圈主')}
+            </p>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 rounded-full border border-black/10 dark:border-white/10 text-[14px] font-medium text-text-main"
+            >
+              {t('community.auto_got_it', '知道了')}
+            </button>
+          </div>
+        ) : (
+        <>
         <div className="flex flex-col gap-2 mb-4">
           {tiers.map((tier) => (
             <button
@@ -180,6 +212,8 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
           <Lock className="w-3 h-3" />
           {t('community.auto_secure_cashier', '支付将通过安全收银台完成')}
         </div>
+        </>
+        )}
       </div>
     </div>
   );

@@ -16,10 +16,24 @@ const ROUTES: &[HttpRoute] = &[
     )
     .with_required_permission("community.categories.write"),
     HttpRoute::dual_token(
+        HttpMethod::Get,
+        "/app/v3/api/community/categories/{categoryId}",
+        "community",
+        "categories.retrieve",
+    )
+    .with_required_permission("community.categories.read"),
+    HttpRoute::dual_token(
         HttpMethod::Patch,
         "/app/v3/api/community/categories/{categoryId}",
         "community",
         "categories.update",
+    )
+    .with_required_permission("community.categories.write"),
+    HttpRoute::dual_token(
+        HttpMethod::Delete,
+        "/app/v3/api/community/categories/{categoryId}",
+        "community",
+        "categories.delete",
     )
     .with_required_permission("community.categories.write"),
     HttpRoute::dual_token(

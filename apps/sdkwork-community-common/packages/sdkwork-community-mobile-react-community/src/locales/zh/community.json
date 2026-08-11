@@ -275,5 +275,8 @@
   "auto_shared_to": "已分享到{{target}}",
   "auto_wechat_friend": "微信好友",
   "auto_moments": "朋友圈",
-  "auto_paid_badge": "付费"
+  "auto_paid_badge": "付费",
+  "auto_no_purchasable_tiers": "该圈子暂无可购买的会员套餐，请稍后再试或联系圈主",
+  "auto_got_it": "知道了",
+  "auto_price_from": "¥{{price}} 起 · 选择套餐"
 }

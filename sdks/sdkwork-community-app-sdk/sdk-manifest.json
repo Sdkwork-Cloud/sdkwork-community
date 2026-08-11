@@ -20,12 +20,17 @@
   "baseUrl": "http://127.0.0.1:18080",
   "standardProfile": "sdkwork-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 29,
+  "ownerOnlyOperationCount": 31,
   "operations": [
     {
       "method": "POST",
       "operationId": "categories.create",
       "path": "/app/v3/api/community/categories"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "categories.delete",
+      "path": "/app/v3/api/community/categories/{categoryId}"
     },
     {
       "method": "POST",
@@ -36,6 +41,11 @@
       "method": "GET",
       "operationId": "categories.list",
       "path": "/app/v3/api/community/categories"
+    },
+    {
+      "method": "GET",
+      "operationId": "categories.retrieve",
+      "path": "/app/v3/api/community/categories/{categoryId}"
     },
     {
       "method": "PATCH",

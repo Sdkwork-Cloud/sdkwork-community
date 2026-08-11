@@ -23,7 +23,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "vitest run apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src/services/CommunityService.test.ts --root ../../../.. --config vitest.config.ts --configLoader native --pool vmThreads",
+    "test": "vitest run apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src/services/CommunityService.test.ts apps/sdkwork-community-common/packages/sdkwork-community-mobile-react-community/src/components/PaymentSheet.test.tsx --root ../../../.. --config vitest.config.ts --configLoader native --pool vmThreads",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

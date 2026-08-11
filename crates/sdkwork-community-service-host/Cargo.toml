@@ -13,4 +13,5 @@ dotenvy.workspace = true
 sdkwork-community-database-host.workspace = true
 sdkwork-community-service.workspace = true
 sdkwork-community-storage-sqlx-rust.workspace = true
+sdkwork-database-id.workspace = true
 sdkwork-database-sqlx.workspace = true

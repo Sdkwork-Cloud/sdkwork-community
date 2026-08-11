@@ -46,6 +46,8 @@ sdkwork-routes-community-app-api = { path = "crates/sdkwork-routes-community-app
 sdkwork-routes-community-backend-api = { path = "crates/sdkwork-routes-community-backend-api" }
 sdkwork-community-service-host = { path = "crates/sdkwork-community-service-host" }
 sdkwork-api-community-assembly = { path = "crates/sdkwork-api-community-assembly" }
+sdkwork-id-core = { path = "../sdkwork-id/crates/sdkwork-id-core", package = "sdkwork-id-core" }
+sdkwork-database-id = { path = "../sdkwork-database/crates/sdkwork-database-id", package = "sdkwork-database-id" }
 sdkwork-database-config = { path = "../sdkwork-database/crates/sdkwork-database-config", package = "sdkwork-database-config" }
 sdkwork-database-lifecycle = { path = "../sdkwork-database/crates/sdkwork-database-lifecycle", package = "sdkwork-database-lifecycle" }
 sdkwork-database-spi = { path = "../sdkwork-database/crates/sdkwork-database-spi", package = "sdkwork-database-spi" }

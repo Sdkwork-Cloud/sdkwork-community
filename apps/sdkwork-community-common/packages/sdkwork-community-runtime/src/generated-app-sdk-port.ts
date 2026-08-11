@@ -52,6 +52,7 @@ function toCommunityEntryCommand(command: SdkworkCommunityEntryCommand): Communi
     excerpt: command.excerpt,
     body: command.body,
     tags: command.tags ? [...command.tags] : undefined,
+    media: command.media ? [...command.media] : undefined,
   };
 }
 
@@ -103,6 +104,9 @@ function mapEntry(record: Record<string, unknown>): SdkworkCommunityEntry {
     isPinned: record.isPinned === undefined ? undefined : Boolean(record.isPinned),
     kind: mapEntryKind(String(record.kind ?? "discussion")),
     lastActivityAt: record.lastActivityAt as SdkworkCommunityEntry["lastActivityAt"],
+    media: Array.isArray(record.media)
+      ? record.media.map((item) => String(item))
+      : undefined,
     publishedAt: record.publishedAt as SdkworkCommunityEntry["publishedAt"],
     reviewState: mapReviewState(String(record.reviewState ?? "draft")),
     stats: {
@@ -145,6 +149,7 @@ function mapCategory(record: Record<string, unknown>): SdkworkCommunityCategory 
     description: record.description ? String(record.description) : undefined,
     enabled: record.enabled === undefined ? true : Boolean(record.enabled),
     id: String(record.id ?? ""),
+    isJoined: record.isJoined === undefined ? undefined : Boolean(record.isJoined),
     isPaid: record.isPaid === undefined ? undefined : Boolean(record.isPaid),
     memberCount: record.memberCount === undefined ? undefined : Number(record.memberCount),
     memberLimit: record.memberLimit === undefined ? undefined : Number(record.memberLimit),
@@ -155,6 +160,7 @@ function mapCategory(record: Record<string, unknown>): SdkworkCommunityCategory 
     revenueTarget: record.revenueTarget === undefined ? undefined : Number(record.revenueTarget),
     priority: Number(record.priority ?? 0),
     slug: String(record.slug ?? ""),
+    tabs: Array.isArray(record.tabs) ? record.tabs.map((tab) => String(tab)) : undefined,
     tags: Array.isArray(record.tags) ? record.tags.map((tag) => String(tag)) : undefined,
     tenantId: String(record.tenantId ?? ""),
     title: String(record.title ?? ""),
@@ -230,6 +236,7 @@ function toCircleCommand(command: SdkworkCommunityCircleCommand): CommunityCircl
     ...(command.memberLimit !== undefined ? { memberLimit: String(command.memberLimit) } : {}),
     ...(command.price !== undefined ? { price: command.price } : {}),
     ...(command.revenueTarget !== undefined ? { revenueTarget: command.revenueTarget } : {}),
+    ...(command.tabs !== undefined ? { tabs: [...command.tabs] } : {}),
     ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
   };
 }
@@ -344,6 +351,13 @@ export function createGeneratedCommunityAppSdkPort(
         async list() {
           const page = await client.community.categories.list();
           return page.items.map((item) => mapCategory(item as Record<string, unknown>));
+        },
+        async retrieve(categoryId: string) {
+          const item = await client.community.categories.retrieve(categoryId);
+          return mapCategory(item as Record<string, unknown>);
+        },
+        async remove(categoryId: string) {
+          await client.community.categories.delete(categoryId);
         },
         async update(categoryId: string, command: Partial<SdkworkCommunityCircleCommand>) {
           const body = toCircleCommand({

@@ -275,5 +275,8 @@
   "auto_shared_to": "Shared to {{target}}",
   "auto_wechat_friend": "WeChat contact",
   "auto_moments": "Moments",
-  "auto_paid_badge": "Paid"
+  "auto_paid_badge": "Paid",
+  "auto_no_purchasable_tiers": "This circle has no purchasable membership plans yet. Please try again later or contact the owner.",
+  "auto_got_it": "Got it",
+  "auto_price_from": "From ¥{{price}} · Choose a plan"
 }

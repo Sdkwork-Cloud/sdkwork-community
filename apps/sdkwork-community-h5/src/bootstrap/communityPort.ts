@@ -2,7 +2,6 @@ import {
   configureCommunityAuthSessionPort,
   configureCommunityOrderRuntime,
   configureCommunityRuntimePort,
-  resetCommunityRuntimePort,
   type CreateCircleMembershipOrderOptions,
   type CircleMembershipOrder,
 } from "@sdkwork/community-mobile-react-community";
@@ -21,8 +20,10 @@ import { getRuntime } from "./runtime";
  * - `configureCommunityAuthSessionPort` serves the current IAM user to the
  *   payment sheet login check.
  * - `configureCommunityRuntimePort` switches the package to the generated
- *   Community App SDK port once a session exists; without a session the
- *   package keeps its seeded in-memory port so the UI stays explorable.
+ *   Community App SDK port once a session exists. Without a session the
+ *   runtime stays unconfigured and community surfaces fail closed (redirect
+ *   to login); there is deliberately no demo/in-memory fallback — all data
+ *   and entity ids come from the backend service.
  * - `configureOrderMobileRuntime` composes the official order cashier with
  *   the order App SDK client and the IAM WeChat payment OAuth channel.
  * - `configureCommunityOrderRuntime` routes circle membership order creation
@@ -97,12 +98,12 @@ export function bootstrapCommunityPort(): void {
     },
   });
 
+  // The real generated port is installed as soon as a session exists; without
+  // a session the port stays unconfigured (fail-closed, no demo fallback).
   const syncRuntimePort = (): void => {
     const user = runtime.getCurrentUser();
     if (user?.id) {
       configureCommunityRuntimePort(runtime.sdkClients.communityAppSdkPort);
-    } else {
-      resetCommunityRuntimePort();
     }
   };
 

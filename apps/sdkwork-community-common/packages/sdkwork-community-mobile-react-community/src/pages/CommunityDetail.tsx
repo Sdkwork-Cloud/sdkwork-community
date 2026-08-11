@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import { CommunityService, isMemberLimitError, isRevenueTargetError } from "../services/CommunityService";
 import { getCommunityOrderRuntime } from "../services/communityOrderRuntime";
 import { Community, Post, Resource, CommunityGroup, MembershipTier } from "../types";
@@ -22,11 +22,17 @@ export const CommunityDetail: React.FC = () => {
   const { t } = useTranslation();
 const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [community, setCommunity] = useState<Community | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [groups, setGroups] = useState<CommunityGroup[]>([]);
-  const [activeTab, setActiveTab] = useState<string>('feeds');
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const requested = (searchParams.get("tab") ?? "").trim();
+    return ["feeds", "resources", "groups", "news", "docs", "repos", "software"].includes(requested)
+      ? requested
+      : "feeds";
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [activeCommentPostId, setActiveCommentPostId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
@@ -49,6 +55,17 @@ const { id } = useParams<{ id: string }>();
       setPosts(fetchedPosts);
       setResources(fetchedResources);
       setGroups(fetchedGroups);
+      // Preload purchasable tiers for paid circles so the join surface opens
+      // with the price options already resolved (never a dead empty sheet).
+      if (comm?.isPaid) {
+        try {
+          setTiers(await CommunityService.getMembershipTiers(id));
+        } catch {
+          setTiers([]);
+        }
+      } else {
+        setTiers([]);
+      }
     } catch {
       showToast(t('community.auto_fn_n5e6a908e', '获取详情失败'));
     } finally {
@@ -63,15 +80,26 @@ const { id } = useParams<{ id: string }>();
   const handleJoin = async () => {
     if (!id || !community) return;
     if (community.isPaid) {
-      if (!isPaySheetOpen) {
-        setIsPaySheetOpen(true);
+      // Paid circles always enter the tier-selection flow; never fall through
+      // to the free join path (a second trigger while the sheet is open would
+      // otherwise join the circle without paying).
+      if (tiers.length === 0) {
+        // The preload may have failed; retry once before giving up so a
+        // transient backend error cannot dead-end the purchase surface.
         try {
-          setTiers(await CommunityService.getMembershipTiers(id));
+          const fetched = await CommunityService.getMembershipTiers(id);
+          setTiers(fetched);
+          if (fetched.length === 0) {
+            showToast(t('community.auto_no_purchasable_tiers', '该圈子暂无可购买的会员套餐，请稍后再试或联系圈主'));
+            return;
+          }
         } catch {
           showToast(t('community.auto_fn_2796529c', '获取圈子配置失败'));
+          return;
         }
-        return;
       }
+      setIsPaySheetOpen(true);
+      return;
     }
     
     try {
@@ -90,7 +118,13 @@ const { id } = useParams<{ id: string }>();
 
       setShowSuccessModal(true);
     } catch (error) {
-      showToast(isRevenueTargetError(error) ? '融资目标已达成，认购已截止' : isMemberLimitError(error) ? '圈子人数已满，无法加入' : t('community.auto_fn_2f078e83', '操作失败'));
+      showToast(
+        isRevenueTargetError(error)
+          ? t('community.auto_revenue_target_reached', '融资目标已达成，认购已截止')
+          : isMemberLimitError(error)
+            ? t('community.auto_member_limit_reached', '圈子人数已满，无法加入')
+            : t('community.auto_fn_2f078e83', '操作失败'),
+      );
       setIsPaySheetOpen(false);
     }
   };
@@ -140,9 +174,9 @@ const { id } = useParams<{ id: string }>();
 
   const handleComment = async () => {
     if (!commentText.trim() || !id || !activeCommentPostId) return;
-    setIsLoading(true); // Can show loading indicator if needed
     try {
-      await CommunityService.addComment(id, activeCommentPostId, commentText);
+      // The backend mints the comment id (snowflake) and returns the comment.
+      const created = await CommunityService.addComment(id, activeCommentPostId, commentText);
       setPosts(prev => prev.map(p => {
         if (p.id === activeCommentPostId) {
           return { 
@@ -150,7 +184,7 @@ const { id } = useParams<{ id: string }>();
             comments: p.comments + 1,
             commentsList: [
               ...(p.commentsList || []),
-              { id: `cmt_temp_${Date.now()}`, authorName: "我", content: commentText, createdAt: new Date().toISOString() }
+              created
             ]
           };
         }
@@ -161,8 +195,6 @@ const { id } = useParams<{ id: string }>();
       showToast(t('community.auto_fn_41a16585', '评论成功'));
     } catch {
       showToast(t('community.auto_fn_41a08d0a', '评论失败'));
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -219,7 +251,7 @@ const { id } = useParams<{ id: string }>();
           )}
 
           {!community.isJoined && community.isPaid ? (
-             <CommunityLockedView community={community} onJoin={handleJoin} />
+             <CommunityLockedView community={community} onJoin={handleJoin} tierCount={tiers.length} />
           ) : (
             <>
               {/* Sticky Tabs */}
