@@ -8,6 +8,7 @@ export interface CommunityCategory {
   avatar?: string;
   ownerId?: string;
   memberCount: string;
+  memberLimit?: string;
   postCount: string;
   isPaid: boolean;
   price?: number;

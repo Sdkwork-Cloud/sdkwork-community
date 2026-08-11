@@ -67,6 +67,8 @@ pub struct CommunityCategoryResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner_id: Option<String>,
     pub member_count: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub member_limit: Option<i64>,
     pub post_count: i64,
     pub is_paid: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -198,6 +200,7 @@ pub fn map_category(category: CommunityCategoryView) -> CommunityCategoryRespons
         avatar: category.avatar,
         owner_id: category.owner_id,
         member_count: category.member_count,
+        member_limit: category.member_limit,
         post_count: category.post_count,
         is_paid: category.is_paid,
         price: category.price,

@@ -4,6 +4,7 @@ export interface CommunityCircleCommand {
   coverImage?: string;
   avatar?: string;
   isPaid?: boolean;
+  memberLimit?: string;
   price?: number;
   tags?: string[];
 }

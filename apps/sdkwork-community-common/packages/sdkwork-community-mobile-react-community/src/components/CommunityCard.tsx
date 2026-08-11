@@ -69,7 +69,10 @@ return (
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-text-sub">
               <Users className="w-4 h-4" />
-              <span className="text-[12px]">{t('community.auto_n4e746140', '{community.memberCount} 成员')}</span>
+              <span className="text-[12px]">
+                {t('community.auto_n4e746140', '{community.memberCount} 成员')}
+                {community.memberLimit ? `/${community.memberLimit}` : ""}
+              </span>
             </div>
             <div className="flex items-center gap-1 text-text-sub">
               <MessageSquare className="w-4 h-4" />

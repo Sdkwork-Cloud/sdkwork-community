@@ -63,6 +63,7 @@ function mapCategoryToCommunity(category: SdkworkCommunityCategory, isJoined: bo
     coverImage: category.coverImage ?? "",
     avatar: category.avatar,
     memberCount: category.memberCount ?? 0,
+    memberLimit: category.memberLimit,
     postCount: category.postCount ?? 0,
     tags: category.tags ? [...category.tags] : [],
     tabs: category.tabs ? [...category.tabs] : undefined,
@@ -156,6 +157,12 @@ async function isJoined(communityId: string): Promise<boolean> {
   }
 }
 
+/** True when the error indicates the circle member limit was reached. */
+export function isMemberLimitError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("limit") || message.includes("满");
+}
+
 function truncate(value: string, length: number): string {
   const normalized = value.trim();
   return normalized.length <= length ? normalized : `${normalized.slice(0, length)}…`;
@@ -196,6 +203,7 @@ export const CommunityService = {
       avatar: community.avatar,
       coverImage: community.coverImage,
       isPaid: community.isPaid,
+      memberLimit: community.memberLimit,
       price: community.price,
       tags: community.tags,
     });
@@ -304,6 +312,7 @@ export const CommunityService = {
       avatar: updates.avatar,
       coverImage: updates.coverImage,
       isPaid: updates.isPaid,
+      memberLimit: updates.memberLimit,
       price: updates.price,
       tags: updates.tags,
     });

@@ -10,7 +10,7 @@ export const CommunityEditField: React.FC = () => {
   const { t } = useTranslation();
 const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const field = searchParams.get('field') as 'name' | 'description' | 'tags' || 'name';
+  const field = searchParams.get('field') as 'name' | 'description' | 'tags' | 'memberLimit' || 'name';
   const navigate = useNavigate();
 
   const [community, setCommunity] = useState<Community | null>(null);
@@ -24,6 +24,8 @@ const { id } = useParams<{ id: string }>();
           setCommunity(c);
           if (field === 'tags') {
             setValue(c.tags.join(" "));
+          } else if (field === 'memberLimit') {
+            setValue(c.memberLimit ? String(c.memberLimit) : "");
           } else {
             setValue(c[field] || "");
           }
@@ -41,6 +43,8 @@ const { id } = useParams<{ id: string }>();
        const updates: Partial<Community> = {};
        if (field === 'tags') {
          updates.tags = value.split(" ").filter(t => t.trim());
+       } else if (field === 'memberLimit') {
+         updates.memberLimit = value.trim() ? Number(value.trim()) : undefined;
        } else {
          updates[field] = value.trim();
        }
@@ -57,7 +61,8 @@ const { id } = useParams<{ id: string }>();
   const titles = {
     name: '圈子名称',
     description: '圈子简介',
-    tags: '圈子标签'
+    tags: '圈子标签',
+    memberLimit: '会员人数上限'
   };
 
   return (
@@ -94,6 +99,9 @@ const { id } = useParams<{ id: string }>();
           </div>
           {field === 'tags' && (
             <div className="px-4 py-2 text-[13px] text-text-sub">{t('community.auto_n27f80d1e', '多个标签请用空格隔开，例如：科技 创业 互联网')}</div>
+          )}
+          {field === 'memberLimit' && (
+            <div className="px-4 py-2 text-[13px] text-text-sub">不填表示不限制；达到上限后新成员无法加入</div>
           )}
        </div>
     </div>

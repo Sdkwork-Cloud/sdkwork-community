@@ -76,6 +76,8 @@ export interface SdkworkCommunityCategory {
   id: string;
   isPaid?: boolean;
   memberCount?: number;
+  /** Maximum member count; absent means unlimited (默认不限制). */
+  memberLimit?: number;
   ownerId?: string;
   postCount?: number;
   price?: number;
@@ -156,6 +158,8 @@ export interface SdkworkCommunityCircleCommand {
   coverImage?: string;
   description?: string;
   isPaid?: boolean;
+  /** Maximum member count; absent keeps the current value (unlimited by default). */
+  memberLimit?: number;
   price?: number;
   tags?: readonly string[];
   title: string;

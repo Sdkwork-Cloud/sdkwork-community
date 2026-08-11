@@ -147,6 +147,7 @@ function mapCategory(record: Record<string, unknown>): SdkworkCommunityCategory 
     id: String(record.id ?? ""),
     isPaid: record.isPaid === undefined ? undefined : Boolean(record.isPaid),
     memberCount: record.memberCount === undefined ? undefined : Number(record.memberCount),
+    memberLimit: record.memberLimit === undefined ? undefined : Number(record.memberLimit),
     ownerId: record.ownerId ? String(record.ownerId) : undefined,
     postCount: record.postCount === undefined ? undefined : Number(record.postCount),
     price: record.price === undefined ? undefined : Number(record.price),
@@ -223,6 +224,7 @@ function toCircleCommand(command: SdkworkCommunityCircleCommand): CommunityCircl
     ...(command.avatar !== undefined ? { avatar: command.avatar } : {}),
     ...(command.coverImage !== undefined ? { coverImage: command.coverImage } : {}),
     ...(command.isPaid !== undefined ? { isPaid: command.isPaid } : {}),
+    ...(command.memberLimit !== undefined ? { memberLimit: String(command.memberLimit) } : {}),
     ...(command.price !== undefined ? { price: command.price } : {}),
     ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
   };
@@ -346,6 +348,7 @@ export function createGeneratedCommunityAppSdkPort(
             ...(command.avatar !== undefined ? { avatar: command.avatar } : {}),
             ...(command.coverImage !== undefined ? { coverImage: command.coverImage } : {}),
             ...(command.isPaid !== undefined ? { isPaid: command.isPaid } : {}),
+            ...(command.memberLimit !== undefined ? { memberLimit: command.memberLimit } : {}),
             ...(command.price !== undefined ? { price: command.price } : {}),
             ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
           });

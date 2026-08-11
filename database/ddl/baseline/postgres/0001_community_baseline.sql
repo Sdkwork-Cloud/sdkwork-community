@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS community_category (
     avatar TEXT,
     owner_id TEXT,
     member_count INTEGER NOT NULL DEFAULT 0,
+    member_limit INTEGER,
     post_count INTEGER NOT NULL DEFAULT 0,
     is_paid BOOLEAN NOT NULL DEFAULT FALSE,
     price NUMERIC,

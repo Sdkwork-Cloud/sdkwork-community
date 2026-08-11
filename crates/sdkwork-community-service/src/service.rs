@@ -26,6 +26,7 @@ pub struct CommunityCategoryView {
     pub avatar: Option<String>,
     pub owner_id: Option<String>,
     pub member_count: i64,
+    pub member_limit: Option<i64>,
     pub post_count: i64,
     pub is_paid: bool,
     pub price: Option<f64>,
@@ -165,6 +166,7 @@ pub struct CommunityCircleCommand {
     pub cover_image: Option<String>,
     pub avatar: Option<String>,
     pub is_paid: Option<bool>,
+    pub member_limit: Option<i64>,
     pub price: Option<f64>,
     pub tags: Option<Vec<String>>,
 }
@@ -630,6 +632,7 @@ impl CommunityService {
                 cover_image: None,
                 avatar: None,
                 owner_id: None,
+                member_limit: None,
                 is_paid: false,
                 price: None,
                 tags: Vec::new(),
@@ -667,6 +670,7 @@ impl CommunityService {
                     avatar: None,
                     owner_id: None,
                     member_count: None,
+                    member_limit: None,
                     post_count: None,
                     is_paid: None,
                     price: None,
@@ -737,6 +741,7 @@ impl CommunityService {
                 cover_image: command.cover_image,
                 avatar: command.avatar,
                 owner_id: Some(user_id.to_owned()),
+                member_limit: validate_member_limit(command.member_limit)?,
                 is_paid: command.is_paid.unwrap_or(false),
                 price: command.price,
                 tags: command.tags.unwrap_or_default(),
@@ -785,6 +790,7 @@ impl CommunityService {
                     avatar: command.avatar,
                     owner_id: None,
                     member_count: None,
+                    member_limit: validate_member_limit(command.member_limit)?,
                     post_count: None,
                     is_paid: command.is_paid,
                     price: command.price,
@@ -865,6 +871,7 @@ impl CommunityService {
                     .to_owned(),
             ));
         }
+        self.ensure_member_capacity(tenant_id, category_id).await?;
         let now = Utc::now().to_rfc3339();
         let member_id = uuid();
         self.store
@@ -1102,6 +1109,7 @@ impl CommunityService {
                     avatar: None,
                     owner_id: None,
                     member_count: Some((category.member_count + member_delta).max(0)),
+                    member_limit: None,
                     post_count: Some((category.post_count + post_delta).max(0)),
                     is_paid: None,
                     price: None,
@@ -1125,6 +1133,24 @@ impl CommunityService {
             return Err(CommunityServiceError::Unauthorized(
                 "membership required".to_owned(),
             ));
+        }
+        Ok(())
+    }
+
+    /// Rejects joins/activations when the circle has a member limit and it is
+    /// already reached (NULL limit means unlimited).
+    async fn ensure_member_capacity(
+        &self,
+        tenant_id: &str,
+        category_id: &str,
+    ) -> Result<(), CommunityServiceError> {
+        let category = self.retrieve_category(tenant_id, category_id).await?;
+        if let Some(limit) = category.member_limit {
+            if category.member_count >= limit {
+                return Err(CommunityServiceError::Conflict(
+                    "circle member limit reached".to_owned(),
+                ));
+            }
         }
         Ok(())
     }
@@ -1385,6 +1411,7 @@ impl CommunityService {
             .await?
             .is_none()
         {
+            self.ensure_member_capacity(tenant_id, category_id).await?;
             self.store
                 .create_member(NewCommunityMember {
                     id: uuid(),
@@ -1554,6 +1581,7 @@ fn map_category(category: CommunityStoredCategory) -> CommunityCategoryView {
         avatar: category.avatar,
         owner_id: category.owner_id,
         member_count: category.member_count,
+        member_limit: category.member_limit,
         post_count: category.post_count,
         is_paid: category.is_paid,
         price: category.price,
@@ -1658,6 +1686,16 @@ fn map_comment(comment: CommunityStoredComment) -> CommunityCommentView {
         is_accepted_answer: comment.is_accepted_answer,
         created_at: comment.created_at,
         updated_at: comment.updated_at,
+    }
+}
+
+fn validate_member_limit(value: Option<i64>) -> Result<Option<i64>, CommunityServiceError> {
+    match value {
+        None | Some(0) => Ok(None),
+        Some(limit) if limit < 0 => Err(CommunityServiceError::Validation(
+            "member limit must be positive or empty".to_owned(),
+        )),
+        Some(limit) => Ok(Some(limit)),
     }
 }
 

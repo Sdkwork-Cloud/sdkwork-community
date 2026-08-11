@@ -15,6 +15,7 @@ const navigate = useNavigate();
   const [tags, setTags] = useState("");
   const [isPaid, setIsPaid] = useState(false);
   const [price, setPrice] = useState("");
+  const [memberLimit, setMemberLimit] = useState("");
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,6 +40,7 @@ const navigate = useNavigate();
         tags: tags.split(" ").filter(t => t.trim()),
         coverImage: coverImage,
         isPaid,
+        memberLimit: memberLimit.trim() ? Number(memberLimit) : undefined,
         price: isPaid ? Number(price) || 0 : undefined
       };
 
@@ -148,6 +150,18 @@ const navigate = useNavigate();
              />
           </div>
         )}
+
+        <div className="px-4">
+           <label className="text-[14px] font-medium text-text-main mb-2 block">会员人数上限</label>
+           <input 
+             type="number"
+             value={memberLimit}
+             onChange={e => setMemberLimit(e.target.value)}
+             className="w-full bg-[#f8f9fa] dark:bg-[#2C2C2E] px-4 py-3 rounded-xl outline-none text-[15px] placeholder:text-text-sub focus:ring-1 focus:ring-blue-500 transition-shadow"
+             placeholder="不填表示不限制"
+           />
+           <p className="text-[12px] text-text-sub mt-1">达到上限后新成员无法加入</p>
+        </div>
 
         <div className="h-24"></div> {/* Spacer for fixed bottom */}
       </div>

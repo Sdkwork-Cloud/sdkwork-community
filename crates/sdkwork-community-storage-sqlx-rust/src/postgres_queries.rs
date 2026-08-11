@@ -18,7 +18,7 @@ pub async fn list_categories(
     let rows = sqlx::query(
         r#"
         SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
-               member_count, post_count, is_paid, price::float8, tags, priority, enabled
+               member_count, member_limit, post_count, is_paid, price::float8, tags, priority, enabled
         FROM community_category
         WHERE tenant_id = $1 AND enabled = TRUE
         ORDER BY priority DESC, slug ASC
@@ -39,6 +39,7 @@ pub async fn list_categories(
             avatar: optional_string_cell(row, "avatar"),
             owner_id: optional_string_cell(row, "owner_id"),
             member_count: integer_cell(row, "member_count"),
+            member_limit: optional_integer_cell(row, "member_limit"),
             post_count: integer_cell(row, "post_count"),
             is_paid: bool_cell(row, "is_paid"),
             price: optional_f64_cell(row, "price"),
@@ -108,8 +109,8 @@ pub async fn create_category(
         r#"
         INSERT INTO community_category
             (id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
-             member_count, post_count, is_paid, price, tags, priority, enabled, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::numeric, $13::text[], $14, $15, $16, $17)
+             member_count, member_limit, post_count, is_paid, price, tags, priority, enabled, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::numeric, $13::text[], $14, $15, $16, $17, $18)
         "#,
     )
     .bind(input.id)
@@ -122,6 +123,7 @@ pub async fn create_category(
     .bind(input.owner_id)
     .bind(0i64)
     .bind(0i64)
+    .bind(input.member_limit)
     .bind(input.is_paid)
     .bind(input.price)
     .bind(&input.tags)
@@ -148,10 +150,10 @@ pub async fn update_category(
         r#"
         UPDATE community_category
         SET slug = $1, title = $2, description = $3, cover_image = $4, avatar = $5,
-            owner_id = $6, member_count = $7, post_count = $8, is_paid = $9,
-            price = $10::numeric, tags = $11::text[], priority = $12, enabled = $13,
-            updated_at = $14
-        WHERE tenant_id = $15 AND id = $16
+            owner_id = $6, member_count = $7, member_limit = $8, post_count = $9,
+            is_paid = $10, price = $11::numeric, tags = $12::text[], priority = $13,
+            enabled = $14, updated_at = $15
+        WHERE tenant_id = $16 AND id = $17
         "#,
     )
     .bind(patch.slug.as_ref().unwrap_or(&existing.slug))
@@ -161,6 +163,7 @@ pub async fn update_category(
     .bind(patch.avatar.as_ref().or(existing.avatar.as_ref()))
     .bind(patch.owner_id.as_ref().or(existing.owner_id.as_ref()))
     .bind(patch.member_count.unwrap_or(existing.member_count))
+    .bind(patch.member_limit.or(existing.member_limit))
     .bind(patch.post_count.unwrap_or(existing.post_count))
     .bind(patch.is_paid.unwrap_or(existing.is_paid))
     .bind(patch.price.or(existing.price))
@@ -870,6 +873,18 @@ fn bool_cell(row: &sqlx::postgres::PgRow, column: &str) -> bool {
     row.try_get::<bool, _>(column)
         .or_else(|_| row.try_get::<i64, _>(column).map(|value| value != 0))
         .unwrap_or(false)
+}
+
+fn optional_integer_cell(row: &sqlx::postgres::PgRow, column: &str) -> Option<i64> {
+    row.try_get::<Option<i64>, _>(column)
+        .ok()
+        .flatten()
+        .or_else(|| {
+            row.try_get::<Option<i32>, _>(column)
+                .ok()
+                .flatten()
+                .map(i64::from)
+        })
 }
 
 fn optional_f64_cell(row: &sqlx::postgres::PgRow, column: &str) -> Option<f64> {

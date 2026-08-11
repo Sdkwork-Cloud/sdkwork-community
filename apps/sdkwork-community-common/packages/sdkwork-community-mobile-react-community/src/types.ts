@@ -5,6 +5,8 @@ export interface Community {
   coverImage: string;
   avatar?: string;
   memberCount: number;
+  /** Maximum member count; undefined means unlimited (默认不限制). */
+  memberLimit?: number;
   postCount: number;
   tags: string[];
   tabs?: string[];

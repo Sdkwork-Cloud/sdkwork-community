@@ -46,6 +46,7 @@ pub struct CommunityCategoryPatch {
     pub avatar: Option<String>,
     pub owner_id: Option<String>,
     pub member_count: Option<i64>,
+    pub member_limit: Option<i64>,
     pub post_count: Option<i64>,
     pub is_paid: Option<bool>,
     pub price: Option<f64>,

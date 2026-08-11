@@ -104,11 +104,11 @@
     },
     {
       "path": "src/types/community-category.ts",
-      "sha256": "b7d30114a21f8902b8b07fecc082d544677d710d04e6f1c42b32110e322538b2"
+      "sha256": "97126116088b27c09a9b95a96171fd3d62c59e44ba074bbd885fd30e4681b2df"
     },
     {
       "path": "src/types/community-circle-command.ts",
-      "sha256": "bf8ae5edd31ad27d863912dcc06b3bffe5a9112c6940045d0603d4075090cad1"
+      "sha256": "299474f6b79b757b636f480b245bbbb6b25a71fc0527e73c3db57059dc2f9c21"
     },
     {
       "path": "src/types/community-comment-command.ts",

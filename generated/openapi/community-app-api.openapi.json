@@ -2508,6 +2508,10 @@
             "type": "integer",
             "format": "int64"
           },
+          "memberLimit": {
+            "type": "integer",
+            "format": "int64"
+          },
           "postCount": {
             "type": "integer",
             "format": "int64"
@@ -2554,6 +2558,10 @@
           },
           "isPaid": {
             "type": "boolean"
+          },
+          "memberLimit": {
+            "type": "integer",
+            "format": "int64"
           },
           "price": {
             "type": "number",
