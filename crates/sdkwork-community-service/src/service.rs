@@ -35,6 +35,7 @@ pub struct CommunityCategoryView {
     pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+    pub is_joined: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -292,6 +293,21 @@ impl CommunityService {
     ) -> Result<Vec<CommunityCategoryView>, CommunityServiceError> {
         self.store
             .list_categories(tenant_id)
+            .await
+            .map(|items| items.into_iter().map(map_category).collect())
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))
+    }
+
+    /// Lists enabled circles with the requesting user's membership state
+    /// (`is_joined`) so clients render list items without per-circle
+    /// `members.current` requests.
+    pub async fn list_categories_with_membership(
+        &self,
+        tenant_id: &str,
+        user_id: &str,
+    ) -> Result<Vec<CommunityCategoryView>, CommunityServiceError> {
+        self.store
+            .list_categories_with_membership(tenant_id, user_id)
             .await
             .map(|items| items.into_iter().map(map_category).collect())
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))
@@ -1713,6 +1729,7 @@ fn map_category(category: CommunityStoredCategory) -> CommunityCategoryView {
         tags: category.tags,
         priority: category.priority,
         enabled: category.enabled,
+        is_joined: category.is_joined,
     }
 }
 

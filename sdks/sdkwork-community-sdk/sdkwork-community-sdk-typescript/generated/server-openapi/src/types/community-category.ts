@@ -17,4 +17,5 @@ export interface CommunityCategory {
   tags: string[];
   priority: number;
   enabled: boolean;
+  isJoined: boolean;
 }

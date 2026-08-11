@@ -612,6 +612,7 @@
           "memberCount",
           "postCount",
           "isPaid",
+          "isJoined",
           "tags",
           "priority",
           "enabled"
@@ -678,6 +679,9 @@
             "type": "integer"
           },
           "enabled": {
+            "type": "boolean"
+          },
+          "isJoined": {
             "type": "boolean"
           }
         }

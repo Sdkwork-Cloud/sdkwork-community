@@ -146,7 +146,11 @@ async fn list_categories(
             )
         }
     };
-    match state.service.list_categories(&subject.tenant_id).await {
+    match state
+        .service
+        .list_categories_with_membership(&subject.tenant_id, &subject.user_id)
+        .await
+    {
         Ok(items) => {
             let count = items.len() as i64;
             success_items(

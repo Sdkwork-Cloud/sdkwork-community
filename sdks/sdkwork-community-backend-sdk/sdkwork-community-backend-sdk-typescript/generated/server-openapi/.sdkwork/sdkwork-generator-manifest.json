@@ -104,7 +104,7 @@
     },
     {
       "path": "src/types/community-category.ts",
-      "sha256": "69979cd3e600e29442bf163d488414033efa130a33429f99f7a53dc1e554034c"
+      "sha256": "dd6fe1748f0adb04e5052db3f2b8bbd504811e633a5d034bc512b2497713ccda"
     },
     {
       "path": "src/types/community-circle-command.ts",

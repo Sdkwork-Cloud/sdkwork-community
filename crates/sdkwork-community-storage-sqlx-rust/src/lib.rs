@@ -66,6 +66,7 @@ pub struct CommunityStoredCategory {
     pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+    pub is_joined: bool,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

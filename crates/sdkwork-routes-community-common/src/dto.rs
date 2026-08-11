@@ -79,6 +79,7 @@ pub struct CommunityCategoryResponse {
     pub tags: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+    pub is_joined: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -214,6 +215,7 @@ pub fn map_category(category: CommunityCategoryView) -> CommunityCategoryRespons
         tags: category.tags,
         priority: category.priority,
         enabled: category.enabled,
+        is_joined: category.is_joined,
     }
 }
 

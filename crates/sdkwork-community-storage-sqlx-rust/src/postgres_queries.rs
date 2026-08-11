@@ -11,6 +11,30 @@ use super::{
     NewCommunityMember, NewCommunityTier,
 };
 
+fn category_from_row(row: &sqlx::postgres::PgRow) -> CommunityStoredCategory {
+    CommunityStoredCategory {
+        id: string_cell(row, "id"),
+        tenant_id: string_cell(row, "tenant_id"),
+        slug: string_cell(row, "slug"),
+        title: string_cell(row, "title"),
+        description: optional_string_cell(row, "description"),
+        cover_image: optional_string_cell(row, "cover_image"),
+        avatar: optional_string_cell(row, "avatar"),
+        owner_id: optional_string_cell(row, "owner_id"),
+        member_count: integer_cell(row, "member_count"),
+        member_limit: optional_integer_cell(row, "member_limit"),
+        post_count: integer_cell(row, "post_count"),
+        is_paid: bool_cell(row, "is_paid"),
+        price: optional_f64_cell(row, "price"),
+        revenue_target: optional_f64_cell(row, "revenue_target"),
+        revenue_raised: optional_f64_cell(row, "revenue_raised").unwrap_or(0.0),
+        tags: text_array_cell(row, "tags"),
+        priority: integer_cell(row, "priority"),
+        enabled: bool_cell(row, "enabled"),
+        is_joined: bool_cell(row, "is_joined"),
+    }
+}
+
 pub async fn list_categories(
     pool: &PgPool,
     tenant_id: &str,
@@ -19,7 +43,8 @@ pub async fn list_categories(
         r#"
         SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
                member_count, member_limit, post_count, is_paid, price::float8,
-               revenue_target::float8, revenue_raised::float8, tags, priority, enabled
+               revenue_target::float8, revenue_raised::float8, tags, priority, enabled,
+               FALSE AS is_joined
         FROM community_category
         WHERE tenant_id = $1 AND enabled = TRUE
         ORDER BY priority DESC, slug ASC
@@ -28,29 +53,39 @@ pub async fn list_categories(
     .bind(tenant_id)
     .fetch_all(pool)
     .await?;
-    Ok(rows
-        .iter()
-        .map(|row| CommunityStoredCategory {
-            id: string_cell(row, "id"),
-            tenant_id: string_cell(row, "tenant_id"),
-            slug: string_cell(row, "slug"),
-            title: string_cell(row, "title"),
-            description: optional_string_cell(row, "description"),
-            cover_image: optional_string_cell(row, "cover_image"),
-            avatar: optional_string_cell(row, "avatar"),
-            owner_id: optional_string_cell(row, "owner_id"),
-            member_count: integer_cell(row, "member_count"),
-            member_limit: optional_integer_cell(row, "member_limit"),
-            post_count: integer_cell(row, "post_count"),
-            is_paid: bool_cell(row, "is_paid"),
-            price: optional_f64_cell(row, "price"),
-            revenue_target: optional_f64_cell(row, "revenue_target"),
-            revenue_raised: optional_f64_cell(row, "revenue_raised").unwrap_or(0.0),
-            tags: text_array_cell(row, "tags"),
-            priority: integer_cell(row, "priority"),
-            enabled: bool_cell(row, "enabled"),
-        })
-        .collect())
+    Ok(rows.iter().map(category_from_row).collect())
+}
+
+/// Lists enabled circles together with the requesting user's membership
+/// state, so list rendering never needs one `members.current` request per
+/// circle (N+1).
+pub async fn list_categories_with_membership(
+    pool: &PgPool,
+    tenant_id: &str,
+    user_id: &str,
+) -> Result<Vec<CommunityStoredCategory>, sqlx::Error> {
+    let rows = sqlx::query(
+        r#"
+        SELECT c.id, c.tenant_id, c.slug, c.title, c.description, c.cover_image,
+               c.avatar, c.owner_id, c.member_count, c.member_limit, c.post_count,
+               c.is_paid, c.price::float8, c.revenue_target::float8,
+               c.revenue_raised::float8, c.tags, c.priority, c.enabled,
+               (cm.id IS NOT NULL) AS is_joined
+        FROM community_category c
+        LEFT JOIN community_member cm
+          ON cm.category_id = c.id
+         AND cm.tenant_id = c.tenant_id
+         AND cm.user_id = $2
+         AND cm.status = 'active'
+        WHERE c.tenant_id = $1 AND c.enabled = TRUE
+        ORDER BY c.priority DESC, c.slug ASC
+        "#,
+    )
+    .bind(tenant_id)
+    .bind(user_id)
+    .fetch_all(pool)
+    .await?;
+    Ok(rows.iter().map(category_from_row).collect())
 }
 
 pub async fn count_comments(

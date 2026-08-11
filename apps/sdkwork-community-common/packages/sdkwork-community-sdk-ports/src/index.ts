@@ -19,6 +19,7 @@ import {
   type SdkworkCommunityTierCommand,
   evaluateCommunityPublicationReadiness,
 } from "@sdkwork/community-contracts";
+import { nextSnowflakeId } from "./snowflake";
 
 export interface SdkworkCommunityListParams
   extends Pick<FilterCommunityEntriesOptions, "categories" | "featuredOnly" | "kinds" | "mode" | "query" | "reviewStates" | "tags"> {
@@ -144,6 +145,7 @@ export interface CreateInMemoryCommunityAppSdkPortOptions {
   comments?: readonly SdkworkCommunityComment[];
   currentUserId?: string;
   entries?: readonly SdkworkCommunityEntry[];
+  groups?: readonly SdkworkCommunityGroup[];
   memberships?: readonly SdkworkCommunityMember[];
   tiers?: readonly SdkworkCommunityMembershipTier[];
 }
@@ -168,6 +170,11 @@ export function createInMemoryCommunityAppSdkPort(
     const list = tiers.get(tier.categoryId) ?? [];
     list.push(tier);
     tiers.set(tier.categoryId, list);
+  }
+  for (const group of options.groups ?? []) {
+    const list = groups.get(group.communityId) ?? [];
+    list.push(group);
+    groups.set(group.communityId, list);
   }
 
   function findEntry(entryId: string): SdkworkCommunityEntry {
@@ -256,7 +263,7 @@ export function createInMemoryCommunityAppSdkPort(
             coverImage: command.coverImage,
             description: command.description,
             enabled: true,
-            id: `category-${categories.length + 1}`,
+            id: nextSnowflakeId(),
             isPaid: command.isPaid,
             memberCount: 0,
             ownerId: currentUserId,
@@ -264,6 +271,7 @@ export function createInMemoryCommunityAppSdkPort(
             price: command.price,
             priority: 0,
             slug,
+            tabs: command.tabs,
             tags: command.tags,
             tenantId: "local",
             title: command.title,
@@ -272,7 +280,7 @@ export function createInMemoryCommunityAppSdkPort(
           communityMembers(category.id).push({
             bio: undefined,
             communityId: category.id,
-            id: `${currentUserId}-membership`,
+            id: nextSnowflakeId(),
             joinedAt: new Date().toISOString(),
             role: "owner",
             status: "active",
@@ -282,12 +290,26 @@ export function createInMemoryCommunityAppSdkPort(
           return category;
         },
         async list() {
-          return categories;
+          // Mirror the server behavior: the list carries the current user's
+          // membership state so callers never issue per-circle lookups.
+          const joined = new Set(
+            [...members.entries()]
+              .filter(([, list]) => list.some((m) => m.user?.id === currentUserId))
+              .map(([communityId]) => communityId),
+          );
+          return categories.map((category) => ({
+            ...category,
+            isJoined: joined.has(category.id),
+          }));
         },
         async update(categoryId, command) {
-          const category = findCategory(categoryId);
-          Object.assign(category, command);
-          return category;
+          const index = categories.findIndex((candidate) => candidate.id === categoryId);
+          if (index === -1) {
+            throw new Error(`community category not found: ${categoryId}`);
+          }
+          const updated = { ...categories[index], ...command };
+          categories[index] = updated;
+          return updated;
         },
       },
       comments: {
@@ -301,7 +323,7 @@ export function createInMemoryCommunityAppSdkPort(
             body: command.body,
             createdAt: new Date().toISOString(),
             entryId,
-            id: `comment-${comments.length + 1}`,
+            id: nextSnowflakeId(),
             reviewState: "approved",
             tenantId: "local",
           };
@@ -344,7 +366,7 @@ export function createInMemoryCommunityAppSdkPort(
             body: command.body,
             categoryId: command.categoryId,
             excerpt: command.excerpt,
-            id: `entry-${entries.length + 1}`,
+            id: nextSnowflakeId(),
             kind: command.kind,
             reviewState: "draft",
             stats: {},
@@ -387,8 +409,9 @@ export function createInMemoryCommunityAppSdkPort(
       },
       members: {
         async current(communityId) {
-          const userId = `${currentUserId}-membership`;
-          return communityMembers(communityId).find((member) => member.id === userId);
+          return communityMembers(communityId).find(
+            (member) => member.user.id === currentUserId,
+          );
         },
         async join(communityId) {
           const category = findCategory(communityId);
@@ -400,7 +423,7 @@ export function createInMemoryCommunityAppSdkPort(
           const member: SdkworkCommunityMember = {
             bio: undefined,
             communityId,
-            id: `${currentUserId}-membership`,
+            id: nextSnowflakeId(),
             joinedAt: new Date().toISOString(),
             role: "member",
             status: "active",
@@ -442,9 +465,8 @@ export function createInMemoryCommunityAppSdkPort(
             throw new Error(`community membership tier not found: ${command.tierId}`);
           }
           const category = findCategory(communityId);
-          const userId = `${currentUserId}-membership`;
           const existing = communityMembers(communityId).find(
-            (candidate) => candidate.id === userId,
+            (candidate) => candidate.user.id === currentUserId,
           );
           if (existing?.lastOrderId === command.orderId) {
             return existing;
@@ -455,7 +477,7 @@ export function createInMemoryCommunityAppSdkPort(
             member = {
               bio: undefined,
               communityId,
-              id: userId,
+              id: nextSnowflakeId(),
               joinedAt: new Date().toISOString(),
               role: "member",
               status: "active",
@@ -483,7 +505,7 @@ export function createInMemoryCommunityAppSdkPort(
             description: command.description,
             durationDays: command.durationDays ?? 365,
             enabled: false,
-            id: `tier-${communityTiers(communityId).length + 1}`,
+            id: nextSnowflakeId(),
             name: command.name,
             price: command.price,
             sortOrder: command.sortOrder ?? 0,
@@ -547,7 +569,7 @@ export function createInMemoryCommunityAppSdkPort(
             communityId,
             createdAt: new Date().toISOString(),
             description: command.description,
-            id: `group-${communityGroups(communityId).length + 1}`,
+            id: nextSnowflakeId(),
             memberCount: command.memberCount ?? 0,
             name: command.name,
             platform: command.platform,
@@ -576,3 +598,6 @@ export function createInMemoryCommunityAppSdkPort(
     },
   };
 }
+
+export { SnowflakeIdGenerator, nextSnowflakeId } from "./snowflake";
+export type { SnowflakeIdGeneratorOptions } from "./snowflake";

@@ -7,7 +7,9 @@ import type {
   SdkworkCommunityMembershipTier,
 } from "@sdkwork/community-contracts";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
+import { nextSnowflakeId } from "@sdkwork/community-sdk-ports";
 import { getCommunityRuntimePort } from "./communityRuntimePort";
+import { SEED_COMMUNITY_IDS } from "./communityRuntimePort";
 import type { Community, CommunityGroup, CommunityMember, MembershipTier, Post, PostComment, Resource } from "../types";
 
 /**
@@ -20,11 +22,12 @@ import type { Community, CommunityGroup, CommunityMember, MembershipTier, Post, 
  */
 
 // Client-local resources (original implementation kept resources local).
+// Keyed by the seeded circle snowflake id so the demo circle shows resources.
 const LOCAL_RESOURCES: Record<string, Resource[]> = {
-  comm_1: [
+  [SEED_COMMUNITY_IDS.aiDevelopers]: [
     {
-      id: "res_1",
-      communityId: "comm_1",
+      id: nextSnowflakeId(),
+      communityId: SEED_COMMUNITY_IDS.aiDevelopers,
       title: "2026年AI行业发展白皮书.pdf",
       type: "pdf",
       size: "4.5MB",
@@ -33,8 +36,8 @@ const LOCAL_RESOURCES: Record<string, Resource[]> = {
       createdAt: "2026-05-25T10:00:00Z",
     },
     {
-      id: "res_2",
-      communityId: "comm_1",
+      id: nextSnowflakeId(),
+      communityId: SEED_COMMUNITY_IDS.aiDevelopers,
       title: "斯坦福深度学习课程笔记.md",
       type: "doc",
       size: "1.2MB",
@@ -62,6 +65,7 @@ function mapCategoryToCommunity(category: SdkworkCommunityCategory, isJoined: bo
     description: category.description ?? "",
     coverImage: category.coverImage ?? "",
     avatar: category.avatar,
+    ownerId: category.ownerId,
     memberCount: category.memberCount ?? 0,
     memberLimit: category.memberLimit,
     postCount: category.postCount ?? 0,
@@ -150,14 +154,6 @@ function mapTierToMembershipTier(tier: SdkworkCommunityMembershipTier): Membersh
   };
 }
 
-async function isJoined(communityId: string): Promise<boolean> {
-  try {
-    const member = await port().community.members.current(communityId);
-    return Boolean(member);
-  } catch {
-    return false;
-  }
-}
 
 /** True when the error indicates the circle member limit was reached. */
 export function isMemberLimitError(error: unknown): boolean {
@@ -221,21 +217,30 @@ export const CommunityService = {
 
   async getCommunities(): Promise<Community[]> {
     const categories = await port().community.categories.list();
-    return Promise.all(
-      categories.map(async (category) =>
-        mapCategoryToCommunity(category, await isJoined(category.id)),
-      ),
+    // The list endpoint already carries the current user's membership state;
+    // no per-circle members.current requests (N+1).
+    return categories.map((category) =>
+      mapCategoryToCommunity(category, Boolean(category.isJoined)),
     );
   },
 
   async getCommunityById(id: string): Promise<Community | undefined> {
     const categories = await port().community.categories.list();
     const category = categories.find((candidate) => candidate.id === id);
-    return category ? mapCategoryToCommunity(category, await isJoined(category.id)) : undefined;
+    return category ? mapCategoryToCommunity(category, Boolean(category.isJoined)) : undefined;
   },
 
   async joinCommunity(id: string): Promise<void> {
     await port().community.members.join(id);
+  },
+
+  /** Leaves a circle: resolves the current membership and removes it. */
+  async leaveCommunity(communityId: string): Promise<void> {
+    const member = await port().community.members.current(communityId);
+    if (!member) {
+      return;
+    }
+    await port().community.members.remove(communityId, member.id);
   },
 
   async getPostsByCommunity(communityId: string): Promise<Post[]> {
@@ -315,16 +320,19 @@ export const CommunityService = {
   },
 
   async updateCommunity(communityId: string, updates: Partial<Community>): Promise<void> {
+    // Only defined fields are sent; sending `undefined` values through the
+    // in-memory port would overwrite existing fields with undefined.
     await port().community.categories.update(communityId, {
-      title: updates.name,
-      description: updates.description,
-      avatar: updates.avatar,
-      coverImage: updates.coverImage,
-      isPaid: updates.isPaid,
-      memberLimit: updates.memberLimit,
-      price: updates.price,
-      revenueTarget: updates.revenueTarget,
-      tags: updates.tags,
+      ...(updates.name !== undefined ? { title: updates.name } : {}),
+      ...(updates.description !== undefined ? { description: updates.description } : {}),
+      ...(updates.avatar !== undefined ? { avatar: updates.avatar } : {}),
+      ...(updates.coverImage !== undefined ? { coverImage: updates.coverImage } : {}),
+      ...(updates.isPaid !== undefined ? { isPaid: updates.isPaid } : {}),
+      ...(updates.memberLimit !== undefined ? { memberLimit: updates.memberLimit } : {}),
+      ...(updates.price !== undefined ? { price: updates.price } : {}),
+      ...(updates.revenueTarget !== undefined ? { revenueTarget: updates.revenueTarget } : {}),
+      ...(updates.tags !== undefined ? { tags: updates.tags } : {}),
+      ...(updates.tabs !== undefined ? { tabs: updates.tabs } : {}),
     });
   },
 

@@ -90,6 +90,19 @@ impl CommunitySqlxStore {
         super::postgres_queries::list_categories(self.postgres_pool(), tenant_id).await
     }
 
+    pub async fn list_categories_with_membership(
+        &self,
+        tenant_id: &str,
+        user_id: &str,
+    ) -> Result<Vec<super::CommunityStoredCategory>, sqlx::Error> {
+        super::postgres_queries::list_categories_with_membership(
+            self.postgres_pool(),
+            tenant_id,
+            user_id,
+        )
+        .await
+    }
+
     pub async fn create_category(
         &self,
         input: super::NewCommunityCategory,

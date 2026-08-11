@@ -31,7 +31,7 @@ const domainSchemas = {
   CommunityCategory: {
     type: "object",
     additionalProperties: false,
-    required: ["id", "tenantId", "slug", "title", "memberCount", "postCount", "isPaid", "tags", "priority", "enabled"],
+    required: ["id", "tenantId", "slug", "title", "memberCount", "postCount", "isPaid", "isJoined", "tags", "priority", "enabled"],
     properties: {
       id: { type: "string" },
       tenantId: { type: "string" },
@@ -51,6 +51,7 @@ const domainSchemas = {
       tags: { type: "array", items: { type: "string" } },
       priority: { type: "integer" },
       enabled: { type: "boolean" },
+      isJoined: { type: "boolean" },
     },
   },
   CommunityCircleCommand: {

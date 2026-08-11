@@ -9,11 +9,11 @@
     "protocol": "http",
     "packageName": "sdkwork-community-sdk-generated-typescript"
   },
-  "changeFingerprint": "a7c63f389b5dc8c4907fab89988e9462836209461c5689c00a2da444117ed64a",
+  "changeFingerprint": "2fefaae6492c701151b55071ef627def38effd5c504fa02decfeff7cd2c3d13d",
   "changes": {
     "createdGeneratedFiles": [],
     "updatedGeneratedFiles": [
-      "src/types/community-member-response.ts"
+      "src/types/community-category.ts"
     ],
     "unchangedGeneratedFiles": [
       "bin/publish-core.mjs",
@@ -39,7 +39,6 @@
       "src/types/community-activate-membership-command.ts",
       "src/types/community-author.ts",
       "src/types/community-category-command.ts",
-      "src/types/community-category.ts",
       "src/types/community-circle-command.ts",
       "src/types/community-comment-command.ts",
       "src/types/community-comment.ts",
@@ -50,6 +49,7 @@
       "src/types/community-group-qr.ts",
       "src/types/community-group-response.ts",
       "src/types/community-member-patch-command.ts",
+      "src/types/community-member-response.ts",
       "src/types/community-membership-tier.ts",
       "src/types/community-moderation-command.ts",
       "src/types/community-publication-readiness.ts",
@@ -89,7 +89,7 @@
       {
         "area": "models",
         "paths": [
-          "src/types/community-member-response.ts"
+          "src/types/community-category.ts"
         ]
       }
     ],

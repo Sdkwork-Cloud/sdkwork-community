@@ -74,6 +74,8 @@ export interface SdkworkCommunityCategory {
   description?: string;
   enabled: boolean;
   id: string;
+  /** Whether the current user has joined the circle (list responses). */
+  isJoined?: boolean;
   isPaid?: boolean;
   memberCount?: number;
   /** Maximum member count; absent means unlimited (默认不限制). */
@@ -168,6 +170,8 @@ export interface SdkworkCommunityCircleCommand {
   price?: number;
   /** Funding/raise target amount; absent keeps the current value. */
   revenueTarget?: number;
+  /** Visible modules (tabs) on the circle home page. */
+  tabs?: readonly string[];
   tags?: readonly string[];
   title: string;
 }
