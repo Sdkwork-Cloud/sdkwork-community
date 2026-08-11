@@ -39,11 +39,27 @@ pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAsse
 /// Web Framework layer (API_ASSEMBLY_SPEC §3 federated contribution entrypoint).
 ///
 /// The App surface (`/app/v3/api/community/*`) is composed from the
-/// process-shared database pool so the host gateway reuses its own IAM/web
+/// environment database profile so the host gateway reuses its own IAM/web
 /// framework wiring; handlers resolve `IamAppContext` from the host-injected
 /// domain context and do not install a framework of their own.
-pub async fn assemble_app_api_contribution(pool: DatabasePool) -> Result<ApiAssembly, String> {
+pub async fn assemble_app_api_contribution() -> Result<ApiAssembly, String> {
+    let host = Arc::new(CommunityServiceHost::from_env().await?);
+    assemble_app_api_contribution_with_host(host)
+}
+
+/// Same as [`assemble_app_api_contribution`] but from an already-shared
+/// process database pool (platform gateways with a single shared pool).
+pub async fn assemble_app_api_contribution_with_pool(
+    pool: DatabasePool,
+) -> Result<ApiAssembly, String> {
     let host = CommunityServiceHost::from_database_pool(pool.clone()).await?;
+    assemble_app_api_contribution_with_host(host)
+}
+
+fn assemble_app_api_contribution_with_host(
+    host: Arc<CommunityServiceHost>,
+) -> Result<ApiAssembly, String> {
+    let database_pool = host.database_pool().clone();
     let router = sdkwork_routes_community_app_api::build_app_router(host);
     ApiAssemblyContribution::from_manifest(
         "sdkwork-community",
@@ -51,7 +67,7 @@ pub async fn assemble_app_api_contribution(pool: DatabasePool) -> Result<ApiAsse
         router,
         sdkwork_routes_community_app_api::gateway_route_manifest(),
         Vec::new(),
-        Arc::new(DatabasePoolReadinessCheck::new(pool)),
+        Arc::new(DatabasePoolReadinessCheck::new(database_pool)),
     )
 }
 
