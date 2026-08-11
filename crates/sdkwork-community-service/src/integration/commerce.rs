@@ -175,7 +175,12 @@ impl CommerceIntegration {
         let payload: serde_json::Value = response.json().await.map_err(|error| {
             format!("membership package registration response parse failed: {error}")
         })?;
-        let item = payload.get("data").unwrap_or(&payload);
+        // Envelope shape: `{ code, data: { item: { id, externalId, ... } } }`.
+        let item = payload
+            .get("data")
+            .and_then(|data| data.get("item"))
+            .or_else(|| payload.get("data"))
+            .unwrap_or(&payload);
         let external_id = item
             .get("externalId")
             .or_else(|| item.get("external_id"))

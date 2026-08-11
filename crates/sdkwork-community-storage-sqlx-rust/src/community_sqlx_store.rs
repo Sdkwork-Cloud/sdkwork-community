@@ -92,6 +92,14 @@ impl CommunitySqlxStore {
         super::postgres_queries::list_categories(self.postgres_pool(), tenant_id).await
     }
 
+    /// Paid circles owned by the official operator, across tenants (used by
+    /// the official tier publish bootstrap).
+    pub async fn list_official_paid_categories(
+        &self,
+    ) -> Result<Vec<super::CommunityStoredCategory>, sqlx::Error> {
+        super::postgres_queries::list_official_paid_categories(self.postgres_pool()).await
+    }
+
     pub async fn list_categories_with_membership(
         &self,
         tenant_id: &str,

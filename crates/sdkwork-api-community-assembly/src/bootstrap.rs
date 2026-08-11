@@ -10,6 +10,17 @@ use std::sync::Arc;
 
 pub type ApiAssembly = ApiAssemblyContribution;
 
+/// Community App API route manifest (App surface only).
+///
+/// Host gateways that merge the unwrapped App surface contribution compose
+/// this manifest into their own surface route inventory so the Web Framework
+/// honors the App routes' declared authentication and permissions
+/// (API_ASSEMBLY_SPEC §3 — the host owns the single framework layer and
+/// composes capability manifests; it never re-declares capability routes).
+pub fn app_api_route_manifest() -> HttpRouteManifest {
+    sdkwork_routes_community_app_api::gateway_route_manifest()
+}
+
 /// Host-neutral Community API contribution plus its process-shared database pool.
 pub struct CommunityApiRuntime {
     pub contribution: ApiAssembly,

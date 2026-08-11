@@ -371,6 +371,7 @@ export function createGeneratedCommunityAppSdkPort(
             ...(command.revenueTarget !== undefined
               ? { revenueTarget: command.revenueTarget }
               : {}),
+            ...(command.tabs !== undefined ? { tabs: [...command.tabs] } : {}),
             ...(command.tags !== undefined ? { tags: [...command.tags] } : {}),
           });
           const item = await client.community.categories.update(categoryId, body);

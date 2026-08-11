@@ -36,6 +36,29 @@ fn category_from_row(row: &sqlx::postgres::PgRow) -> CommunityStoredCategory {
     }
 }
 
+/// Lists paid circles owned by the official operator
+/// (`owner_id = 'sdkwork-official'`), across tenants. Used by the startup
+/// bootstrap that publishes the seeded official tiers so the multi-price
+/// purchase surface works out of the box.
+pub async fn list_official_paid_categories(
+    pool: &PgPool,
+) -> Result<Vec<CommunityStoredCategory>, sqlx::Error> {
+    let rows = sqlx::query(
+        r#"
+        SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
+               member_count, member_limit, post_count, is_paid, price::float8,
+               revenue_target::float8, revenue_raised::float8, tags, tabs, priority, enabled,
+               FALSE AS is_joined
+        FROM community_category
+        WHERE owner_id = 'sdkwork-official' AND is_paid = TRUE AND enabled = TRUE
+        ORDER BY tenant_id, priority DESC, slug ASC
+        "#,
+    )
+    .fetch_all(pool)
+    .await?;
+    Ok(rows.iter().map(category_from_row).collect())
+}
+
 pub async fn list_categories(
     pool: &PgPool,
     tenant_id: &str,

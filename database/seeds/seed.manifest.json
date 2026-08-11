@@ -17,13 +17,19 @@
   ],
   "profiles": {
     "minimal": {
-      "common": [],
+      "common": [
+        "common/003_official_circles.sql",
+        "common/004_official_circles_tiers.sql"
+      ],
       "locales": {
         "zh-CN": []
       }
     },
     "standard": {
-      "common": [],
+      "common": [
+        "common/003_official_circles.sql",
+        "common/004_official_circles_tiers.sql"
+      ],
       "locales": {
         "zh-CN": []
       }

@@ -210,6 +210,10 @@ pub struct CommunityTierCommand {
     pub sort_order: Option<i64>,
 }
 
+/// Official circle operator user id: circles owned by this operator (seeded
+/// demo circles) get their tiers auto-published at service startup.
+pub const OFFICIAL_CIRCLE_OPERATOR_USER_ID: &str = "sdkwork-official";
+
 /// Command to activate a paid circle membership after order payment.
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -1477,6 +1481,41 @@ impl CommunityService {
         let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
         self.sync_category_price(tenant_id, category_id).await?;
         Ok(tier)
+    }
+
+    /// Idempotently publishes every unpublished tier of the official
+    /// operator's paid circles (`owner_id = 'sdkwork-official'`), so the
+    /// seeded multi-price purchase surface works out of the box. Runs once at
+    /// service startup; already-published tiers are skipped and user-created
+    /// circles keep owner publishing control.
+    pub async fn publish_official_circle_tiers(
+        &self,
+    ) -> Result<usize, CommunityServiceError> {
+        let categories = self
+            .store
+            .list_official_paid_categories()
+            .await
+            .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
+        let mut published = 0usize;
+        for category in categories {
+            let tiers = self
+                .list_tiers(&category.tenant_id, &category.id, false)
+                .await?;
+            for tier in tiers {
+                if tier.enabled && tier.catalog_package_id.is_some() {
+                    continue;
+                }
+                self.publish_tier(
+                    &category.tenant_id,
+                    OFFICIAL_CIRCLE_OPERATOR_USER_ID,
+                    &category.id,
+                    &tier.id,
+                )
+                .await?;
+                published += 1;
+            }
+        }
+        Ok(published)
     }
 
     /// Publishes a tier: registers the membership package on the membership

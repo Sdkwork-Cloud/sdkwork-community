@@ -36,6 +36,7 @@ impl CommunityServiceHost {
         let (id_generator, id_lease) = build_id_generator(&pool).await?;
         let store = Arc::new(CommunitySqlxStore::new(pool.clone()));
         let service = Arc::new(CommunityService::with_runtime_id_generator(store, id_generator));
+        spawn_official_tier_publish_bootstrap(service.clone());
         Ok(Self {
             database_pool: pool,
             service,
@@ -49,6 +50,7 @@ impl CommunityServiceHost {
         let (id_generator, id_lease) = build_id_generator(&pool).await?;
         let store = Arc::new(CommunitySqlxStore::new(pool.clone()));
         let service = Arc::new(CommunityService::with_runtime_id_generator(store, id_generator));
+        spawn_official_tier_publish_bootstrap(service.clone());
         Ok(Arc::new(Self {
             database_pool: pool,
             service,
@@ -123,4 +125,32 @@ fn id_fallback_is_forbidden() -> bool {
     let explicit_override = std::env::var(SDKWORK_COMMUNITY_ALLOW_UNSAFE_ID_FALLBACK_ENV)
         .is_ok_and(|value| matches!(value.trim().to_ascii_lowercase().as_str(), "1" | "true"));
     !explicit_override && !cfg!(debug_assertions)
+}
+
+
+/// Publishes the official seeded circle tiers shortly after startup
+/// (idempotent), retrying until the collapsed ingress listener is ready.
+///
+/// Fail-soft: a missing commerce backend (or any transient error) must never
+/// block gateway boot; the next startup retries automatically.
+fn spawn_official_tier_publish_bootstrap(service: Arc<CommunityService>) {
+    tokio::spawn(async move {
+        for attempt in 1..=10u32 {
+            match service.publish_official_circle_tiers().await {
+                Ok(count) => {
+                    if count > 0 {
+                        eprintln!("[community] auto-published {count} official circle tier(s)");
+                    }
+                    return;
+                }
+                Err(error) => {
+                    eprintln!(
+                        "[community] official circle tier auto-publish attempt {attempt} failed: {}; retrying",
+                        error.message()
+                    );
+                    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                }
+            }
+        }
+    });
 }
