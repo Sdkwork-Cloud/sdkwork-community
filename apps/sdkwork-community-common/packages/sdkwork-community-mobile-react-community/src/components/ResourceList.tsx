@@ -20,7 +20,7 @@ return (
           <div className="flex-1 overflow-hidden">
             <div className="text-[15px] font-bold text-text-main truncate mb-1">{res.title}</div>
             <div className="flex items-center gap-2 text-[12px] text-text-sub">
-              <span className="uppercase px-1 border border-black/10 rounded">{res.type}</span>
+              <span className="uppercase px-1 border border-black/10 dark:border-white/15 rounded">{res.type}</span>
               {res.size && <span>{res.size}</span>}
               <span>{t('community.auto_4e0f68b', '· {res.uploadedBy}分享')}</span>
             </div>

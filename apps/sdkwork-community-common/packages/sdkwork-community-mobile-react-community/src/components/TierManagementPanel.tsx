@@ -166,7 +166,7 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
               <span
                 className={cn(
                   "text-[11px] px-2 py-0.5 rounded-full",
-                  tier.enabled ? "bg-emerald-500/10 text-emerald-500" : "bg-gray-500/10 text-text-sub",
+                  tier.enabled ? "bg-emerald-500/10 text-emerald-500" : "bg-gray-500/10 dark:bg-white/10 text-text-sub",
                 )}
               >
                 {tier.enabled ? "已上架" : "未上架"}

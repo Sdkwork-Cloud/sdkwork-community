@@ -118,7 +118,7 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
                 <span
                   className={cn(
                     "w-4 h-4 rounded-full border flex items-center justify-center",
-                    selectedTierId === tier.id ? "border-blue-500" : "border-black/20",
+                    selectedTierId === tier.id ? "border-blue-500" : "border-black/20 dark:border-white/25",
                   )}
                 >
                   {selectedTierId === tier.id && <Check className="w-3 h-3 text-blue-500" />}
