@@ -1506,6 +1506,9 @@ impl CommunityService {
                 price_amount: format!("{:.2}", tier.price),
                 currency_code: "CNY".to_owned(),
                 duration_days: tier.duration_days,
+                // Full price: the membership backend requires a discount
+                // percent (1-100) and 100 means no discount.
+                discount: 100,
                 status: "active".to_owned(),
             })
             .await

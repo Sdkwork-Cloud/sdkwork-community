@@ -6,6 +6,13 @@
 //! sdkwork-order can resolve `packageId` by external id) and, after the
 //! mobile cashier reports a paid order, verifies the order status with the
 //! order backend before activating the circle membership.
+//!
+//! Backend surfaces are dual-token protected (Authorization bearer = auth
+//! token, `Access-Token` header = access token), so each backend needs both
+//! credentials configured:
+//! `SDKWORK_MEMBERSHIP_BACKEND_AUTH_TOKEN` /
+//! `SDKWORK_MEMBERSHIP_BACKEND_ACCESS_TOKEN` and
+//! `SDKWORK_ORDER_BACKEND_AUTH_TOKEN` / `SDKWORK_ORDER_BACKEND_ACCESS_TOKEN`.
 
 use std::sync::Arc;
 
@@ -19,8 +26,10 @@ const AUTHORIZATION_HEADER: &str = "Authorization";
 #[derive(Debug, Clone)]
 pub struct CommerceIntegrationConfig {
     pub membership_backend_base_url: Option<String>,
+    pub membership_backend_auth_token: Option<String>,
     pub membership_backend_access_token: Option<String>,
     pub order_backend_base_url: Option<String>,
+    pub order_backend_auth_token: Option<String>,
     pub order_backend_access_token: Option<String>,
 }
 
@@ -28,8 +37,10 @@ impl CommerceIntegrationConfig {
     pub fn from_env() -> Self {
         Self {
             membership_backend_base_url: env("SDKWORK_MEMBERSHIP_BACKEND_API_BASE_URL"),
+            membership_backend_auth_token: env("SDKWORK_MEMBERSHIP_BACKEND_AUTH_TOKEN"),
             membership_backend_access_token: env("SDKWORK_MEMBERSHIP_BACKEND_ACCESS_TOKEN"),
             order_backend_base_url: env("SDKWORK_ORDER_BACKEND_API_BASE_URL"),
+            order_backend_auth_token: env("SDKWORK_ORDER_BACKEND_AUTH_TOKEN"),
             order_backend_access_token: env("SDKWORK_ORDER_BACKEND_ACCESS_TOKEN"),
         }
     }
@@ -51,6 +62,8 @@ pub struct MembershipPackageRegistration {
     pub price_amount: String,
     pub currency_code: String,
     pub duration_days: i64,
+    /// Membership backend discount percent (1-100); 100 means full price.
+    pub discount: i64,
     pub status: String,
 }
 
@@ -86,12 +99,19 @@ impl CommerceIntegration {
         &self.config
     }
 
-    fn backend_headers(&self, access_token: &str) -> reqwest::header::HeaderMap {
+    /// Dual-token backend headers: the auth token goes in the Authorization
+    /// bearer, the access token in the `Access-Token` header. Backend routes
+    /// resolve the paired IAM session from both credentials.
+    fn backend_headers(&self, auth_token: &str, access_token: &str) -> reqwest::header::HeaderMap {
         let mut headers = reqwest::header::HeaderMap::new();
         if let Ok(value) = reqwest::header::HeaderValue::from_str(access_token) {
-            headers.insert(ACCESS_TOKEN_HEADER, value.clone());
-            let bearer = format!("Bearer {access_token}");
+            headers.insert(ACCESS_TOKEN_HEADER, value);
+        }
+        if let Ok(value) = reqwest::header::HeaderValue::from_str(auth_token) {
+            let bearer = format!("Bearer {auth_token}");
             if let Ok(value) = reqwest::header::HeaderValue::from_str(&bearer) {
+                headers.insert(AUTHORIZATION_HEADER, value);
+            } else if let Ok(value) = reqwest::header::HeaderValue::from_str(auth_token) {
                 headers.insert(AUTHORIZATION_HEADER, value);
             }
         }
@@ -113,6 +133,14 @@ impl CommerceIntegration {
                 "membership backend is not configured (SDKWORK_MEMBERSHIP_BACKEND_API_BASE_URL)"
                     .to_owned()
             })?;
+        let auth_token = self
+            .config
+            .membership_backend_auth_token
+            .clone()
+            .ok_or_else(|| {
+                "membership backend credential is not configured (SDKWORK_MEMBERSHIP_BACKEND_AUTH_TOKEN)"
+                    .to_owned()
+            })?;
         let access_token = self
             .config
             .membership_backend_access_token
@@ -129,7 +157,7 @@ impl CommerceIntegration {
         let response = self
             .http
             .post(&url)
-            .headers(self.backend_headers(&access_token))
+            .headers(self.backend_headers(&auth_token, &access_token))
             .json(&registration)
             .send()
             .await
@@ -180,6 +208,14 @@ impl CommerceIntegration {
         let base_url = self.config.order_backend_base_url.clone().ok_or_else(|| {
             "order backend is not configured (SDKWORK_ORDER_BACKEND_API_BASE_URL)".to_owned()
         })?;
+        let auth_token = self
+            .config
+            .order_backend_auth_token
+            .clone()
+            .ok_or_else(|| {
+                "order backend credential is not configured (SDKWORK_ORDER_BACKEND_AUTH_TOKEN)"
+                    .to_owned()
+            })?;
         let access_token = self
             .config
             .order_backend_access_token
@@ -197,7 +233,7 @@ impl CommerceIntegration {
         let response = self
             .http
             .get(&url)
-            .headers(self.backend_headers(&access_token))
+            .headers(self.backend_headers(&auth_token, &access_token))
             .send()
             .await
             .map_err(|error| format!("order verification request failed: {error}"))?;
