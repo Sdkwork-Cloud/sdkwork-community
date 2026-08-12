@@ -37,6 +37,8 @@ pub struct CommunityCategoryView {
     pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+    pub is_agent_circle: bool,
+    pub is_recommended: bool,
     pub is_joined: bool,
 }
 
@@ -53,6 +55,7 @@ pub struct CommunityMemberView {
     pub tier_id: Option<String>,
     pub tier_name: Option<String>,
     pub membership_expires_at: Option<String>,
+    pub agent_level: Option<String>,
     pub last_order_id: Option<String>,
     pub joined_at: String,
 }
@@ -66,7 +69,10 @@ pub struct CommunityTierView {
     pub description: Option<String>,
     pub price: f64,
     pub duration_days: i64,
+    pub lifetime_price: Option<f64>,
+    pub lifetime_package_id: Option<String>,
     pub benefits: Vec<String>,
+    pub agent_level: Option<String>,
     pub catalog_package_id: Option<String>,
     pub sort_order: i64,
     pub enabled: bool,
@@ -206,7 +212,9 @@ pub struct CommunityTierCommand {
     pub description: Option<String>,
     pub price: f64,
     pub duration_days: Option<i64>,
+    pub lifetime_price: Option<f64>,
     pub benefits: Option<Vec<String>>,
+    pub agent_level: Option<String>,
     pub sort_order: Option<i64>,
 }
 
@@ -214,11 +222,18 @@ pub struct CommunityTierCommand {
 /// demo circles) get their tiers auto-published at service startup.
 pub const OFFICIAL_CIRCLE_OPERATOR_USER_ID: &str = "sdkwork-official";
 
+/// Lifetime membership is materialized as a 100-year term (the order and
+/// membership backends require a finite positive duration).
+pub const LIFETIME_MEMBERSHIP_DURATION_DAYS: i64 = 36500;
+
 /// Command to activate a paid circle membership after order payment.
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CommunityActivateMembershipCommand {
     pub order_id: String,
+    /// Package the purchase used: yearly (catalogPackageId) or lifetime
+    /// (lifetimePackageId). Absent → yearly.
+    pub package_id: Option<String>,
     pub tier_id: String,
 }
 
@@ -1057,6 +1072,7 @@ impl CommunityService {
                     tier_id: None,
                     tier_name: None,
                     membership_expires_at: None,
+                    agent_level: None,
                     last_order_id: None,
                 },
             )
@@ -1432,7 +1448,9 @@ impl CommunityService {
                 description: command.description,
                 price: command.price,
                 duration_days: command.duration_days.unwrap_or(365),
+                lifetime_price: command.lifetime_price,
                 benefits: command.benefits.unwrap_or_default(),
+                agent_level: command.agent_level,
                 sort_order: command.sort_order.unwrap_or(0),
                 now,
             })
@@ -1469,7 +1487,10 @@ impl CommunityService {
                     description: command.description,
                     price: Some(command.price),
                     duration_days: command.duration_days,
+                    lifetime_price: command.lifetime_price,
+                    lifetime_package_id: None,
                     benefits: command.benefits,
+                    agent_level: command.agent_level,
                     catalog_package_id: None,
                     sort_order: command.sort_order,
                     enabled: None,
@@ -1502,7 +1523,10 @@ impl CommunityService {
                 .list_tiers(&category.tenant_id, &category.id, false)
                 .await?;
             for tier in tiers {
-                if tier.enabled && tier.catalog_package_id.is_some() {
+                if tier.enabled
+                    && tier.catalog_package_id.is_some()
+                    && (tier.lifetime_price.is_none() || tier.lifetime_package_id.is_some())
+                {
                     continue;
                 }
                 self.publish_tier(
@@ -1531,43 +1555,76 @@ impl CommunityService {
         self.require_manager(tenant_id, category_id, actor_user_id)
             .await?;
         let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
-        if tier.enabled && tier.catalog_package_id.is_some() {
+        if tier.enabled
+            && tier.catalog_package_id.is_some()
+            && (tier.lifetime_price.is_none() || tier.lifetime_package_id.is_some())
+        {
             return Ok(tier);
         }
         let category = self.retrieve_category(tenant_id, category_id).await?;
-        let registered = self
-            .commerce
-            .register_membership_package(MembershipPackageRegistration {
-                code: format!("community-tier-{}", tier.id.replace('-', "")),
-                package_group_id: "package-group-circle-membership".to_owned(),
-                plan_id: "plan-circle-membership".to_owned(),
-                name: format!("{} · {}", category.title, tier.name),
-                price_amount: format!("{:.2}", tier.price),
-                currency_code: "CNY".to_owned(),
-                duration_days: tier.duration_days,
-                // Full price: the membership backend requires a discount
-                // percent (1-100) and 100 means no discount.
-                discount: 100,
-                status: "active".to_owned(),
-            })
-            .await
-            .map_err(CommunityServiceError::Integration)?;
+        let mut patch = CommunityTierPatch {
+            name: None,
+            description: None,
+            price: None,
+            duration_days: None,
+            lifetime_price: None,
+            lifetime_package_id: None,
+            benefits: None,
+            agent_level: None,
+            catalog_package_id: None,
+            sort_order: None,
+            enabled: Some(true),
+        };
+
+        // Yearly package (skipped when already registered).
+        if tier.catalog_package_id.is_none() {
+            let registered = self
+                .commerce
+                .register_membership_package(MembershipPackageRegistration {
+                    code: format!("community-tier-{}", tier.id.replace('-', "")),
+                    package_group_id: "package-group-circle-membership".to_owned(),
+                    plan_id: "plan-circle-membership".to_owned(),
+                    name: format!("{} · {}", category.title, tier.name),
+                    price_amount: format!("{:.2}", tier.price),
+                    currency_code: "CNY".to_owned(),
+                    duration_days: tier.duration_days,
+                    // Full price: the membership backend requires a discount
+                    // percent (1-100) and 100 means no discount.
+                    discount: 100,
+                    status: "active".to_owned(),
+                })
+                .await
+                .map_err(CommunityServiceError::Integration)?;
+            patch.catalog_package_id = Some(registered.external_id.to_string());
+        }
+
+        // Lifetime package (100-year approximation) when the tier offers one.
+        if let Some(lifetime_price) = tier.lifetime_price {
+            if tier.lifetime_package_id.is_none() {
+                let lifetime = self
+                    .commerce
+                    .register_membership_package(MembershipPackageRegistration {
+                        code: format!(
+                            "community-tier-{}-lifetime",
+                            tier.id.replace('-', "")
+                        ),
+                        package_group_id: "package-group-circle-membership".to_owned(),
+                        plan_id: "plan-circle-membership".to_owned(),
+                        name: format!("{} · {}（终身）", category.title, tier.name),
+                        price_amount: format!("{lifetime_price:.2}"),
+                        currency_code: "CNY".to_owned(),
+                        duration_days: LIFETIME_MEMBERSHIP_DURATION_DAYS,
+                        discount: 100,
+                        status: "active".to_owned(),
+                    })
+                    .await
+                    .map_err(CommunityServiceError::Integration)?;
+                patch.lifetime_package_id = Some(lifetime.external_id.to_string());
+            }
+        }
+
         self.store
-            .update_tier(
-                tenant_id,
-                category_id,
-                tier_id,
-                &CommunityTierPatch {
-                    name: None,
-                    description: None,
-                    price: None,
-                    duration_days: None,
-                    benefits: None,
-                    catalog_package_id: Some(registered.external_id.to_string()),
-                    sort_order: None,
-                    enabled: Some(true),
-                },
-            )
+            .update_tier(tenant_id, category_id, tier_id, &patch)
             .await
             .map_err(|error| CommunityServiceError::Storage(error.to_string()))?;
         let tier = self.retrieve_tier(tenant_id, category_id, tier_id).await?;
@@ -1594,7 +1651,10 @@ impl CommunityService {
                     description: None,
                     price: None,
                     duration_days: None,
+                    lifetime_price: None,
+                    lifetime_package_id: None,
                     benefits: None,
+                    agent_level: None,
                     catalog_package_id: None,
                     sort_order: None,
                     enabled: Some(false),
@@ -1667,13 +1727,24 @@ impl CommunityService {
         // have changed since the package was registered).
         let paid_amount = verification.paid_amount.unwrap_or(tier.price);
         let now = Utc::now().to_rfc3339();
-        let expires_at = chrono::DateTime::parse_from_rfc3339(&now)
-            .map(|value| value + chrono::Duration::days(tier.duration_days))
-            .unwrap_or_else(|_| {
-                chrono::DateTime::parse_from_rfc3339("2030-01-01T00:00:00Z")
-                    .expect("static fallback expiry")
-            })
-            .to_rfc3339();
+        // A purchase through the lifetime package grants the membership
+        // forever (membership_expires_at stays NULL); any other package uses
+        // the tier duration.
+        let is_lifetime = tier.lifetime_package_id.is_some()
+            && command.package_id.as_deref() == tier.lifetime_package_id.as_deref();
+        let expires_at: Option<String> = if is_lifetime {
+            None
+        } else {
+            Some(
+                chrono::DateTime::parse_from_rfc3339(&now)
+                    .map(|value| value + chrono::Duration::days(tier.duration_days))
+                    .unwrap_or_else(|_| {
+                        chrono::DateTime::parse_from_rfc3339("2030-01-01T00:00:00Z")
+                            .expect("static fallback expiry")
+                    })
+                    .to_rfc3339(),
+            )
+        };
 
         // Idempotency: replaying the same paid order must not double-count
         // revenue nor extend the membership twice, and must succeed even
@@ -1723,7 +1794,8 @@ impl CommunityService {
                     status: None,
                     tier_id: Some(tier.id.clone()),
                     tier_name: Some(tier.name),
-                    membership_expires_at: Some(expires_at),
+                    membership_expires_at: expires_at,
+                    agent_level: tier.agent_level.clone(),
                     last_order_id: Some(command.order_id.clone()),
                 },
             )
@@ -1873,6 +1945,8 @@ fn map_category(category: CommunityStoredCategory) -> CommunityCategoryView {
         tabs: category.tabs,
         priority: category.priority,
         enabled: category.enabled,
+        is_agent_circle: category.is_agent_circle,
+        is_recommended: category.is_recommended,
         is_joined: category.is_joined,
     }
 }
@@ -1890,6 +1964,7 @@ fn map_member(member: CommunityStoredMember) -> CommunityMemberView {
         tier_id: member.tier_id,
         tier_name: member.tier_name,
         membership_expires_at: member.membership_expires_at,
+        agent_level: member.agent_level,
         last_order_id: member.last_order_id,
         joined_at: member.joined_at,
     }
@@ -1904,7 +1979,10 @@ fn map_tier(tier: CommunityStoredTier) -> CommunityTierView {
         description: tier.description,
         price: tier.price,
         duration_days: tier.duration_days,
+        lifetime_price: tier.lifetime_price,
+        lifetime_package_id: tier.lifetime_package_id,
         benefits: tier.benefits,
+        agent_level: tier.agent_level,
         catalog_package_id: tier.catalog_package_id,
         sort_order: tier.sort_order,
         enabled: tier.enabled,

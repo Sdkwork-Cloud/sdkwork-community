@@ -7,7 +7,7 @@ import { Community, MembershipTier } from "../types";
 import { cn, IconButton, showToast, Tabs, ActionSheet } from "@sdkwork/ui-mobile-react";
 import { ChevronLeft, Search, Users, MessageSquare, Compass, Check, X, Plus, MoreHorizontal } from "lucide-react";
 
-import { PaymentSheet } from "../components/PaymentSheet";
+import { PaymentSheet, type CirclePurchaseConfirm } from "../components/PaymentSheet";
 import { SuccessModal } from "../components/SuccessModal";
 import { CommunityCard } from "../components/CommunityCard";
 import { CommunityHeader } from "../components/CommunityHeader";
@@ -90,22 +90,23 @@ const navigate = useNavigate();
 
   // Paid circle: create the membership order through sdkwork-order and enter
   // the cashier bridge; the bridge activates the membership and returns here.
-  const handleConfirmPayJoin = async (tier: MembershipTier, paymentMethod: string) => {
+  const handleConfirmPayJoin = async (confirm: CirclePurchaseConfirm) => {
+    const { tier, packageId, paymentMethod, isLifetime } = confirm;
     if (!selectedPaidCommunity) return;
-    if (!tier.catalogPackageId) {
+    if (!packageId) {
       showToast(t('community.auto_fn_n630c7e9a', '该会员等级尚未上架，请稍后再试'));
       return;
     }
     try {
       showToast(t('community.auto_fn_1e02c86c', '订单创建中...'));
       const order = await getCommunityOrderRuntime().createMembershipOrder({
-        packageId: tier.catalogPackageId,
+        packageId,
         paymentMethod,
         source: 'community-circle',
       });
       setIsPaySheetOpen(false);
       setSelectedPaidCommunity(null);
-      navigate(`/community/${selectedPaidCommunity.id}/cashier/${encodeURIComponent(order.orderId)}?tierId=${encodeURIComponent(tier.id)}`);
+      navigate(`/community/${selectedPaidCommunity.id}/cashier/${encodeURIComponent(order.orderId)}?tierId=${encodeURIComponent(tier.id)}&packageId=${encodeURIComponent(packageId)}&term=${isLifetime ? 'lifetime' : 'yearly'}`);
     } catch (error) {
       console.error('circle membership order creation failed', error);
       showToast(t('community.auto_fn_2f078e83', '下单失败，请稍后再试'));

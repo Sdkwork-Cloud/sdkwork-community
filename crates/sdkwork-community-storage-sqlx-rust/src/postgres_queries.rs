@@ -32,6 +32,8 @@ fn category_from_row(row: &sqlx::postgres::PgRow) -> CommunityStoredCategory {
         tabs: text_array_cell(row, "tabs"),
         priority: integer_cell(row, "priority"),
         enabled: bool_cell(row, "enabled"),
+        is_agent_circle: bool_cell(row, "is_agent_circle"),
+        is_recommended: bool_cell(row, "is_recommended"),
         is_joined: bool_cell(row, "is_joined"),
     }
 }
@@ -48,10 +50,10 @@ pub async fn list_official_paid_categories(
         SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
                member_count, member_limit, post_count, is_paid, price::float8,
                revenue_target::float8, revenue_raised::float8, tags, tabs, priority, enabled,
-               FALSE AS is_joined
+               is_agent_circle, is_recommended, FALSE AS is_joined
         FROM community_category
         WHERE owner_id = 'sdkwork-official' AND is_paid = TRUE AND enabled = TRUE
-        ORDER BY tenant_id, priority DESC, slug ASC
+        ORDER BY is_recommended DESC, is_paid DESC, priority DESC, slug ASC
         "#,
     )
     .fetch_all(pool)
@@ -68,10 +70,10 @@ pub async fn list_categories(
         SELECT id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
                member_count, member_limit, post_count, is_paid, price::float8,
                revenue_target::float8, revenue_raised::float8, tags, tabs, priority, enabled,
-               FALSE AS is_joined
+               is_agent_circle, FALSE AS is_joined
         FROM community_category
         WHERE tenant_id = $1 AND enabled = TRUE
-        ORDER BY priority DESC, slug ASC
+        ORDER BY is_recommended DESC, is_paid DESC, priority DESC, slug ASC
         "#,
     )
     .bind(tenant_id)
@@ -94,7 +96,7 @@ pub async fn list_categories_with_membership(
                c.avatar, c.owner_id, c.member_count, c.member_limit, c.post_count,
                c.is_paid, c.price::float8, c.revenue_target::float8,
                c.revenue_raised::float8, c.tags, c.tabs, c.priority, c.enabled,
-               (cm.id IS NOT NULL) AS is_joined
+               c.is_agent_circle, c.is_recommended, (cm.id IS NOT NULL) AS is_joined
         FROM community_category c
         LEFT JOIN community_member cm
           ON cm.category_id = c.id
@@ -102,7 +104,7 @@ pub async fn list_categories_with_membership(
          AND cm.user_id = $2
          AND cm.status = 'active'
         WHERE c.tenant_id = $1 AND c.enabled = TRUE
-        ORDER BY c.priority DESC, c.slug ASC
+        ORDER BY c.is_recommended DESC, c.is_paid DESC, c.priority DESC, c.slug ASC
         "#,
     )
     .bind(tenant_id)
@@ -126,7 +128,7 @@ pub async fn retrieve_category_with_membership(
                c.avatar, c.owner_id, c.member_count, c.member_limit, c.post_count,
                c.is_paid, c.price::float8, c.revenue_target::float8,
                c.revenue_raised::float8, c.tags, c.tabs, c.priority, c.enabled,
-               (cm.id IS NOT NULL) AS is_joined
+               c.is_agent_circle, (cm.id IS NOT NULL) AS is_joined
         FROM community_category c
         LEFT JOIN community_member cm
           ON cm.category_id = c.id
@@ -1025,7 +1027,7 @@ pub async fn list_members(
     let rows = sqlx::query(
         r#"
         SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio,
-               tier_id, tier_name, membership_expires_at, last_order_id, joined_at
+               tier_id, tier_name, membership_expires_at, agent_level, last_order_id, joined_at
         FROM community_member
         WHERE tenant_id = $1 AND category_id = $2
         ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, joined_at ASC
@@ -1049,6 +1051,7 @@ pub async fn list_members(
             tier_id: optional_string_cell(row, "tier_id"),
             tier_name: optional_string_cell(row, "tier_name"),
             membership_expires_at: optional_string_cell(row, "membership_expires_at"),
+            agent_level: optional_string_cell(row, "agent_level"),
             last_order_id: optional_string_cell(row, "last_order_id"),
             joined_at: string_cell(row, "joined_at"),
         })
@@ -1064,7 +1067,7 @@ pub async fn current_member(
     let row = sqlx::query(
         r#"
         SELECT id, tenant_id, category_id, user_id, user_name, role, status, bio,
-               tier_id, tier_name, membership_expires_at, last_order_id, joined_at
+               tier_id, tier_name, membership_expires_at, agent_level, last_order_id, joined_at
         FROM community_member
         WHERE tenant_id = $1 AND category_id = $2 AND user_id = $3
         "#,
@@ -1086,6 +1089,7 @@ pub async fn current_member(
         tier_id: optional_string_cell(&row, "tier_id"),
         tier_name: optional_string_cell(&row, "tier_name"),
         membership_expires_at: optional_string_cell(&row, "membership_expires_at"),
+        agent_level: optional_string_cell(&row, "agent_level"),
         last_order_id: optional_string_cell(&row, "last_order_id"),
         joined_at: string_cell(&row, "joined_at"),
     }))
@@ -1130,8 +1134,8 @@ pub async fn update_member(
         r#"
         UPDATE community_member
         SET role = $1, status = $2, tier_id = $3, tier_name = $4,
-            membership_expires_at = $5, last_order_id = $6, updated_at = $7
-        WHERE tenant_id = $8 AND category_id = $9 AND id = $10
+            membership_expires_at = $5, agent_level = $6, last_order_id = $7, updated_at = $8
+        WHERE tenant_id = $9 AND category_id = $10 AND id = $11
         "#,
     )
     .bind(patch.role.as_ref().unwrap_or(&existing.role))
@@ -1144,6 +1148,7 @@ pub async fn update_member(
             .as_ref()
             .or(existing.membership_expires_at.as_ref()),
     )
+    .bind(patch.agent_level.as_ref().or(existing.agent_level.as_ref()))
     .bind(
         patch
             .last_order_id
@@ -1292,7 +1297,8 @@ pub async fn list_tiers(
         sqlx::query(
             r#"
             SELECT id, tenant_id, category_id, name, description, price::float8,
-                   duration_days, benefits, catalog_package_id, sort_order, enabled
+                   duration_days, lifetime_price::float8, lifetime_package_id, benefits,
+                   agent_level, catalog_package_id, sort_order, enabled
             FROM community_membership_tier
             WHERE tenant_id = $1 AND category_id = $2 AND enabled = TRUE
             ORDER BY sort_order ASC, created_at ASC
@@ -1306,7 +1312,8 @@ pub async fn list_tiers(
         sqlx::query(
             r#"
             SELECT id, tenant_id, category_id, name, description, price::float8,
-                   duration_days, benefits, catalog_package_id, sort_order, enabled
+                   duration_days, lifetime_price::float8, lifetime_package_id, benefits,
+                   agent_level, catalog_package_id, sort_order, enabled
             FROM community_membership_tier
             WHERE tenant_id = $1 AND category_id = $2
             ORDER BY sort_order ASC, created_at ASC
@@ -1327,7 +1334,10 @@ pub async fn list_tiers(
             description: optional_string_cell(row, "description"),
             price: optional_f64_cell(row, "price").unwrap_or(0.0),
             duration_days: integer_cell(row, "duration_days"),
+            lifetime_price: optional_f64_cell(row, "lifetime_price"),
+            lifetime_package_id: optional_string_cell(row, "lifetime_package_id"),
             benefits: text_array_cell(row, "benefits"),
+            agent_level: optional_string_cell(row, "agent_level"),
             catalog_package_id: optional_string_cell(row, "catalog_package_id"),
             sort_order: integer_cell(row, "sort_order"),
             enabled: bool_cell(row, "enabled"),
@@ -1362,8 +1372,8 @@ pub async fn create_tier(pool: &PgPool, input: NewCommunityTier) -> Result<(), s
         r#"
         INSERT INTO community_membership_tier
             (id, tenant_id, category_id, name, description, price, duration_days,
-             benefits, catalog_package_id, sort_order, enabled, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6::numeric, $7, $8::jsonb, $9, $10, FALSE, $11, $12)
+             lifetime_price, benefits, agent_level, catalog_package_id, sort_order, enabled, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6::numeric, $7, $8::numeric, $9::jsonb, $10, $11, $12, FALSE, $13, $14)
         "#,
     )
     .bind(input.id)
@@ -1373,7 +1383,9 @@ pub async fn create_tier(pool: &PgPool, input: NewCommunityTier) -> Result<(), s
     .bind(input.description)
     .bind(input.price)
     .bind(input.duration_days)
+    .bind(input.lifetime_price)
     .bind(serde_json::to_string(&input.benefits).unwrap_or_else(|_| "[]".to_owned()))
+    .bind(input.agent_level.as_deref())
     .bind(Option::<String>::None)
     .bind(input.sort_order)
     .bind(&input.now)
@@ -1398,19 +1410,28 @@ pub async fn update_tier(
         r#"
         UPDATE community_membership_tier
         SET name = $1, description = $2, price = $3::numeric, duration_days = $4,
-            benefits = $5::jsonb, catalog_package_id = $6, sort_order = $7,
-            enabled = $8, updated_at = $9
-        WHERE tenant_id = $10 AND category_id = $11 AND id = $12
+            lifetime_price = $5::numeric, lifetime_package_id = $6,
+            benefits = $7::jsonb, agent_level = $8, catalog_package_id = $9,
+            sort_order = $10, enabled = $11, updated_at = $12
+        WHERE tenant_id = $13 AND category_id = $14 AND id = $15
         "#,
     )
     .bind(patch.name.as_ref().unwrap_or(&existing.name))
     .bind(patch.description.as_ref().or(existing.description.as_ref()))
     .bind(patch.price.unwrap_or(existing.price))
     .bind(patch.duration_days.unwrap_or(existing.duration_days))
+    .bind(patch.lifetime_price.or(existing.lifetime_price))
+    .bind(
+        patch
+            .lifetime_package_id
+            .as_ref()
+            .or(existing.lifetime_package_id.as_ref()),
+    )
     .bind(
         serde_json::to_string(patch.benefits.as_ref().unwrap_or(&existing.benefits))
             .unwrap_or_else(|_| "[]".to_owned()),
     )
+    .bind(patch.agent_level.as_ref().or(existing.agent_level.as_ref()))
     .bind(
         patch
             .catalog_package_id

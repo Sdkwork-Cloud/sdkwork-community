@@ -14,7 +14,9 @@ interface TierFormState {
   description: string;
   price: string;
   durationDays: string;
+  lifetimePrice: string;
   benefits: string;
+  agentLevel: string;
   sortOrder: string;
 }
 
@@ -23,9 +25,19 @@ const EMPTY_FORM: TierFormState = {
   description: "",
   price: "",
   durationDays: "365",
+  lifetimePrice: "",
   benefits: "",
+  agentLevel: "",
   sortOrder: "0",
 };
+
+const AGENT_LEVEL_OPTIONS = [
+  { value: "", label: "非代理商档位" },
+  { value: "distributor", label: "初级代理 (L1)" },
+  { value: "silver", label: "银牌代理 (L2)" },
+  { value: "gold", label: "金牌代理 (L3)" },
+  { value: "platinum", label: "铂金代理 (L4)" },
+];
 
 /**
  * Circle owner membership-tier management (会员等级管理).
@@ -72,7 +84,9 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
       description: tier.description ?? "",
       price: String(tier.price),
       durationDays: String(tier.durationDays),
+      lifetimePrice: tier.lifetimePrice != null ? String(tier.lifetimePrice) : "",
       benefits: tier.benefits.join("\n"),
+      agentLevel: tier.agentLevel ?? "",
       sortOrder: String(tier.sortOrder),
     });
     setShowForm(true);
@@ -88,13 +102,22 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
       showToast(t('community.auto_invalid_price', '请输入有效的价格'));
       return;
     }
+    const lifetimePrice = form.lifetimePrice.trim()
+      ? Number(form.lifetimePrice)
+      : undefined;
+    if (lifetimePrice !== undefined && (!Number.isFinite(lifetimePrice) || lifetimePrice <= 0)) {
+      showToast(t('community.auto_invalid_price', '请输入有效的价格'));
+      return;
+    }
     const payload = {
       name: form.name.trim(),
       description: form.description.trim() || undefined,
       price,
       durationDays: Number(form.durationDays) || 365,
+      lifetimePrice,
       benefits: form.benefits.split("\n").map((item) => item.trim()).filter(Boolean),
-      sortOrder: Number(form.sortOrder) || 0,
+            agentLevel: form.agentLevel || undefined,
+sortOrder: Number(form.sortOrder) || 0,
     };
     try {
       if (editingTier) {
@@ -162,6 +185,8 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                   ¥{tier.price} / {tier.durationDays >= 365
                     ? t('community.auto_duration_years_short', '{{years}} 年', { years: Math.round(tier.durationDays / 365) })
                     : t('community.auto_duration_days_short', '{{days}} 天', { days: tier.durationDays })}
+                  {tier.lifetimePrice ? ` · ${t('community.auto_term_lifetime', '终身')} ¥${tier.lifetimePrice}` : ""}
+                  {tier.agentLevel ? ` · ${t('community.auto_agent_badge', '代理商')} ${tier.agentLevel}` : ""}
                   {tier.catalogPackageId ? ` · ${t('community.auto_product', '商品')} ${tier.catalogPackageId}` : ""}
                 </span>
               </div>
@@ -249,6 +274,28 @@ export const TierManagementPanel: React.FC<TierManagementPanelProps> = ({ commun
                   />
                 </label>
               </div>
+              <label className="flex flex-col gap-1">
+                <span className="text-[13px] text-text-sub">{t('community.auto_tier_lifetime_price', '终身价（元，选填）')}</span>
+                <input
+                  type="number"
+                  value={form.lifetimePrice}
+                  onChange={(e) => setForm({ ...form, lifetimePrice: e.target.value })}
+                  placeholder={t('community.auto_tier_lifetime_price_hint', '留空表示仅按年销售')}
+                  className="rounded-lg border border-black/10 dark:border-white/10 px-3 py-2 text-[14px] bg-transparent"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-[13px] text-text-sub">{t('community.auto_tier_agent_level', '代理等级（选填）')}</span>
+                <select
+                  value={form.agentLevel}
+                  onChange={(e) => setForm({ ...form, agentLevel: e.target.value })}
+                  className="rounded-lg border border-black/10 dark:border-white/10 px-3 py-2 text-[14px] bg-transparent"
+                >
+                  {AGENT_LEVEL_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
               <label className="flex flex-col gap-1">
                 <span className="text-[13px] text-text-sub">{t('community.auto_tier_benefits', '权益（每行一条）')}</span>
                 <textarea

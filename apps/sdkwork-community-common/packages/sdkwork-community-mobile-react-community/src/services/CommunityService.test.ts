@@ -87,6 +87,26 @@ const ENTRIES: readonly SdkworkCommunityEntry[] = [
     tags: ["pdf"],
     title: "2026年AI行业发展白皮书.pdf",
   },
+  {
+    author: { id: "official-team", name: "官方团队" },
+    body: JSON.stringify({
+      status: "征集中",
+      tag: "官方展映",
+      participants: 613,
+      background: "面向全球征集优质 AI 影像短片。",
+      timeRange: "2026-06-30 00:00:00 - 2026-08-20 23:59:59",
+      works: [{ id: "work-01", title: "《临水》" }],
+    }),
+    categoryId: AI_DEVELOPERS_ID,
+    excerpt: "面向全球征集 AI 影像短片。",
+    id: "activity_1",
+    kind: "announcement",
+    publishedAt: "2026-07-01T00:00:00Z",
+    reviewState: "approved",
+    stats: { commentCount: 0, reactionCount: 2 },
+    tags: ["活动"],
+    title: "AI 影像推荐单元",
+  },
 ];
 
 describe("CommunityService", () => {
@@ -185,8 +205,8 @@ describe("CommunityService", () => {
   it("lists posts with comments and maps backend media", async () => {
     const posts = await CommunityService.getPostsByCommunity(AI_DEVELOPERS_ID);
 
-    expect(posts).toHaveLength(1);
-    expect(posts[0]).toMatchObject({
+    expect(posts).toHaveLength(2);
+    expect(posts.find((post) => post.id === "post_1")).toMatchObject({
       id: "post_1",
       communityId: AI_DEVELOPERS_ID,
       authorName: "AI 极客",
@@ -196,9 +216,27 @@ describe("CommunityService", () => {
       isLiked: false,
       images: ["drive://spaces/s1/nodes/n1"],
     });
-    expect(posts[0].commentsList).toEqual([
+    const postOne = posts.find((post) => post.id === "post_1");
+    expect(postOne?.commentsList).toEqual([
       expect.objectContaining({ authorName: "Alex", content: "支持！" }),
     ]);
+  });
+
+  it("renders JSON-structured entry bodies as readable text, never raw JSON", async () => {
+    const posts = await CommunityService.getPostsByCommunity(AI_DEVELOPERS_ID);
+    const activity = posts.find((post) => post.id === "activity_1");
+
+    expect(activity).toBeDefined();
+    expect(activity?.content).not.toContain("{");
+    expect(activity?.content).not.toContain('"works"');
+    expect(activity?.content).toContain("面向全球征集优质 AI 影像短片。");
+    expect(activity?.content).toContain("2026-06-30 00:00:00 - 2026-08-20 23:59:59");
+  });
+
+  it("passes plain markdown bodies through unchanged", async () => {
+    const posts = await CommunityService.getPostsByCommunity(AI_DEVELOPERS_ID);
+    const plain = posts.find((post) => post.id === "post_1");
+    expect(plain?.content).toBe("开源了一个 RAG 项目");
   });
 
   it("creates posts and comments, and toggles likes", async () => {

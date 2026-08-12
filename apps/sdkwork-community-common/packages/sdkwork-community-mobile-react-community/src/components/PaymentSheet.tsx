@@ -7,12 +7,23 @@ import { useNavigate, useLocation } from "react-router";
 import type { MembershipTier } from "../types";
 import { CommunityImage } from "./CommunityImage";
 
+/** Purchase confirmation payload: which tier, which package (yearly vs
+ * lifetime) and which payment method. */
+export interface CirclePurchaseConfirm {
+  tier: MembershipTier;
+  /** order packageId: the yearly (catalogPackageId) or lifetime package. */
+  packageId: string;
+  paymentMethod: string;
+  /** true when the purchase is the lifetime package. */
+  isLifetime: boolean;
+}
+
 interface PaymentSheetProps {
   communityName: string;
   communityCoverImage: string;
   tiers: MembershipTier[];
   onClose: () => void;
-  onConfirm: (tier: MembershipTier, paymentMethod: string) => void;
+  onConfirm: (confirm: CirclePurchaseConfirm) => void;
 }
 
 export const PaymentSheet: React.FC<PaymentSheetProps> = ({
@@ -24,6 +35,8 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
 }) => {
   const { t } = useTranslation();
   const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
+  // Lifetime purchase selected for the current tier (defaults to yearly).
+  const [isLifetime, setIsLifetime] = useState(false);
   // Payment method values follow the sdkwork-order contract (wechat_pay/alipay).
   const [selectedPayment, setSelectedPayment] = useState<'wechat_pay'|'alipay'|null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
@@ -79,10 +92,24 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
 
   const selectedTier = tiers.find((tier) => tier.id === selectedTierId) ?? null;
 
+  // Reset the term when switching tiers (lifetime may not be offered).
+  useEffect(() => {
+    setIsLifetime(false);
+  }, [selectedTierId]);
+
   const handleConfirm = () => {
     if (!selectedTier) return;
     const paymentMethod = selectedPayment ?? (isAlipay ? 'alipay' : 'wechat_pay');
-    onConfirm(selectedTier, paymentMethod);
+    const packageId = isLifetime && selectedTier.lifetimePackageId
+      ? selectedTier.lifetimePackageId
+      : selectedTier.catalogPackageId;
+    if (!packageId) return;
+    onConfirm({
+      tier: selectedTier,
+      packageId,
+      paymentMethod,
+      isLifetime: isLifetime && Boolean(selectedTier.lifetimePackageId),
+    });
   };
 
   return (
@@ -146,8 +173,11 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
                     : t('community.auto_duration_days', '{{days}} 天有效', { days: tier.durationDays })}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[18px] font-bold text-red-500">¥{tier.price}</span>
+              <div className="flex flex-col items-end gap-0.5">
+                <span className="text-[16px] font-bold text-red-500">¥{tier.price}<span className="text-[11px] font-normal text-text-sub">/年</span></span>
+                {tier.lifetimePrice ? (
+                  <span className="text-[11px] text-text-sub">终身 ¥{tier.lifetimePrice}</span>
+                ) : null}
                 <span
                   className={cn(
                     "w-4 h-4 rounded-full border flex items-center justify-center",
@@ -171,6 +201,35 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
             ))}
           </div>
         )}
+
+        {/* 支付周期：终身/按年（档位提供终身价时） */}
+        {selectedTier && selectedTier.lifetimePrice ? (
+          <div className="flex flex-col gap-2 mb-4">
+            <span className="text-[13px] text-text-sub">{t('community.auto_purchase_term', '购买周期')}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsLifetime(false)}
+                className={cn(
+                  "flex-1 flex flex-col items-center gap-0.5 rounded-xl border py-2.5 text-[14px] font-medium",
+                  !isLifetime ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10 text-blue-500" : "border-black/10 dark:border-white/10 text-text-main",
+                )}
+              >
+                <span>{t('community.auto_term_yearly', '按年')}</span>
+                <span className="text-[12px] font-bold">¥{selectedTier.price}</span>
+              </button>
+              <button
+                onClick={() => setIsLifetime(true)}
+                className={cn(
+                  "flex-1 flex flex-col items-center gap-0.5 rounded-xl border py-2.5 text-[14px] font-medium",
+                  isLifetime ? "border-blue-500 bg-blue-50 dark:bg-blue-500/10 text-blue-500" : "border-black/10 dark:border-white/10 text-text-main",
+                )}
+              >
+                <span>{t('community.auto_term_lifetime', '终身')}</span>
+                <span className="text-[12px] font-bold">¥{selectedTier.lifetimePrice}</span>
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         {/* 支付方式 */}
         {!isWeChat && !isAlipay && (
@@ -205,7 +264,9 @@ export const PaymentSheet: React.FC<PaymentSheetProps> = ({
           disabled={!selectedTier}
           className="w-full rounded-xl bg-blue-500 py-3 text-[15px] font-semibold text-white disabled:opacity-40"
         >
-          {selectedTier ? t('community.auto_pay_now', '立即支付 ¥{{price}}', { price: selectedTier.price }) : t('community.auto_select_tier', '请选择会员等级')}
+          {selectedTier
+            ? t('community.auto_pay_now', '立即支付 ¥{{price}}', { price: isLifetime && selectedTier.lifetimePrice ? selectedTier.lifetimePrice : selectedTier.price })
+            : t('community.auto_select_tier', '请选择会员等级')}
         </button>
 
         <div className="mt-3 flex items-center justify-center gap-1 text-[12px] text-text-sub">

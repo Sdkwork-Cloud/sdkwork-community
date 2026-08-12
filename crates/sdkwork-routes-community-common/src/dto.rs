@@ -81,6 +81,8 @@ pub struct CommunityCategoryResponse {
     pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+    pub is_agent_circle: bool,
+    pub is_recommended: bool,
     pub is_joined: bool,
 }
 
@@ -103,6 +105,8 @@ pub struct CommunityMemberResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub membership_expires_at: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_level: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub last_order_id: Option<String>,
     pub joined_at: String,
 }
@@ -118,7 +122,13 @@ pub struct CommunityTierResponse {
     pub description: Option<String>,
     pub price: f64,
     pub duration_days: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lifetime_price: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lifetime_package_id: Option<String>,
     pub benefits: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub agent_level: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub catalog_package_id: Option<String>,
     pub sort_order: i64,
@@ -219,6 +229,8 @@ pub fn map_category(category: CommunityCategoryView) -> CommunityCategoryRespons
         tabs: category.tabs,
         priority: category.priority,
         enabled: category.enabled,
+        is_agent_circle: category.is_agent_circle,
+        is_recommended: category.is_recommended,
         is_joined: category.is_joined,
     }
 }
@@ -236,6 +248,7 @@ pub fn map_member(member: CommunityMemberView) -> CommunityMemberResponse {
         tier_id: member.tier_id,
         tier_name: member.tier_name,
         membership_expires_at: member.membership_expires_at,
+        agent_level: member.agent_level,
         last_order_id: member.last_order_id,
         joined_at: member.joined_at,
     }
@@ -250,7 +263,10 @@ pub fn map_tier(tier: CommunityTierView) -> CommunityTierResponse {
         description: tier.description,
         price: tier.price,
         duration_days: tier.duration_days,
+        lifetime_price: tier.lifetime_price,
+        lifetime_package_id: tier.lifetime_package_id,
         benefits: tier.benefits,
+        agent_level: tier.agent_level,
         catalog_package_id: tier.catalog_package_id,
         sort_order: tier.sort_order,
         enabled: tier.enabled,

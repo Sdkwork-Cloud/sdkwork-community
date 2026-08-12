@@ -13,7 +13,7 @@
 INSERT INTO community_category (
     id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
     member_count, post_count, is_paid, price, tags, priority, enabled,
-    created_at, updated_at
+    is_recommended, created_at, updated_at
 )
 VALUES
     (
@@ -23,7 +23,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Angel+Investment',
         'https://api.dicebear.com/7.x/initials/png?seed=Angel+Investment&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 9999,
-        ARRAY['投资', 'AI 创业', '天使投资', '官方'], 35, TRUE,
+        ARRAY['投资', 'AI 创业', '天使投资', '官方'], 90, TRUE, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -33,7 +33,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AI+Board',
         'https://api.dicebear.com/7.x/initials/png?seed=AI+Board&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 2999,
-        ARRAY['私董会', '高管', 'AI 战略', '官方'], 30, TRUE,
+        ARRAY['私董会', '高管', 'AI 战略', '官方'], 80, TRUE, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     )
 ON CONFLICT (id) DO UPDATE SET
@@ -48,6 +48,7 @@ ON CONFLICT (id) DO UPDATE SET
     price = EXCLUDED.price,
     tags = EXCLUDED.tags,
     priority = EXCLUDED.priority,
+    is_recommended = EXCLUDED.is_recommended,
     enabled = EXCLUDED.enabled,
     updated_at = EXCLUDED.updated_at;
 

@@ -278,5 +278,14 @@
   "auto_paid_badge": "付费",
   "auto_no_purchasable_tiers": "该圈子暂无可购买的会员套餐，请稍后再试或联系圈主",
   "auto_got_it": "知道了",
-  "auto_price_from": "¥{{price}} 起 · 选择套餐"
+  "auto_price_from": "¥{{price}} 起 · 选择套餐",
+  "auto_agent_badge": "代理商",
+  "auto_agent_circle": "代理商圈子",
+  "auto_purchase_term": "购买周期",
+  "auto_term_yearly": "按年",
+  "auto_term_lifetime": "终身",
+  "auto_tier_lifetime_price": "终身价（元，选填）",
+  "auto_tier_lifetime_price_hint": "留空表示仅按年销售",
+  "auto_tier_agent_level": "代理等级（选填）",
+  "auto_recommended_badge": "推荐"
 }

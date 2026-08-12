@@ -23,7 +23,9 @@ export const CommunityLockedView = ({
         <Lock className="w-8 h-8 text-blue-500" />
       </div>
       <h3 className="text-[18px] font-semibold text-text-main mb-2">
-        {t("community.auto_25f42a69", "付费圈子")}
+        {community.isAgentCircle
+          ? t("community.auto_agent_circle", "代理商圈子")
+          : t("community.auto_25f42a69", "付费圈子")}
       </h3>
       <p className="text-[14px] text-text-sub text-center mb-8">
         {t("community.auto_n3a0b56d", "解锁专享内容、群组资源以及与优质圈友互动。")}

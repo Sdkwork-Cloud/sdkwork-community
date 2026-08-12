@@ -69,6 +69,16 @@ export const CommunityCard: React.FC<CommunityCardProps> = ({
                 {t("community.auto_paid_badge", "付费")}
               </span>
             )}
+            {community.isAgentCircle && (
+              <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-500 shrink-0">
+                {t("community.auto_agent_badge", "代理商")}
+              </span>
+            )}
+            {community.isRecommended && (
+              <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 shrink-0">
+                {t("community.auto_recommended_badge", "推荐")}
+              </span>
+            )}
             {community.tags.slice(0, 3).map((tag, idx) => (
               <span
                 key={idx}

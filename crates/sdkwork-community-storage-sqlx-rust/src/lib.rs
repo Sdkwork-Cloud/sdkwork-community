@@ -67,6 +67,8 @@ pub struct CommunityStoredCategory {
     pub tabs: Vec<String>,
     pub priority: i64,
     pub enabled: bool,
+    pub is_agent_circle: bool,
+    pub is_recommended: bool,
     pub is_joined: bool,
 }
 
@@ -140,6 +142,7 @@ pub struct CommunityStoredMember {
     pub tier_id: Option<String>,
     pub tier_name: Option<String>,
     pub membership_expires_at: Option<String>,
+    pub agent_level: Option<String>,
     pub last_order_id: Option<String>,
     pub joined_at: String,
 }
@@ -163,6 +166,7 @@ pub struct CommunityMemberPatch {
     pub tier_id: Option<String>,
     pub tier_name: Option<String>,
     pub membership_expires_at: Option<String>,
+    pub agent_level: Option<String>,
     pub last_order_id: Option<String>,
 }
 
@@ -175,7 +179,10 @@ pub struct CommunityStoredTier {
     pub description: Option<String>,
     pub price: f64,
     pub duration_days: i64,
+    pub lifetime_price: Option<f64>,
+    pub lifetime_package_id: Option<String>,
     pub benefits: Vec<String>,
+    pub agent_level: Option<String>,
     pub catalog_package_id: Option<String>,
     pub sort_order: i64,
     pub enabled: bool,
@@ -190,7 +197,9 @@ pub struct NewCommunityTier {
     pub description: Option<String>,
     pub price: f64,
     pub duration_days: i64,
+    pub lifetime_price: Option<f64>,
     pub benefits: Vec<String>,
+    pub agent_level: Option<String>,
     pub sort_order: i64,
     pub now: String,
 }
@@ -201,7 +210,10 @@ pub struct CommunityTierPatch {
     pub description: Option<String>,
     pub price: Option<f64>,
     pub duration_days: Option<i64>,
+    pub lifetime_price: Option<f64>,
+    pub lifetime_package_id: Option<String>,
     pub benefits: Option<Vec<String>>,
+    pub agent_level: Option<String>,
     pub catalog_package_id: Option<String>,
     pub sort_order: Option<i64>,
     pub enabled: Option<bool>,

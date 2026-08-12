@@ -14,7 +14,7 @@
 INSERT INTO community_category (
     id, tenant_id, slug, title, description, cover_image, avatar, owner_id,
     member_count, post_count, is_paid, price, tags, priority, enabled,
-    created_at, updated_at
+    is_recommended, created_at, updated_at
 )
 VALUES
     (
@@ -24,7 +24,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AI+Learning',
         'https://api.dicebear.com/7.x/initials/png?seed=AI+Learning&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 2, FALSE, NULL,
-        ARRAY['AI', '机器学习', '大模型', '官方'], 100, TRUE,
+        ARRAY['AI', '机器学习', '大模型', '官方'], 20, TRUE, FALSE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -34,7 +34,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Announcements',
         'https://api.dicebear.com/7.x/initials/png?seed=Announcements&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, FALSE, NULL,
-        ARRAY['官方', '公告'], 90, TRUE,
+        ARRAY['官方', '公告'], 10, TRUE, FALSE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -44,7 +44,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Product+Managers',
         'https://api.dicebear.com/7.x/initials/png?seed=Product+Managers&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, FALSE, NULL,
-        ARRAY['产品', '增长', '方法论'], 80, TRUE,
+        ARRAY['产品', '增长', '方法论'], 30, TRUE, FALSE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -54,7 +54,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=Indie+Hackers',
         'https://api.dicebear.com/7.x/initials/png?seed=Indie+Hackers&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, FALSE, NULL,
-        ARRAY['独立开发', '出海', '变现'], 70, TRUE,
+        ARRAY['独立开发', '出海', '变现'], 40, TRUE, FALSE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -64,7 +64,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=LLM+Advanced',
         'https://api.dicebear.com/7.x/initials/png?seed=LLM+Advanced&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 199,
-        ARRAY['大模型', 'RAG', '微调', 'Agent'], 60, TRUE,
+        ARRAY['大模型', 'RAG', '微调', 'Agent'], 70, TRUE, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -74,7 +74,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AIGC+Creation',
         'https://api.dicebear.com/7.x/initials/png?seed=AIGC+Creation&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 99,
-        ARRAY['AIGC', '提示词', 'AI 绘画', 'AI 视频'], 50, TRUE,
+        ARRAY['AIGC', '提示词', 'AI 绘画', 'AI 视频'], 65, TRUE, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     ),
     (
@@ -84,7 +84,7 @@ VALUES
         'https://placehold.co/800x400/2b5ce7/ffffff/png?text=AI+Product',
         'https://api.dicebear.com/7.x/initials/png?seed=AI+Product&backgroundColor=2b5ce7',
         'sdkwork-official', 1, 1, TRUE, 99,
-        ARRAY['AI 产品', '商业化', '实战'], 40, TRUE,
+        ARRAY['AI 产品', '商业化', '实战'], 60, TRUE, TRUE,
         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
     )
 ON CONFLICT (id) DO UPDATE SET
@@ -99,6 +99,7 @@ ON CONFLICT (id) DO UPDATE SET
     price = EXCLUDED.price,
     tags = EXCLUDED.tags,
     priority = EXCLUDED.priority,
+    is_recommended = EXCLUDED.is_recommended,
     enabled = EXCLUDED.enabled,
     updated_at = EXCLUDED.updated_at;
 

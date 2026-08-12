@@ -18,6 +18,10 @@ export interface Community {
   tabs?: string[];
   isJoined?: boolean;
   isPaid?: boolean;
+  /** Agent-qualification circle: buying any tier grants the agent level. */
+  isAgentCircle?: boolean;
+  /** Recommended/pinned circle shown first in default ordering. */
+  isRecommended?: boolean;
   price?: number;
   tiers?: MembershipTier[];
 }
@@ -28,13 +32,20 @@ export interface MembershipTier {
   categoryId: string;
   name: string;
   description?: string;
+  /** Yearly price. */
   price: number;
   durationDays: number;
-  benefits: string[];
-  enabled: boolean;
-  sortOrder: number;
+  /** Lifetime price; present when the tier supports a lifetime purchase. */
+  lifetimePrice?: number;
   /** membership_package external id used as the order packageId. */
   catalogPackageId?: string;
+  /** Lifetime package external id (order packageId for the lifetime purchase). */
+  lifetimePackageId?: string;
+  benefits: string[];
+  /** Agent qualification level granted by this tier (absent = not an agent tier). */
+  agentLevel?: string;
+  enabled: boolean;
+  sortOrder: number;
 }
 
 export interface PostComment {
@@ -99,4 +110,5 @@ export interface CommunityMember {
   tierId?: string;
   tierName?: string;
   membershipExpiresAt?: string;
+  agentLevel?: string;
 }

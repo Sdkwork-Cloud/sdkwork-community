@@ -19,7 +19,8 @@
     "minimal": {
       "common": [
         "common/003_official_circles.sql",
-        "common/004_official_circles_tiers.sql"
+        "common/004_official_circles_tiers.sql",
+        "common/005_official_agent_circle.sql"
       ],
       "locales": {
         "zh-CN": []
@@ -28,7 +29,8 @@
     "standard": {
       "common": [
         "common/003_official_circles.sql",
-        "common/004_official_circles_tiers.sql"
+        "common/004_official_circles_tiers.sql",
+        "common/005_official_agent_circle.sql"
       ],
       "locales": {
         "zh-CN": []

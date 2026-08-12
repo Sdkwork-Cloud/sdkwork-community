@@ -80,10 +80,13 @@ const TIERS: MembershipTier[] = [
     description: "高级会员权益 + 线下闭门交流",
     price: 3999,
     durationDays: 365,
+    lifetimePrice: 9999,
+    lifetimePackageId: "9003",
     benefits: ["圈子全部内容", "官方交流群", "线下闭门交流"],
     enabled: true,
     sortOrder: 3,
     catalogPackageId: "1003",
+    agentLevel: "platinum",
   },
 ];
 
@@ -126,8 +129,27 @@ describe("PaymentSheet", () => {
     fireEvent.click(screen.getByText("立即支付 ¥3999"));
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(onConfirm).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "tier-vip", price: 3999, catalogPackageId: "1003" }),
-      expect.any(String),
+      expect.objectContaining({
+        tier: expect.objectContaining({ id: "tier-vip", price: 3999, catalogPackageId: "1003" }),
+        packageId: "1003",
+        paymentMethod: expect.any(String),
+        isLifetime: false,
+      }),
+    );
+  });
+
+  it("lets the user switch to the lifetime purchase for a tier that offers it", () => {
+    const onConfirm = vi.fn();
+    renderSheet(TIERS, onConfirm);
+    fireEvent.click(screen.getByText("董事会员"));
+    fireEvent.click(screen.getByText("终身"));
+    expect(screen.getByText("立即支付 ¥9999")).toBeTruthy();
+    fireEvent.click(screen.getByText("立即支付 ¥9999"));
+    expect(onConfirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        packageId: "9003",
+        isLifetime: true,
+      }),
     );
   });
 

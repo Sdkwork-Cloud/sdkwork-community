@@ -262,7 +262,12 @@ impl CommerceIntegration {
             .json()
             .await
             .map_err(|error| format!("order verification response parse failed: {error}"))?;
-        let item = payload.get("data").unwrap_or(&payload);
+        // Envelope shape: `{ code, data: { item: { status, totalAmount, ... } } }`.
+        let item = payload
+            .get("data")
+            .and_then(|data| data.get("item"))
+            .or_else(|| payload.get("data"))
+            .unwrap_or(&payload);
         let status = item
             .get("status")
             .and_then(|value| value.as_str())

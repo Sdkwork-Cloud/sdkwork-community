@@ -10,7 +10,7 @@ import { ChevronLeft, Share2, Plus, Users, LayoutDashboard, FileText, Download, 
 import { PostList } from "../components/PostList";
 import { ResourceList } from "../components/ResourceList";
 import { GroupList } from "../components/GroupList";
-import { PaymentSheet } from "../components/PaymentSheet";
+import { PaymentSheet, type CirclePurchaseConfirm } from "../components/PaymentSheet";
 import { SuccessModal } from "../components/SuccessModal";
 
 import { CommunityCover } from "../components/CommunityDetail/CommunityCover";
@@ -131,21 +131,22 @@ const { id } = useParams<{ id: string }>();
 
   // Paid circle: create the membership order through sdkwork-order and enter
   // the cashier bridge; the bridge activates the membership and returns here.
-  const handleConfirmPay = async (tier: MembershipTier, paymentMethod: string) => {
+  const handleConfirmPay = async (confirm: CirclePurchaseConfirm) => {
+    const { tier, packageId, paymentMethod, isLifetime } = confirm;
     if (!id) return;
-    if (!tier.catalogPackageId) {
+    if (!packageId) {
       showToast(t('community.auto_fn_n630c7e9a', '该会员等级尚未上架，请稍后再试'));
       return;
     }
     try {
       showToast(t('community.auto_fn_1e02c86c', '订单创建中...'));
       const order = await getCommunityOrderRuntime().createMembershipOrder({
-        packageId: tier.catalogPackageId,
+        packageId,
         paymentMethod,
         source: 'community-circle',
       });
       setIsPaySheetOpen(false);
-      navigate(`/community/${id}/cashier/${encodeURIComponent(order.orderId)}?tierId=${encodeURIComponent(tier.id)}`);
+      navigate(`/community/${id}/cashier/${encodeURIComponent(order.orderId)}?tierId=${encodeURIComponent(tier.id)}&packageId=${encodeURIComponent(packageId)}&term=${isLifetime ? 'lifetime' : 'yearly'}`);
     } catch (error) {
       console.error('circle membership order creation failed', error);
       showToast(t('community.auto_fn_2f078e83', '下单失败，请稍后再试'));

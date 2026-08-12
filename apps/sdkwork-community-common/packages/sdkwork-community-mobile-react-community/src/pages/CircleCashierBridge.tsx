@@ -32,16 +32,22 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [tierId, setTierId] = useState<string | null>(null);
+  const [packageId, setPackageId] = useState<string | null>(null);
   const activatedRef = useRef(false);
 
-  // The cashier deep-link may carry the tier id as a query param so the
-  // bridge knows which tier to activate after payment. Read it through the
-  // router so both history and hash routing work (WeChat OAuth returns on a
-  // hash route per the order cashier contract).
+  // The cashier deep-link may carry the tier id and the purchased package
+  // (yearly vs lifetime) as query params so the bridge knows what to activate
+  // after payment. Read them through the router so both history and hash
+  // routing work (WeChat OAuth returns on a hash route per the order cashier
+  // contract).
   useEffect(() => {
     const tier = searchParams.get("tierId");
     if (tier) {
       setTierId(tier);
+    }
+    const pkg = searchParams.get("packageId");
+    if (pkg) {
+      setPackageId(pkg);
     }
   }, [searchParams]);
 
@@ -80,7 +86,7 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
         return;
       }
       try {
-        await CommunityService.activateMembership(communityId, orderId, tierId);
+        await CommunityService.activateMembership(communityId, orderId, tierId, packageId ?? undefined);
       } catch (error) {
         // The order is paid; activation failure is surfaced but the payer is
         // still returned to the circle so they can retry activation.
@@ -104,7 +110,7 @@ export const CircleCashierBridge: React.FC<CircleCashierBridgeProps> = ({
         clearInterval(timer);
       }
     };
-  }, [communityId, orderId, tierId, navigate]);
+  }, [communityId, orderId, tierId, packageId, navigate]);
 
   if (!communityId || !orderId) {
     return <div className="p-8 text-center text-text-sub">{t('community.auto_cashier_params_missing', '收银台参数缺失')}</div>;

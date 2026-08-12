@@ -76,9 +76,13 @@ export interface SdkworkCommunityCategory {
   description?: string;
   enabled: boolean;
   id: string;
+  /** Agent-qualification circle: buying any tier grants the agent level. */
+  isAgentCircle?: boolean;
   /** Whether the current user has joined the circle (list responses). */
   isJoined?: boolean;
   isPaid?: boolean;
+  /** Recommended/pinned circle shown first in default ordering. */
+  isRecommended?: boolean;
   memberCount?: number;
   /** Maximum member count; absent means unlimited (默认不限制). */
   memberLimit?: number;
@@ -104,6 +108,8 @@ export interface SdkworkCommunityMember {
   /** Last order id used for activation idempotency. */
   lastOrderId?: string;
   membershipExpiresAt?: Date | number | string | null;
+  /** Agent qualification level granted by the purchased tier (NULL=not an agent). */
+  agentLevel?: string;
   role: SdkworkCommunityMemberRole;
   status: SdkworkCommunityMemberStatus;
   tierId?: string;
@@ -113,6 +119,8 @@ export interface SdkworkCommunityMember {
 
 /** Purchasable circle membership level (会员等级). */
 export interface SdkworkCommunityMembershipTier {
+  /** Agent qualification level granted by this tier (NULL=not an agent tier). */
+  agentLevel?: string;
   benefits: readonly string[];
   catalogPackageId?: string;
   categoryId: string;
@@ -120,6 +128,10 @@ export interface SdkworkCommunityMembershipTier {
   durationDays: number;
   enabled: boolean;
   id: string;
+  /** Lifetime price; absent means the tier is yearly-only. */
+  lifetimePrice?: number;
+  /** Membership package external id for the lifetime purchase (when available). */
+  lifetimePackageId?: string;
   name: string;
   price: number;
   sortOrder: number;
@@ -128,9 +140,11 @@ export interface SdkworkCommunityMembershipTier {
 
 /** Command to create or update a circle membership tier. */
 export interface SdkworkCommunityTierCommand {
+  agentLevel?: string;
   benefits?: readonly string[];
   description?: string;
   durationDays?: number;
+  lifetimePrice?: number;
   name: string;
   price: number;
   sortOrder?: number;
@@ -139,6 +153,9 @@ export interface SdkworkCommunityTierCommand {
 /** Command to activate a paid circle membership after order payment. */
 export interface SdkworkCommunityActivateMembershipCommand {
   orderId: string;
+  /** Package used for the purchase: the yearly (catalogPackageId) or the
+   * lifetime (lifetimePackageId) package. Absent → yearly. */
+  packageId?: string;
   tierId: string;
 }
 

@@ -59,6 +59,60 @@ function mapCommentToPostComment(comment: SdkworkCommunityComment): PostComment 
   };
 }
 
+/**
+ * Human-readable fields that product surfaces may embed in JSON-structured
+ * entry bodies (e.g. the Agents 灵感广场 activity cards). The feed must never
+ * dump the raw JSON document into a post.
+ */
+const JSON_BODY_TEXT_FIELDS = [
+  "background",
+  "desc",
+  "description",
+  "summary",
+  "timeRange",
+  "status",
+  "tag",
+] as const;
+
+/** True when the entry body is a serialized JSON document (object or array). */
+function isJsonDocument(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+    return false;
+  }
+  try {
+    return typeof JSON.parse(trimmed) === "object";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Renders an entry body as readable post text. Plain markdown passes through;
+ * JSON-structured bodies (used as structured payloads by other surfaces) are
+ * reduced to their human-readable text fields, falling back to excerpt/title.
+ */
+function toReadableEntryText(body: string | undefined, excerpt?: string, title?: string): string {
+  if (!body) {
+    return excerpt?.trim() || title?.trim() || "";
+  }
+  if (!isJsonDocument(body)) {
+    return body;
+  }
+  try {
+    const record = JSON.parse(body.trim()) as Record<string, unknown>;
+    const parts = JSON_BODY_TEXT_FIELDS.map((key) => record[key])
+      .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+      .map((value) => value.trim());
+    if (parts.length > 0) {
+      return parts.join("\n\n");
+    }
+  } catch {
+    // Fall through to the excerpt/title fallback below.
+  }
+  return excerpt?.trim() || title?.trim() || "";
+}
+
 function mapEntryToPost(entry: SdkworkCommunityEntry, commentsList?: PostComment[]): Post {
   return {
     id: entry.id,
@@ -66,7 +120,7 @@ function mapEntryToPost(entry: SdkworkCommunityEntry, commentsList?: PostComment
     authorId: entry.author.id,
     authorName: entry.author.name,
     authorAvatar: entry.author.avatar?.publicUrl ?? "",
-    content: entry.body ?? entry.excerpt ?? entry.title,
+    content: toReadableEntryText(entry.body, entry.excerpt, entry.title),
     images: entry.media ? [...entry.media] : undefined,
     createdAt: String(entry.publishedAt ?? entry.lastActivityAt ?? ""),
     likes: entry.stats.reactionCount ?? 0,
@@ -416,8 +470,13 @@ export const CommunityService = {
     communityId: string,
     orderId: string,
     tierId: string,
+    packageId?: string,
   ): Promise<CommunityMember> {
-    const member = await port().community.members.activate(communityId, { orderId, tierId });
+    const member = await port().community.members.activate(communityId, {
+      orderId,
+      tierId,
+      ...(packageId ? { packageId } : {}),
+    });
     return mapMemberToCommunityMember(member);
   },
 };
