@@ -3,7 +3,7 @@ import zhCommunity from "../locales/zh/community.json";
 import enCommunity from "../locales/en/community.json";
 
 /**
- * Community (圈子) i18n resources.
+ * Community circle i18n resources.
  *
  * Pages use the default `translation` namespace with `community.` prefixed
  * keys (e.g. `t("community.auto_fn_afc180c")`), matching the shared i18next

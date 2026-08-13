@@ -1581,6 +1581,7 @@ impl CommunityService {
             let registered = self
                 .commerce
                 .register_membership_package(MembershipPackageRegistration {
+                    category: "community".to_owned(),
                     code: format!("community-tier-{}", tier.id.replace('-', "")),
                     package_group_id: "package-group-circle-membership".to_owned(),
                     plan_id: "plan-circle-membership".to_owned(),
@@ -1604,6 +1605,7 @@ impl CommunityService {
                 let lifetime = self
                     .commerce
                     .register_membership_package(MembershipPackageRegistration {
+                        category: "community".to_owned(),
                         code: format!(
                             "community-tier-{}-lifetime",
                             tier.id.replace('-', "")

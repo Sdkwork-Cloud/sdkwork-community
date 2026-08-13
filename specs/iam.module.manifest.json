@@ -189,10 +189,6 @@
             "permission": "community.categories.read"
           },
           {
-            "operationId": "feed.list",
-            "permission": "community.entries.read"
-          },
-          {
             "operationId": "entries.create",
             "permission": "community.entries.write"
           },
@@ -356,6 +352,62 @@
           {
             "operationId": "recommendations.rebuild",
             "permission": "community.recommendations.manage"
+          },
+          {
+            "operationId": "circles.update",
+            "permission": "community.categories.manage"
+          },
+          {
+            "operationId": "members.management.list",
+            "permission": "community.members.read"
+          },
+          {
+            "operationId": "members.update",
+            "permission": "community.members.write"
+          },
+          {
+            "operationId": "members.delete",
+            "permission": "community.members.write"
+          },
+          {
+            "operationId": "groups.management.list",
+            "permission": "community.groups.read"
+          },
+          {
+            "operationId": "groups.create",
+            "permission": "community.groups.write"
+          },
+          {
+            "operationId": "groups.update",
+            "permission": "community.groups.write"
+          },
+          {
+            "operationId": "groups.delete",
+            "permission": "community.groups.write"
+          },
+          {
+            "operationId": "tiers.management.list",
+            "permission": "community.tiers.read"
+          },
+          {
+            "operationId": "tiers.create",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.update",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.delete",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.publish",
+            "permission": "community.tiers.write"
+          },
+          {
+            "operationId": "tiers.unpublish",
+            "permission": "community.tiers.write"
           }
         ]
       }

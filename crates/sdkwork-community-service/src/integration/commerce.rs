@@ -55,12 +55,18 @@ fn env(key: &str) -> Option<String> {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MembershipPackageRegistration {
+    /// Catalog classification of the registered package; circle tiers always
+    /// register under the `community` plan family (membership backend
+    /// requires the category and provisions referenced plans/groups with it).
+    pub category: String,
     pub code: String,
     pub package_group_id: String,
     pub plan_id: String,
     pub name: String,
     pub price_amount: String,
     pub currency_code: String,
+    /// Membership backend duration in days (int64 wire contract: string).
+    #[serde(with = "sdkwork_utils_rust::serde_int64")]
     pub duration_days: i64,
     /// Membership backend discount percent (1-100); 100 means full price.
     pub discount: i64,
@@ -184,7 +190,11 @@ impl CommerceIntegration {
         let external_id = item
             .get("externalId")
             .or_else(|| item.get("external_id"))
-            .and_then(|value| value.as_i64())
+            .and_then(|value| {
+                value
+                    .as_i64()
+                    .or_else(|| value.as_str().and_then(|raw| raw.trim().parse::<i64>().ok()))
+            })
             .ok_or_else(|| {
                 "membership package registration did not return externalId".to_owned()
             })?;
@@ -312,4 +322,35 @@ fn is_paid_order_status(status: &str) -> bool {
             | "payment_success"
             | "payment-success"
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn membership_package_registration_serializes_contract_shapes() {
+        let registration = MembershipPackageRegistration {
+            category: "community".to_owned(),
+            code: "community-tier-official-llmstandard".to_owned(),
+            package_group_id: "package-group-circle-membership".to_owned(),
+            plan_id: "plan-circle-membership".to_owned(),
+            name: "AI 大模型实战进阶 · 普通会员".to_owned(),
+            price_amount: "199.00".to_owned(),
+            currency_code: "CNY".to_owned(),
+            duration_days: 365,
+            discount: 100,
+            status: "active".to_owned(),
+        };
+        let json = serde_json::to_value(&registration).expect("serialize registration");
+        assert_eq!(json["category"], "community");
+        // int64 wire contract (API_SPEC §13.6): durationDays must serialize
+        // as a decimal string, not a JSON number.
+        assert_eq!(json["durationDays"], "365");
+        assert_eq!(json["discount"], 100);
+        assert_eq!(json["priceAmount"], "199.00");
+        assert_eq!(json["packageGroupId"], "package-group-circle-membership");
+        assert_eq!(json["planId"], "plan-circle-membership");
+        assert_eq!(json["status"], "active");
+    }
 }

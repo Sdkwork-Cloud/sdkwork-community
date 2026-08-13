@@ -11,7 +11,8 @@
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "react-i18next": "catalog:",
-    "i18next": "catalog:"
+    "i18next": "catalog:",
+    "@sdkwork/feeds-sdk": "workspace:*"
   },
   "peerDependencies": {
     "@sdkwork/ui-pc-react": "workspace:*",

@@ -85,8 +85,12 @@ const domainSchemas = {
       role: { type: "string" },
       status: { type: "string" },
       bio: { type: "string" },
+      tierId: { type: "string" },
+      tierName: { type: "string" },
+      membershipExpiresAt: { type: "string", format: "date-time" },
+      agentLevel: { type: "string" },
       lastOrderId: { type: "string" },
-      joinedAt: { type: "string" },
+      joinedAt: { type: "string", format: "date-time" },
     },
   },
   CommunityMemberPatchCommand: {
@@ -147,7 +151,10 @@ const domainSchemas = {
       description: { type: "string" },
       price: { type: "number", format: "double" },
       durationDays: { type: "integer", format: "int64" },
+      lifetimePrice: { type: "number", format: "double" },
+      lifetimePackageId: { type: "string" },
       benefits: { type: "array", items: { type: "string" } },
+      agentLevel: { type: "string" },
       catalogPackageId: { type: "string" },
       sortOrder: { type: "integer", format: "int64" },
       enabled: { type: "boolean" },
@@ -162,7 +169,9 @@ const domainSchemas = {
       description: { type: "string" },
       price: { type: "number", format: "double" },
       durationDays: { type: "integer", format: "int64" },
+      lifetimePrice: { type: "number", format: "double" },
       benefits: { type: "array", items: { type: "string" } },
+      agentLevel: { type: "string" },
       sortOrder: { type: "integer", format: "int64" },
     },
   },
@@ -319,6 +328,20 @@ const domainSchemas = {
       reason: { type: "string" },
     },
   },
+  CommunityFeatureCommand: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      featured: { type: "boolean" },
+    },
+  },
+  CommunityPinCommand: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      pinned: { type: "boolean" },
+    },
+  },
   CommunityPublicationReadiness: {
     type: "object",
     additionalProperties: false,
@@ -358,7 +381,7 @@ const appRoutes = [
   route("post", "/app/v3/api/community/categories/{categoryId}/groups", "groups.create", false, [pathParam("categoryId")], "CommunityGroupCommand"),
   route("patch", "/app/v3/api/community/categories/{categoryId}/groups/{groupId}", "groups.update", false, [pathParam("categoryId"), pathParam("groupId")], "CommunityGroupCommand"),
   route("delete", "/app/v3/api/community/categories/{categoryId}/groups/{groupId}", "groups.remove", false, [pathParam("categoryId"), pathParam("groupId")]),
-  route("get", "/app/v3/api/community/feed", "feed.list", false, listParams()),
+  route("get", "/app/v3/api/community/feed", "feed.list", true, listParams()),
   route("get", "/app/v3/api/community/entries/{entryId}", "entries.retrieve", false, [pathParam("entryId")]),
   route("get", "/app/v3/api/community/entries/{entryId}/recommendations", "entries.recommendations.list", false, [pathParam("entryId")]),
   route("post", "/app/v3/api/community/entries", "entries.create", false, [], "CommunityEntryCommand"),
@@ -375,14 +398,36 @@ const backendRoutes = [
   route("post", "/backend/v3/api/community/categories", "categories.create", false, [], "CommunityCategoryCommand"),
   route("patch", "/backend/v3/api/community/categories/{categoryId}", "categories.update", false, [pathParam("categoryId")], "CommunityCategoryCommand"),
   route("delete", "/backend/v3/api/community/categories/{categoryId}", "categories.delete", false, [pathParam("categoryId")]),
+  route("patch", "/backend/v3/api/community/circles/{categoryId}", "circles.update", false, [pathParam("categoryId")], "CommunityCircleCommand"),
   route("get", "/backend/v3/api/community/entries", "entries.management.list", false, listParams()),
-  route("post", "/backend/v3/api/community/entries/{entryId}/moderation", "entries.moderation.update", false, [pathParam("entryId")], "CommunityModerationCommand"),
-  route("post", "/backend/v3/api/community/entries/{entryId}/feature", "entries.feature", false, [pathParam("entryId")]),
-  route("post", "/backend/v3/api/community/entries/{entryId}/pin", "entries.pin", false, [pathParam("entryId")]),
+  route("post", "/backend/v3/api/community/entries/{entryId}/moderation", "entries.moderation.create", false, [pathParam("entryId")], "CommunityModerationCommand"),
+  route("post", "/backend/v3/api/community/entries/{entryId}/feature", "entries.feature", false, [pathParam("entryId")], "CommunityFeatureCommand"),
+  route("post", "/backend/v3/api/community/entries/{entryId}/pin", "entries.pin", false, [pathParam("entryId")], "CommunityPinCommand"),
   route("delete", "/backend/v3/api/community/entries/{entryId}", "entries.delete", false, [pathParam("entryId")]),
   route("get", "/backend/v3/api/community/moderation/queue", "moderation.queue.list", false),
   route("post", "/backend/v3/api/community/recommendations/rebuild", "recommendations.rebuild", false),
+  route("get", "/backend/v3/api/community/members", "members.management.list", false, [categoryQueryParam()]),
+  route("patch", "/backend/v3/api/community/members/{memberId}", "members.update", false, [pathParam("memberId"), categoryQueryParam()], "CommunityMemberPatchCommand"),
+  route("delete", "/backend/v3/api/community/members/{memberId}", "members.delete", false, [pathParam("memberId"), categoryQueryParam()]),
+  route("get", "/backend/v3/api/community/groups", "groups.management.list", false, [categoryQueryParam()]),
+  route("post", "/backend/v3/api/community/groups", "groups.create", false, [categoryQueryParam()], "CommunityGroupCommand"),
+  route("patch", "/backend/v3/api/community/groups/{groupId}", "groups.update", false, [pathParam("groupId"), categoryQueryParam()], "CommunityGroupCommand"),
+  route("delete", "/backend/v3/api/community/groups/{groupId}", "groups.delete", false, [pathParam("groupId"), categoryQueryParam()]),
+  route("get", "/backend/v3/api/community/tiers", "tiers.management.list", false, [categoryQueryParam(), queryParam("enabledOnly", { type: "boolean" })]),
+  route("post", "/backend/v3/api/community/tiers", "tiers.create", false, [categoryQueryParam()], "CommunityTierCommand"),
+  route("patch", "/backend/v3/api/community/tiers/{tierId}", "tiers.update", false, [pathParam("tierId"), categoryQueryParam()], "CommunityTierCommand"),
+  route("delete", "/backend/v3/api/community/tiers/{tierId}", "tiers.delete", false, [pathParam("tierId"), categoryQueryParam()]),
+  route("post", "/backend/v3/api/community/tiers/{tierId}/publish", "tiers.publish", false, [pathParam("tierId"), categoryQueryParam()]),
+  route("post", "/backend/v3/api/community/tiers/{tierId}/unpublish", "tiers.unpublish", false, [pathParam("tierId"), categoryQueryParam()]),
 ];
+
+// feature/pin bodies are optional for backward compatibility (absent body keeps
+// the historical "set to true" behavior), so the generated SDK must not treat
+// them as required.
+for (const operationId of ["entries.feature", "entries.pin"]) {
+  const operation = backendRoutes.find((item) => item.operation.operationId === operationId);
+  operation.operation.requestBody.required = false;
+}
 
 const openRoutes = [
   route("get", "/community/v3/api/categories", "categories.public.list", true),
@@ -390,6 +435,22 @@ const openRoutes = [
   route("get", "/community/v3/api/entries/{entryId}", "entries.public.retrieve", true, [pathParam("entryId")]),
   route("get", "/community/v3/api/entries/by_slug/{slug}", "entries.publicBySlug.retrieve", true, [pathParam("slug")]),
 ];
+
+// The community feed surfaces are superseded by the standard feeds stream
+// system (sdkwork-feeds `streams.items.list` with community/moments/
+// inspiration stream keys). Keep them as deprecated compatibility layers
+// until consumers finish migrating; do not extend them.
+for (const operationId of ["feed.list", "feed.public.list"]) {
+  for (const routes of [appRoutes, openRoutes]) {
+    const operation = routes.find((item) => item.operation.operationId === operationId);
+    if (operation) {
+      operation.operation.deprecated = true;
+      operation.operation["x-sdkwork-deprecated"] = true;
+      operation.operation.summary =
+        `${operation.operation.summary} (deprecated: use the standard feeds stream system)`;
+    }
+  }
+}
 
 function ref(name) {
   return { $ref: `#/components/schemas/${name}` };
@@ -417,6 +478,15 @@ function queryParam(name, schema = { type: "string" }) {
     in: "query",
     required: false,
     schema,
+  };
+}
+
+function categoryQueryParam() {
+  return {
+    name: "categoryId",
+    in: "query",
+    required: true,
+    schema: { type: "string", minLength: 1 },
   };
 }
 

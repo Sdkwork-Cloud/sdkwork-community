@@ -1,5 +1,6 @@
 import { isBlank, trim, truncate } from "@sdkwork/utils";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
+import type { FeedItem, SdkworkFeedsClient } from "@sdkwork/feeds-sdk";
 import type { SdkworkCommunityCategory, SdkworkCommunityEntry } from "@sdkwork/community-contracts";
 import { getCommunityPcHost } from "../host/adapter";
 
@@ -67,6 +68,8 @@ export const PC_COMMUNITY_MEDIA_UNAVAILABLE = "pc community media contract is no
 
 interface CommunityServiceOptions {
   port?: SdkworkCommunityAppSdkPort;
+  /** Optional standard feeds stream client; falls back to community feed.list. */
+  feedsClient?: SdkworkFeedsClient;
 }
 
 function failClosed(message: string): never {
@@ -123,15 +126,43 @@ function mapEntryToPost(entry: SdkworkCommunityEntry): Post {
   };
 }
 
+function mapFeedItemToPost(item: FeedItem): Post {
+  const streamCommunityId = (item.streamKey ?? "").replace(/^community-/, "").replace(/-resources$/, "");
+  return {
+    id: item.id,
+    communityId: streamCommunityId,
+    author: {
+      id: item.author?.id ?? "",
+      name: item.author?.name ?? "",
+      avatar: item.author?.avatarUrl ?? "",
+    },
+    content: (item.excerpt ?? item.title ?? "").trim(),
+    likes: item.reactionCount ?? 0,
+    comments: item.commentCount ?? 0,
+    createdAt: String(item.publishedAt ?? item.createdAt ?? ""),
+  };
+}
+
 class SdkworkCommunityPcService implements CommunityService {
   private readonly portFactory: () => SdkworkCommunityAppSdkPort;
+  private readonly feedsClientFactory: (() => SdkworkFeedsClient) | null;
 
   constructor(options: CommunityServiceOptions = {}) {
     this.portFactory = () => options.port ?? getCommunityPcHost().createAppSdkPort();
+    const hostFeeds = getCommunityPcHost().createFeedsSdkClient;
+    this.feedsClientFactory = options.feedsClient
+      ? () => options.feedsClient as SdkworkFeedsClient
+      : hostFeeds
+        ? () => hostFeeds()
+        : null;
   }
 
   private port(): SdkworkCommunityAppSdkPort {
     return this.portFactory();
+  }
+
+  private feedsClient(): SdkworkFeedsClient | null {
+    return this.feedsClientFactory ? this.feedsClientFactory() : null;
   }
 
   async getCommunities(): Promise<Community[]> {
@@ -153,6 +184,15 @@ class SdkworkCommunityPcService implements CommunityService {
   }
 
   async getPosts(communityId: string): Promise<Post[]> {
+    const feeds = this.feedsClient();
+    if (feeds) {
+      // Standard feeds stream: community-{circleId} carries all circle posts.
+      const page = await feeds.feeds.streams.items.list(`community-${communityId}`, {
+        pageSize: 100,
+      });
+      return (page.items as unknown as FeedItem[]).map(mapFeedItemToPost);
+    }
+    // Migration fallback: legacy community feed surface.
     const entries = await this.port().community.feed.list({ categoryId: communityId });
     return entries.map(mapEntryToPost);
   }

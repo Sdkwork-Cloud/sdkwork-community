@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from "react";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
+import type { SdkworkFeedsClient } from "@sdkwork/feeds-sdk";
 
 export type CommunityPcToastVariant = "error" | "success" | "info";
 
@@ -53,6 +54,8 @@ export interface CommunityPcResourceUploadResult {
 export interface CommunityPcHostAdapter {
   Avatar: ComponentType<CommunityPcAvatarProps>;
   createAppSdkPort(): SdkworkCommunityAppSdkPort;
+  /** Optional standard feeds stream client (circle post feeds via feeds streams). */
+  createFeedsSdkClient?(): SdkworkFeedsClient;
   languageBridge?: CommunityPcLanguageBridge;
   readSessionTokens(): CommunityPcSessionTokens | null | undefined;
   toast: CommunityPcToast;

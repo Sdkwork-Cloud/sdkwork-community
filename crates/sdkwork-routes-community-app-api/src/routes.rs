@@ -15,7 +15,7 @@ use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_routes_community_common::{
     api_response::{map_service_error, success_command, success_item, success_items},
     dto::{map_category, map_comment, map_entry, map_group, map_member, map_tier},
-    subject::runtime_subject_from_extension,
+    subject::{runtime_subject_from_extension_or_public, runtime_subject_from_extension},
     web_bootstrap::wrap_router_with_web_framework_from_env,
 };
 use sdkwork_web_core::WebRequestContext;
@@ -171,12 +171,14 @@ async fn list_feed(
     context: Option<Extension<WebRequestContext>>,
     iam: Option<Extension<IamAppContext>>,
 ) -> Response {
-    let subject = match runtime_subject_from_extension(iam) {
+    // `feed.list` is a public read surface: authenticated callers keep their
+    // own tenant scoping, anonymous callers read the public default tenant.
+    let subject = match runtime_subject_from_extension_or_public(iam) {
         Ok(subject) => subject,
         Err(error) => {
             return map_service_error(
                 context.as_ref().map(|Extension(ctx)| ctx),
-                sdkwork_community_service::CommunityServiceError::Unauthorized(error),
+                sdkwork_community_service::CommunityServiceError::Validation(error),
             )
         }
     };

@@ -1,8 +1,226 @@
 import { backendApiPath } from './paths';
 import type { ApiRequestOptions, HttpClient } from '../http/client';
 
-import type { CommunityCategoryCommand, CommunityModerationCommand, SdkWorkPageData } from '../types';
+import type { CommunityCategoryCommand, CommunityCircleCommand, CommunityFeatureCommand, CommunityGroupCommand, CommunityMemberPatchCommand, CommunityModerationCommand, CommunityPinCommand, CommunityTierCommand, SdkWorkPageData } from '../types';
 
+
+export interface CommunityTiersManagementListParams {
+  categoryId: string;
+  enabledOnly?: boolean;
+}
+
+export class CommunityTiersManagementApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Community tiers.management.list */
+  async list(params: CommunityTiersManagementListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+      { name: 'enabledOnly', value: params.enabledOnly, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/community/tiers`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+}
+
+export interface CommunityTiersCreateParams {
+  categoryId: string;
+}
+
+export interface CommunityTiersUpdateParams {
+  categoryId: string;
+}
+
+export interface CommunityTiersDeleteParams {
+  categoryId: string;
+}
+
+export interface CommunityTiersPublishParams {
+  categoryId: string;
+}
+
+export interface CommunityTiersUnpublishParams {
+  categoryId: string;
+}
+
+export class CommunityTiersApi {
+  private client: HttpClient;
+  public readonly management: CommunityTiersManagementApi;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+    this.management = new CommunityTiersManagementApi(client);
+  }
+
+
+/** Community tiers.create */
+  async create(body: CommunityTierCommand, params: CommunityTiersCreateParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/tiers`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community tiers.update */
+  async update(tierId: string, body: CommunityTierCommand, params: CommunityTiersUpdateParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community tiers.delete */
+  async delete(tierId: string, params: CommunityTiersDeleteParams, requestOptions?: ApiRequestOptions): Promise<void> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<void>(appendQueryString(backendApiPath(`/community/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+  }
+
+/** Community tiers.publish */
+  async publish(tierId: string, params: CommunityTiersPublishParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}/publish`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community tiers.unpublish */
+  async unpublish(tierId: string, params: CommunityTiersUnpublishParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/tiers/${serializePathParameter(tierId, { name: 'tierId', style: 'simple', explode: false })}/unpublish`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  }
+}
+
+export interface CommunityGroupsManagementListParams {
+  categoryId: string;
+}
+
+export class CommunityGroupsManagementApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Community groups.management.list */
+  async list(params: CommunityGroupsManagementListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/community/groups`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+}
+
+export interface CommunityGroupsCreateParams {
+  categoryId: string;
+}
+
+export interface CommunityGroupsUpdateParams {
+  categoryId: string;
+}
+
+export interface CommunityGroupsDeleteParams {
+  categoryId: string;
+}
+
+export class CommunityGroupsApi {
+  private client: HttpClient;
+  public readonly management: CommunityGroupsManagementApi;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+    this.management = new CommunityGroupsManagementApi(client);
+  }
+
+
+/** Community groups.create */
+  async create(body: CommunityGroupCommand, params: CommunityGroupsCreateParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/groups`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community groups.update */
+  async update(groupId: string, body: CommunityGroupCommand, params: CommunityGroupsUpdateParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/groups/${serializePathParameter(groupId, { name: 'groupId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community groups.delete */
+  async delete(groupId: string, params: CommunityGroupsDeleteParams, requestOptions?: ApiRequestOptions): Promise<void> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<void>(appendQueryString(backendApiPath(`/community/groups/${serializePathParameter(groupId, { name: 'groupId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+  }
+}
+
+export interface CommunityMembersManagementListParams {
+  categoryId: string;
+}
+
+export class CommunityMembersManagementApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Community members.management.list */
+  async list(params: CommunityMembersManagementListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<SdkWorkPageData>(appendQueryString(backendApiPath(`/community/members`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, sdkworkUnwrapKind: 'page' });
+  }
+}
+
+export interface CommunityMembersUpdateParams {
+  categoryId: string;
+}
+
+export interface CommunityMembersDeleteParams {
+  categoryId: string;
+}
+
+export class CommunityMembersApi {
+  private client: HttpClient;
+  public readonly management: CommunityMembersManagementApi;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+    this.management = new CommunityMembersManagementApi(client);
+  }
+
+
+/** Community members.update */
+  async update(memberId: string, body: CommunityMemberPatchCommand, params: CommunityMembersUpdateParams, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<Record<string, unknown>>(appendQueryString(backendApiPath(`/community/members/${serializePathParameter(memberId, { name: 'memberId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
+  }
+
+/** Community members.delete */
+  async delete(memberId: string, params: CommunityMembersDeleteParams, requestOptions?: ApiRequestOptions): Promise<void> {
+    const query = buildQueryString([
+      { name: 'categoryId', value: params.categoryId, style: 'form', explode: true, allowReserved: false },
+    ]);
+    return this.client.request<void>(appendQueryString(backendApiPath(`/community/members/${serializePathParameter(memberId, { name: 'memberId', style: 'simple', explode: false })}`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+  }
+}
 
 export class CommunityRecommendationsApi {
   private client: HttpClient;
@@ -51,7 +269,7 @@ export class CommunityEntriesModerationApi {
   }
 
 
-/** Community entries.moderation.update */
+/** Community entries.moderation.create */
   async create(entryId: string, body: CommunityModerationCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
     return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/moderation`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
@@ -103,18 +321,32 @@ export class CommunityEntriesApi {
 
 
 /** Community entries.feature */
-  async feature(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
-    return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/feature`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  async feature(entryId: string, body?: CommunityFeatureCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/feature`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Community entries.pin */
-  async pin(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
-    return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/pin`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, sdkworkUnwrapKind: 'item' });
+  async pin(entryId: string, body?: CommunityPinCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}/pin`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'POST' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 
 /** Community entries.delete */
   async delete(entryId: string, requestOptions?: ApiRequestOptions): Promise<void> {
     return this.client.request<void>(backendApiPath(`/community/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'DELETE' as any });
+  }
+}
+
+export class CommunityCirclesApi {
+  private client: HttpClient;
+
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+
+/** Community circles.update */
+  async update(categoryId: string, body: CommunityCircleCommand, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
+    return this.client.request<Record<string, unknown>>(backendApiPath(`/community/circles/${serializePathParameter(categoryId, { name: 'categoryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'PATCH' as any, body, contentType: 'application/json', sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -161,16 +393,24 @@ export class CommunityCategoriesApi {
 export class CommunityApi {
   private client: HttpClient;
   public readonly categories: CommunityCategoriesApi;
+  public readonly circles: CommunityCirclesApi;
   public readonly entries: CommunityEntriesApi;
   public readonly moderation: CommunityModerationApi;
   public readonly recommendations: CommunityRecommendationsApi;
+  public readonly members: CommunityMembersApi;
+  public readonly groups: CommunityGroupsApi;
+  public readonly tiers: CommunityTiersApi;
 
   constructor(client: HttpClient) {
     this.client = client;
     this.categories = new CommunityCategoriesApi(client);
+    this.circles = new CommunityCirclesApi(client);
     this.entries = new CommunityEntriesApi(client);
     this.moderation = new CommunityModerationApi(client);
     this.recommendations = new CommunityRecommendationsApi(client);
+    this.members = new CommunityMembersApi(client);
+    this.groups = new CommunityGroupsApi(client);
+    this.tiers = new CommunityTiersApi(client);
   }
 
 }

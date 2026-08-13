@@ -39,7 +39,13 @@
       "community.moderation.read",
       "community.moderation.manage",
       "community.recommendations.read",
-      "community.recommendations.manage"
+      "community.recommendations.manage",
+      "community.members.read",
+      "community.members.write",
+      "community.groups.read",
+      "community.groups.write",
+      "community.tiers.read",
+      "community.tiers.write"
     ]
   },
   "runtime": {

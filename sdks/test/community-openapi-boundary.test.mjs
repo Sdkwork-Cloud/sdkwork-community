@@ -54,9 +54,20 @@ test("community OpenAPI documents are owner-only sdkwork-v3 compatible inputs", 
       assert.deepEqual(operation.tags, ["community"], `${surface} tag ${path}`);
       assert.match(operation.operationId, /^[a-z][A-Za-z0-9]*(\.[a-z][A-Za-z0-9]*)+$/u);
 
+      // Public operations (x-sdkwork-public: true) are anonymous on every
+      // surface; protected app/backend operations use dual-token security.
+      const isPublic = operation["x-sdkwork-public"] === true;
       if (surface === "app" || surface === "backend") {
-        assert.deepEqual(operation.security, [{ AuthToken: [], AccessToken: [] }], `${surface} security ${path}`);
-        assert.equal(operation["x-sdkwork-auth-mode"], "dual-token", `${surface} auth mode ${path}`);
+        assert.deepEqual(
+          operation.security,
+          isPublic ? [] : [{ AuthToken: [], AccessToken: [] }],
+          `${surface} security ${path}`,
+        );
+        assert.equal(
+          operation["x-sdkwork-auth-mode"],
+          isPublic ? "anonymous" : "dual-token",
+          `${surface} auth mode ${path}`,
+        );
       }
       if (surface === "open") {
         assert.deepEqual(operation.security, [], `${surface} public security ${path}`);
@@ -76,7 +87,7 @@ test("community OpenAPI documents are owner-only sdkwork-v3 compatible inputs", 
     }
   }
 
-  assert.equal(operations(app).length, 29);
-  assert.equal(operations(backend).length, 11);
+  assert.equal(operations(app).length, 31);
+  assert.equal(operations(backend).length, 25);
   assert.equal(operations(open).length, 4);
 });

@@ -46,6 +46,39 @@ pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAsse
     assemble_api_router_with_host(host)
 }
 
+/// Community backend business router for consuming hosts
+/// (API_ASSEMBLY_SPEC §3 federated backend entrypoint).
+pub struct BusinessRouterAssembly {
+    pub router: Router,
+}
+
+/// Compose the Community backend business router on a host-neutral service
+/// host. Mirrors the membership/payment backend business assemblies: the
+/// consuming gateway merges the router before installing its own Web
+/// Framework layer.
+pub async fn assemble_backend_business_router(
+    host: Arc<CommunityServiceHost>,
+) -> BusinessRouterAssembly {
+    BusinessRouterAssembly {
+        router: sdkwork_routes_community_backend_api::gateway_mount(host).await,
+    }
+}
+
+pub async fn assemble_backend_business_router_from_env() -> Result<BusinessRouterAssembly, String> {
+    let host = Arc::new(CommunityServiceHost::from_env().await?);
+    Ok(assemble_backend_business_router(host).await)
+}
+
+/// Same as [`assemble_backend_business_router_from_env`] but from an
+/// already-shared process database pool (platform gateways with a single
+/// shared pool; API_ASSEMBLY_SPEC §6.1 same-origin dependency composition).
+pub async fn assemble_backend_business_router_with_pool(
+    pool: DatabasePool,
+) -> Result<BusinessRouterAssembly, String> {
+    let host = CommunityServiceHost::from_database_pool(pool).await?;
+    Ok(assemble_backend_business_router(host).await)
+}
+
 /// Builds the unwrapped Community App API for a gateway that owns the single
 /// Web Framework layer (API_ASSEMBLY_SPEC §3 federated contribution entrypoint).
 ///
@@ -164,6 +197,35 @@ mod tests {
             assert!(
                 !assembled.contains(forbidden),
                 "app contribution must not mount {forbidden}"
+            );
+        }
+    }
+
+    #[test]
+    fn backend_business_router_uses_community_backend_entrypoint() {
+        let source = include_str!("bootstrap.rs");
+
+        assert!(source.contains("pub struct BusinessRouterAssembly"));
+        assert!(source.contains("pub async fn assemble_backend_business_router("));
+        assert!(source.contains("sdkwork_routes_community_backend_api::gateway_mount("));
+        assert!(source.contains("pub async fn assemble_backend_business_router_with_pool("));
+        // The backend entrypoint must not mount the app/open surfaces (those
+        // belong to the host-neutral all-surface assembly).
+        let backend_index = source
+            .find("pub async fn assemble_backend_business_router(")
+            .expect("backend business router entrypoint");
+        let body_end = source[backend_index..]
+            .find("\npub async fn assemble_backend_business_router_from_env()")
+            .map(|offset| backend_index + offset)
+            .unwrap_or(source.len());
+        let assembled = &source[backend_index..body_end];
+        for forbidden in [
+            "sdkwork_routes_community_app_api::build_app_router",
+            "sdkwork_routes_community_open_api::build_open_router",
+        ] {
+            assert!(
+                !assembled.contains(forbidden),
+                "backend business router must not mount {forbidden}"
             );
         }
     }

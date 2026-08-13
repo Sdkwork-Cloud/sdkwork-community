@@ -7,7 +7,12 @@ import type {
   SdkworkCommunityMembershipTier,
 } from "@sdkwork/community-contracts";
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
-import { getCommunityRuntimePort } from "./communityRuntimePort";
+import type { FeedItem, SdkworkFeedsClient } from "@sdkwork/feeds-sdk";
+import {
+  getCommunityFeedsPort,
+  getCommunityRuntimePort,
+  isCommunityFeedsPortConfigured,
+} from "./communityRuntimePort";
 import { getCommunityMediaRuntime } from "./communityMediaRuntimePort";
 import type { Community, CommunityGroup, CommunityMember, MembershipTier, Post, PostComment, Resource } from "../types";
 
@@ -27,6 +32,64 @@ const LIKED_POST_IDS = new Set<string>();
 
 function port(): SdkworkCommunityAppSdkPort {
   return getCommunityRuntimePort();
+}
+
+/** Standard feeds stream key for one circle's posts (all kinds). */
+function circlePostsStreamKey(communityId: string): string {
+  return `community-${communityId}`;
+}
+
+/** Standard feeds stream key for one circle's resources (kind=resource). */
+function circleResourcesStreamKey(communityId: string): string {
+  return `community-${communityId}-resources`;
+}
+
+function payloadKind(item: FeedItem): string {
+  const kind = item.payload?.kind;
+  return typeof kind === "string" ? kind : "";
+}
+
+function toReadableFeedText(item: FeedItem): string {
+  return (item.excerpt ?? item.title ?? "").trim();
+}
+
+function mapFeedItemToPost(item: FeedItem): Post {
+  return {
+    id: item.id,
+    communityId: item.streamKey?.replace(/^community-/, "").replace(/-resources$/, "") ?? "",
+    authorId: item.author?.id ?? "",
+    authorName: item.author?.name ?? "",
+    authorAvatar: item.author?.avatarUrl ?? "",
+    content: toReadableFeedText(item),
+    images: undefined,
+    createdAt: String(item.publishedAt ?? item.createdAt ?? ""),
+    likes: item.reactionCount ?? 0,
+    comments: item.commentCount ?? 0,
+    isLiked: LIKED_POST_IDS.has(item.id),
+  };
+}
+
+function mapFeedItemToResource(item: FeedItem): Resource {
+  const payload = item.payload as Record<string, unknown> | undefined;
+  const firstTag = typeof payload?.tag === "string" ? payload.tag : "";
+  return {
+    id: item.id,
+    communityId: item.streamKey?.replace(/^community-/, "").replace(/-resources$/, "") ?? "",
+    title: item.title,
+    type: firstTag || "link",
+    url: item.coverUrl ?? "#",
+    createdAt: String(item.publishedAt ?? item.createdAt ?? ""),
+    uploadedBy: item.author?.name ?? "",
+  };
+}
+
+/** Reads one circle feed page through the standard feeds stream client. */
+async function listCircleFeedItems(
+  feeds: SdkworkFeedsClient,
+  streamKey: string,
+): Promise<FeedItem[]> {
+  const page = await feeds.feeds.streams.items.list(streamKey, { pageSize: 100 });
+  return page.items as unknown as FeedItem[];
 }
 
 function mapCategoryToCommunity(category: SdkworkCommunityCategory, isJoined: boolean): Community {
@@ -293,6 +356,24 @@ export const CommunityService = {
 
   async getPostsByCommunity(communityId: string): Promise<Post[]> {
     // 动态 tab shows non-resource entries; resources have their own tab.
+    // The standard feeds stream carries the source kind in the standardized
+    // payload, so the exclusion filter stays client-side and explicit.
+    if (isCommunityFeedsPortConfigured()) {
+      const items = await listCircleFeedItems(
+        getCommunityFeedsPort(),
+        circlePostsStreamKey(communityId),
+      );
+      const posts = items
+        .filter((item) => payloadKind(item) !== "resource")
+        .map(mapFeedItemToPost);
+      return Promise.all(
+        posts.map(async (post) => {
+          const comments = await port().community.comments.list(post.id);
+          return { ...post, commentsList: comments.map(mapCommentToPostComment) };
+        }),
+      );
+    }
+    // Migration fallback: legacy community feed surface.
     const entries = await port().community.feed.list({
       categoryId: communityId,
       kinds: ["announcement", "discussion", "question", "service"],
@@ -342,6 +423,14 @@ export const CommunityService = {
 
   /** Resources are backend entries of kind "resource" within the circle. */
   async getResourcesByCommunity(communityId: string): Promise<Resource[]> {
+    if (isCommunityFeedsPortConfigured()) {
+      const items = await listCircleFeedItems(
+        getCommunityFeedsPort(),
+        circleResourcesStreamKey(communityId),
+      );
+      return items.map(mapFeedItemToResource);
+    }
+    // Migration fallback: legacy community feed surface.
     const entries = await port().community.feed.list({
       categoryId: communityId,
       kinds: ["resource"],

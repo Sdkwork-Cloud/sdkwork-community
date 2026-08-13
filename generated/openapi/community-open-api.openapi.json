@@ -76,7 +76,7 @@
         "tags": [
           "community"
         ],
-        "summary": "Community feed.public.list",
+        "summary": "Community feed.public.list (deprecated: use the standard feeds stream system)",
         "operationId": "feed.public.list",
         "parameters": [
           {
@@ -182,7 +182,9 @@
         "x-sdkwork-auth-mode": "anonymous",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "open-api",
-        "x-sdkwork-standard-profile": "sdkwork-v3"
+        "x-sdkwork-standard-profile": "sdkwork-v3",
+        "deprecated": true,
+        "x-sdkwork-deprecated": true
       }
     },
     "/community/v3/api/entries/{entryId}": {
@@ -778,11 +780,25 @@
           "bio": {
             "type": "string"
           },
+          "tierId": {
+            "type": "string"
+          },
+          "tierName": {
+            "type": "string"
+          },
+          "membershipExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "agentLevel": {
+            "type": "string"
+          },
           "lastOrderId": {
             "type": "string"
           },
           "joinedAt": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -931,11 +947,21 @@
             "type": "integer",
             "format": "int64"
           },
+          "lifetimePrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "lifetimePackageId": {
+            "type": "string"
+          },
           "benefits": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "agentLevel": {
+            "type": "string"
           },
           "catalogPackageId": {
             "type": "string"
@@ -971,11 +997,18 @@
             "type": "integer",
             "format": "int64"
           },
+          "lifetimePrice": {
+            "type": "number",
+            "format": "double"
+          },
           "benefits": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "agentLevel": {
+            "type": "string"
           },
           "sortOrder": {
             "type": "integer",
@@ -1312,6 +1345,24 @@
           },
           "reason": {
             "type": "string"
+          }
+        }
+      },
+      "CommunityFeatureCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featured": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityPinCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pinned": {
+            "type": "boolean"
           }
         }
       },

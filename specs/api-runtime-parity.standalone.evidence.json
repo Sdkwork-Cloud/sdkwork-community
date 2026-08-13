@@ -109,7 +109,7 @@
         "surface": "app-api"
       },
       {
-        "authProfile": "dual-token",
+        "authProfile": "anonymous",
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/feed",
         "operationId": "feed.list",
@@ -433,7 +433,7 @@
         "surface": "app-api"
       },
       {
-        "authProfile": "dual-token",
+        "authProfile": "anonymous",
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/feed",
         "operationId": "feed.list",
@@ -757,7 +757,7 @@
         "surface": "app-api"
       },
       {
-        "authProfile": "dual-token",
+        "authProfile": "anonymous",
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/feed",
         "operationId": "feed.list",
@@ -1081,7 +1081,7 @@
         "surface": "app-api"
       },
       {
-        "authProfile": "dual-token",
+        "authProfile": "anonymous",
         "method": "GET",
         "normalizedPath": "/app/v3/api/community/feed",
         "operationId": "feed.list",

@@ -1,5 +1,6 @@
 import {
   configureCommunityAuthSessionPort,
+  configureCommunityFeedsPort,
   configureCommunityOrderRuntime,
   configureCommunityRuntimePort,
   type CreateCircleMembershipOrderOptions,
@@ -104,6 +105,9 @@ export function bootstrapCommunityPort(): void {
     const user = runtime.getCurrentUser();
     if (user?.id) {
       configureCommunityRuntimePort(runtime.sdkClients.communityAppSdkPort);
+      // Circle post/resource feeds read through the standard feeds stream
+      // system (anonymous open surface); content writes keep the app port.
+      configureCommunityFeedsPort(runtime.sdkClients.feedsOpenSdkClient);
     }
   };
 

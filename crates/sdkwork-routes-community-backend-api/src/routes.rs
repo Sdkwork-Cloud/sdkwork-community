@@ -5,13 +5,15 @@ use axum::response::Response;
 use axum::routing::{delete, get, patch, post};
 use axum::{Json, Router};
 use sdkwork_community_service::{
-    CommunityCategoryCommand, CommunityModerationCommand, CommunityService,
+    CommunityCategoryCommand, CommunityCircleCommand, CommunityGroupCommand,
+    CommunityMemberPatchCommand, CommunityModerationCommand, CommunityService,
+    CommunityTierCommand,
 };
 use sdkwork_community_storage_sqlx::CommunityFeedQuery;
 use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_routes_community_common::{
     api_response::{map_service_error, success_command, success_item, success_items},
-    dto::{map_category, map_entry},
+    dto::{map_category, map_entry, map_group, map_member, map_tier},
     subject::runtime_subject_from_extension,
     web_bootstrap::wrap_router_with_web_framework_from_env,
 };
@@ -36,6 +38,32 @@ struct FeedQueryParams {
     page_size: Option<i64>,
 }
 
+#[derive(Debug, Deserialize)]
+struct CategoryQueryParams {
+    #[serde(rename = "categoryId")]
+    category_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct TierQueryParams {
+    #[serde(rename = "categoryId")]
+    category_id: String,
+    #[serde(rename = "enabledOnly")]
+    enabled_only: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+struct FeatureEntryCommand {
+    #[serde(default)]
+    featured: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+struct PinEntryCommand {
+    #[serde(default)]
+    pinned: Option<bool>,
+}
+
 pub fn build_backend_router(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
@@ -47,6 +75,10 @@ pub fn build_backend_router(
         .route(
             "/backend/v3/api/community/categories/{categoryId}",
             patch(update_category).delete(delete_category),
+        )
+        .route(
+            "/backend/v3/api/community/circles/{categoryId}",
+            patch(update_circle),
         )
         .route("/backend/v3/api/community/entries", get(list_entries))
         .route(
@@ -72,6 +104,38 @@ pub fn build_backend_router(
         .route(
             "/backend/v3/api/community/recommendations/rebuild",
             post(rebuild_recommendations),
+        )
+        .route(
+            "/backend/v3/api/community/members",
+            get(list_members),
+        )
+        .route(
+            "/backend/v3/api/community/members/{memberId}",
+            patch(update_member).delete(remove_member),
+        )
+        .route(
+            "/backend/v3/api/community/groups",
+            get(list_groups).post(create_group),
+        )
+        .route(
+            "/backend/v3/api/community/groups/{groupId}",
+            patch(update_group).delete(delete_group),
+        )
+        .route(
+            "/backend/v3/api/community/tiers",
+            get(list_tiers).post(create_tier),
+        )
+        .route(
+            "/backend/v3/api/community/tiers/{tierId}",
+            patch(update_tier).delete(delete_tier),
+        )
+        .route(
+            "/backend/v3/api/community/tiers/{tierId}/publish",
+            post(publish_tier),
+        )
+        .route(
+            "/backend/v3/api/community/tiers/{tierId}/unpublish",
+            post(unpublish_tier),
         )
         .with_state(BackendState {
             service: host.service(),
@@ -181,6 +245,30 @@ async fn delete_category(
     }
 }
 
+async fn update_circle(
+    State(state): State<BackendState>,
+    Path(category_id): Path<String>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityCircleCommand>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .update_circle(&subject.tenant_id, &subject.user_id, &category_id, body)
+        .await
+    {
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_category(item),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
 async fn list_entries(
     State(state): State<BackendState>,
     Query(params): Query<FeedQueryParams>,
@@ -239,14 +327,16 @@ async fn feature_entry(
     Path(entry_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
     iam: Option<Extension<IamAppContext>>,
+    body: Option<Json<FeatureEntryCommand>>,
 ) -> Response {
     let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
         Ok(subject) => subject,
         Err(response) => return response,
     };
+    let featured = body.and_then(|command| command.featured).unwrap_or(true);
     match state
         .service
-        .set_featured(&subject.tenant_id, &entry_id, true)
+        .set_featured(&subject.tenant_id, &entry_id, featured)
         .await
     {
         Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_entry(item)),
@@ -259,14 +349,16 @@ async fn pin_entry(
     Path(entry_id): Path<String>,
     context: Option<Extension<WebRequestContext>>,
     iam: Option<Extension<IamAppContext>>,
+    body: Option<Json<PinEntryCommand>>,
 ) -> Response {
     let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
         Ok(subject) => subject,
         Err(response) => return response,
     };
+    let pinned = body.and_then(|command| command.pinned).unwrap_or(true);
     match state
         .service
-        .set_pinned(&subject.tenant_id, &entry_id, true)
+        .set_pinned(&subject.tenant_id, &entry_id, pinned)
         .await
     {
         Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_entry(item)),
@@ -334,6 +426,363 @@ async fn rebuild_recommendations(
     match state
         .service
         .rebuild_recommendations(&subject.tenant_id)
+        .await
+    {
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn list_members(
+    State(state): State<BackendState>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .list_members(&subject.tenant_id, &params.category_id)
+        .await
+    {
+        Ok(items) => {
+            let count = items.len() as i64;
+            success_items(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                items.into_iter().map(map_member).collect(),
+                1,
+                count,
+                Some(count),
+            )
+        }
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_member(
+    State(state): State<BackendState>,
+    Path(member_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityMemberPatchCommand>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .update_member(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &member_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(
+            context.as_ref().map(|Extension(ctx)| ctx),
+            map_member(item),
+        ),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn remove_member(
+    State(state): State<BackendState>,
+    Path(member_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .remove_member(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &member_id,
+        )
+        .await
+    {
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn list_groups(
+    State(state): State<BackendState>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .list_groups(&subject.tenant_id, &params.category_id)
+        .await
+    {
+        Ok(items) => {
+            let count = items.len() as i64;
+            success_items(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                items.into_iter().map(map_group).collect(),
+                1,
+                count,
+                Some(count),
+            )
+        }
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn create_group(
+    State(state): State<BackendState>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityGroupCommand>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .create_group(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_group(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_group(
+    State(state): State<BackendState>,
+    Path(group_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityGroupCommand>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .update_group(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &group_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_group(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn delete_group(
+    State(state): State<BackendState>,
+    Path(group_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .delete_group(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &group_id,
+        )
+        .await
+    {
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn list_tiers(
+    State(state): State<BackendState>,
+    Query(params): Query<TierQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    let enabled_only = params.enabled_only.unwrap_or(false);
+    match state
+        .service
+        .list_tiers(&subject.tenant_id, &params.category_id, enabled_only)
+        .await
+    {
+        Ok(items) => {
+            let count = items.len() as i64;
+            success_items(
+                context.as_ref().map(|Extension(ctx)| ctx),
+                items.into_iter().map(map_tier).collect(),
+                1,
+                count,
+                Some(count),
+            )
+        }
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn create_tier(
+    State(state): State<BackendState>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityTierCommand>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .create_tier(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn update_tier(
+    State(state): State<BackendState>,
+    Path(tier_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+    Json(body): Json<CommunityTierCommand>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .update_tier(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &tier_id,
+            body,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn publish_tier(
+    State(state): State<BackendState>,
+    Path(tier_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .publish_tier(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &tier_id,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn unpublish_tier(
+    State(state): State<BackendState>,
+    Path(tier_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .unpublish_tier(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &tier_id,
+        )
+        .await
+    {
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_tier(item)),
+        Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
+    }
+}
+
+async fn delete_tier(
+    State(state): State<BackendState>,
+    Path(tier_id): Path<String>,
+    Query(params): Query<CategoryQueryParams>,
+    context: Option<Extension<WebRequestContext>>,
+    iam: Option<Extension<IamAppContext>>,
+) -> Response {
+    let subject = match auth_subject(context.as_ref().map(|Extension(ctx)| ctx), iam) {
+        Ok(subject) => subject,
+        Err(response) => return response,
+    };
+    match state
+        .service
+        .delete_tier(
+            &subject.tenant_id,
+            &subject.user_id,
+            &params.category_id,
+            &tier_id,
+        )
         .await
     {
         Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),

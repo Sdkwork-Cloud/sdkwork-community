@@ -38,5 +38,7 @@ export function bootstrapCommunityPcHost(): void {
       return { user };
     },
     createAppSdkPort: () => runtime.sdkClients.communityAppSdkPort,
+    // Circle post feeds read through the standard feeds stream system.
+    createFeedsSdkClient: () => runtime.sdkClients.feedsOpenSdkClient,
   });
 }

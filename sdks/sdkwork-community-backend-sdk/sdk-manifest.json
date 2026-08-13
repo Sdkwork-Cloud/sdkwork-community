@@ -20,7 +20,7 @@
   "baseUrl": "http://127.0.0.1:18080",
   "standardProfile": "sdkwork-v3",
   "fixedSdkVersion": "0.1.0",
-  "ownerOnlyOperationCount": 11,
+  "ownerOnlyOperationCount": 25,
   "operations": [
     {
       "method": "POST",
@@ -41,6 +41,11 @@
       "method": "PATCH",
       "operationId": "categories.update",
       "path": "/backend/v3/api/community/categories/{categoryId}"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "circles.update",
+      "path": "/backend/v3/api/community/circles/{categoryId}"
     },
     {
       "method": "DELETE",
@@ -68,6 +73,41 @@
       "path": "/backend/v3/api/community/entries/{entryId}/pin"
     },
     {
+      "method": "POST",
+      "operationId": "groups.create",
+      "path": "/backend/v3/api/community/groups"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "groups.delete",
+      "path": "/backend/v3/api/community/groups/{groupId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "groups.management.list",
+      "path": "/backend/v3/api/community/groups"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "groups.update",
+      "path": "/backend/v3/api/community/groups/{groupId}"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "members.delete",
+      "path": "/backend/v3/api/community/members/{memberId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "members.management.list",
+      "path": "/backend/v3/api/community/members"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "members.update",
+      "path": "/backend/v3/api/community/members/{memberId}"
+    },
+    {
       "method": "GET",
       "operationId": "moderation.queue.list",
       "path": "/backend/v3/api/community/moderation/queue"
@@ -76,6 +116,36 @@
       "method": "POST",
       "operationId": "recommendations.rebuild",
       "path": "/backend/v3/api/community/recommendations/rebuild"
+    },
+    {
+      "method": "POST",
+      "operationId": "tiers.create",
+      "path": "/backend/v3/api/community/tiers"
+    },
+    {
+      "method": "DELETE",
+      "operationId": "tiers.delete",
+      "path": "/backend/v3/api/community/tiers/{tierId}"
+    },
+    {
+      "method": "GET",
+      "operationId": "tiers.management.list",
+      "path": "/backend/v3/api/community/tiers"
+    },
+    {
+      "method": "POST",
+      "operationId": "tiers.publish",
+      "path": "/backend/v3/api/community/tiers/{tierId}/publish"
+    },
+    {
+      "method": "POST",
+      "operationId": "tiers.unpublish",
+      "path": "/backend/v3/api/community/tiers/{tierId}/unpublish"
+    },
+    {
+      "method": "PATCH",
+      "operationId": "tiers.update",
+      "path": "/backend/v3/api/community/tiers/{tierId}"
     }
   ],
   "managedBy": "tools/community_sdk_generator_runner.mjs",

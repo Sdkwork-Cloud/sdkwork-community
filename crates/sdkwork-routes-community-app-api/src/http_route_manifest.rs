@@ -148,13 +148,12 @@ const ROUTES: &[HttpRoute] = &[
         "tiers.unpublish",
     )
     .with_required_permission("community.tiers.write"),
-    HttpRoute::dual_token(
+    HttpRoute::public(
         HttpMethod::Get,
         "/app/v3/api/community/feed",
         "community",
         "feed.list",
-    )
-    .with_required_permission("community.entries.read"),
+    ),
     HttpRoute::dual_token(
         HttpMethod::Post,
         "/app/v3/api/community/entries",

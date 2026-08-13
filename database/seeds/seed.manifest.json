@@ -20,7 +20,8 @@
       "common": [
         "common/003_official_circles.sql",
         "common/004_official_circles_tiers.sql",
-        "common/005_official_agent_circle.sql"
+        "common/005_official_agent_circle.sql",
+        "common/006_birdcoder_vip_and_ai_relay.sql"
       ],
       "locales": {
         "zh-CN": []
@@ -30,7 +31,8 @@
       "common": [
         "common/003_official_circles.sql",
         "common/004_official_circles_tiers.sql",
-        "common/005_official_agent_circle.sql"
+        "common/005_official_agent_circle.sql",
+        "common/006_birdcoder_vip_and_ai_relay.sql"
       ],
       "locales": {
         "zh-CN": []

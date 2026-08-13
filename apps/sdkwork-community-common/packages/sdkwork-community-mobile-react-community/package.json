@@ -42,7 +42,8 @@
     "qrcode.react": "catalog:",
     "react-easy-crop": "catalog:",
     "react-i18next": "catalog:",
-    "react-router": "catalog:"
+    "react-router": "catalog:",
+    "@sdkwork/feeds-sdk": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.2.0 <20.0.0",

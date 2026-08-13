@@ -6,7 +6,10 @@ export interface CommunityMembershipTier {
   description?: string;
   price: number;
   durationDays: string;
+  lifetimePrice?: number;
+  lifetimePackageId?: string;
   benefits: string[];
+  agentLevel?: string;
   catalogPackageId?: string;
   sortOrder: string;
   enabled: boolean;

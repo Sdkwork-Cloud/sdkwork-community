@@ -152,6 +152,32 @@ async fn app_feed_rejects_page_size_above_standard_maximum() {
 }
 
 #[tokio::test]
+async fn app_feed_is_public_without_iam_context() {
+    let Some(fixture) = seeded_host().await else {
+        return;
+    };
+    // No IAM extension: public feed.list must fall back to the default tenant
+    // and serve approved content instead of returning 401.
+    let app = build_app_router(fixture.host.clone());
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method(Method::GET)
+                .uri("/app/v3/api/community/feed?page=1&page_size=20")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .expect("feed response");
+    assert_eq!(response.status(), StatusCode::OK);
+    let payload = response_json(response).await;
+    assert_eq!(payload["code"], 0);
+    assert!(payload["data"]["items"].is_array());
+    assert_eq!(payload["data"]["pageInfo"]["page"], 1);
+    fixture.close().await;
+}
+
+#[tokio::test]
 async fn app_router_mounts_every_openapi_operation_path() {
     let spec: Value =
         serde_json::from_str(include_str!("../../../apis/app-api/community/openapi.json"))

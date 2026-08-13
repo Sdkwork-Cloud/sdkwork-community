@@ -7,6 +7,10 @@ export interface CommunityMemberResponse {
   role: string;
   status: string;
   bio?: string;
+  tierId?: string;
+  tierName?: string;
+  membershipExpiresAt?: string;
+  agentLevel?: string;
   lastOrderId?: string;
   joinedAt: string;
 }

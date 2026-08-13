@@ -40,6 +40,19 @@ pub fn runtime_subject_from_extension(
     runtime_subject_from_iam(&context)
 }
 
+/// Resolves the runtime subject from an authenticated IAM context when present,
+/// falling back to the public default tenant for anonymous access. Public
+/// read surfaces (e.g. `feed.list`) use this so content stays browsable
+/// without login while authenticated callers keep their own tenant scoping.
+pub fn runtime_subject_from_extension_or_public(
+    context: Option<Extension<IamAppContext>>,
+) -> Result<RuntimeSubject, String> {
+    match runtime_subject_from_extension(context) {
+        Ok(subject) => Ok(subject),
+        Err(_) => default_runtime_subject(),
+    }
+}
+
 pub fn tenant_id_from_web_context(context: Option<&WebRequestContext>) -> Option<String> {
     context
         .and_then(|ctx| ctx.tenant_id().map(str::to_owned))

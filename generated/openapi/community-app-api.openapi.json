@@ -1578,7 +1578,7 @@
         "tags": [
           "community"
         ],
-        "summary": "Community feed.list",
+        "summary": "Community feed.list (deprecated: use the standard feeds stream system)",
         "operationId": "feed.list",
         "parameters": [
           {
@@ -1675,22 +1675,18 @@
             }
           }
         },
-        "security": [
-          {
-            "AuthToken": [],
-            "AccessToken": []
-          }
-        ],
+        "security": [],
         "x-sdkwork-owner": "sdkwork-community",
         "x-sdkwork-api-authority": "sdkwork-community-app-api",
         "x-sdkwork-domain": "community",
         "x-sdkwork-resource": "feed",
-        "x-sdkwork-public": false,
-        "x-sdkwork-auth-mode": "dual-token",
+        "x-sdkwork-public": true,
+        "x-sdkwork-auth-mode": "anonymous",
         "x-sdkwork-request-context": "WebRequestContext",
         "x-sdkwork-api-surface": "app-api",
         "x-sdkwork-standard-profile": "sdkwork-v3",
-        "x-sdkwork-permission": "community.entries.read"
+        "deprecated": true,
+        "x-sdkwork-deprecated": true
       }
     },
     "/app/v3/api/community/entries/{entryId}": {
@@ -2796,11 +2792,25 @@
           "bio": {
             "type": "string"
           },
+          "tierId": {
+            "type": "string"
+          },
+          "tierName": {
+            "type": "string"
+          },
+          "membershipExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "agentLevel": {
+            "type": "string"
+          },
           "lastOrderId": {
             "type": "string"
           },
           "joinedAt": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2949,11 +2959,21 @@
             "type": "integer",
             "format": "int64"
           },
+          "lifetimePrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "lifetimePackageId": {
+            "type": "string"
+          },
           "benefits": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "agentLevel": {
+            "type": "string"
           },
           "catalogPackageId": {
             "type": "string"
@@ -2989,11 +3009,18 @@
             "type": "integer",
             "format": "int64"
           },
+          "lifetimePrice": {
+            "type": "number",
+            "format": "double"
+          },
           "benefits": {
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "agentLevel": {
+            "type": "string"
           },
           "sortOrder": {
             "type": "integer",
@@ -3330,6 +3357,24 @@
           },
           "reason": {
             "type": "string"
+          }
+        }
+      },
+      "CommunityFeatureCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featured": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommunityPinCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pinned": {
+            "type": "boolean"
           }
         }
       },

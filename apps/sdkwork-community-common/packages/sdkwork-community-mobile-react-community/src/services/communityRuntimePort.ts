@@ -1,4 +1,5 @@
 import type { SdkworkCommunityAppSdkPort } from "@sdkwork/community-sdk-ports";
+import type { SdkworkFeedsClient } from "@sdkwork/feeds-sdk";
 
 /**
  * Host-injectable runtime port for the community App SDK.
@@ -30,4 +31,34 @@ export function getCommunityRuntimePort(): SdkworkCommunityAppSdkPort {
     );
   }
   return runtimePort;
+}
+
+let feedsPort: SdkworkFeedsClient | null = null;
+
+/**
+ * Binds the standard feeds stream client (open surface, anonymous reads).
+ * Circle post/resource feeds are read through the standard feeds stream
+ * system (`community-{circleId}` / `community-{circleId}-resources` streams);
+ * content write operations keep the community App SDK port above.
+ */
+export function configureCommunityFeedsPort(port: SdkworkFeedsClient): void {
+  feedsPort = port;
+}
+
+export function resetCommunityFeedsPort(): void {
+  feedsPort = null;
+}
+
+export function isCommunityFeedsPortConfigured(): boolean {
+  return feedsPort !== null;
+}
+
+export function getCommunityFeedsPort(): SdkworkFeedsClient {
+  if (!feedsPort) {
+    throw new Error(
+      "community feeds stream client is not configured: the host must call " +
+        "configureCommunityFeedsPort with the generated feeds open SDK client",
+    );
+  }
+  return feedsPort;
 }

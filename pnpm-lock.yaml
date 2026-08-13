@@ -224,6 +224,15 @@ importers:
         specifier: ^4.1.2
         version: 4.1.8(@types/node@25.9.3)(jsdom@29.1.1)(vite@8.1.5(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0))
 
+  ../sdkwork-feeds/sdks/sdkwork-feeds-sdk/sdkwork-feeds-sdk-typescript:
+    dependencies:
+      '@sdkwork/sdk-common':
+        specifier: workspace:*
+        version: link:../../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript
+      '@sdkwork/utils':
+        specifier: workspace:*
+        version: link:../../../../sdkwork-utils/packages/sdkwork-utils-typescript
+
   ../sdkwork-iam/apps/sdkwork-iam-common/packages/sdkwork-iam-application-bootstrap:
     dependencies:
       '@sdkwork/iam-backend-sdk':
@@ -722,6 +731,9 @@ importers:
       '@sdkwork/community-sdk-ports':
         specifier: workspace:*
         version: link:../sdkwork-community-sdk-ports
+      '@sdkwork/feeds-sdk':
+        specifier: workspace:*
+        version: link:../../../../../sdkwork-feeds/sdks/sdkwork-feeds-sdk/sdkwork-feeds-sdk-typescript
       '@sdkwork/order-mobile-react-orders':
         specifier: workspace:*
         version: link:../../../../../sdkwork-order/apps/sdkwork-order-common/packages/sdkwork-order-mobile-react-orders
@@ -840,6 +852,9 @@ importers:
       '@sdkwork/community-service':
         specifier: workspace:*
         version: link:../sdkwork-community-common/packages/sdkwork-community-service
+      '@sdkwork/feeds-sdk':
+        specifier: workspace:*
+        version: link:../../../sdkwork-feeds/sdks/sdkwork-feeds-sdk/sdkwork-feeds-sdk-typescript
       '@sdkwork/iam-app-sdk':
         specifier: workspace:*
         version: link:../../../sdkwork-iam/sdks/sdkwork-iam-app-sdk/sdkwork-iam-app-sdk-typescript
@@ -928,6 +943,9 @@ importers:
       '@sdkwork/community-service':
         specifier: workspace:*
         version: link:../sdkwork-community-common/packages/sdkwork-community-service
+      '@sdkwork/feeds-sdk':
+        specifier: workspace:*
+        version: link:../../../sdkwork-feeds/sdks/sdkwork-feeds-sdk/sdkwork-feeds-sdk-typescript
       '@sdkwork/sdk-common':
         specifier: workspace:*
         version: link:../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript
@@ -965,6 +983,9 @@ importers:
       '@sdkwork/community-sdk-ports':
         specifier: workspace:*
         version: link:../../../sdkwork-community-common/packages/sdkwork-community-sdk-ports
+      '@sdkwork/feeds-sdk':
+        specifier: workspace:*
+        version: link:../../../../../sdkwork-feeds/sdks/sdkwork-feeds-sdk/sdkwork-feeds-sdk-typescript
       '@sdkwork/utils':
         specifier: workspace:*
         version: link:../../../../../sdkwork-utils/packages/sdkwork-utils-typescript

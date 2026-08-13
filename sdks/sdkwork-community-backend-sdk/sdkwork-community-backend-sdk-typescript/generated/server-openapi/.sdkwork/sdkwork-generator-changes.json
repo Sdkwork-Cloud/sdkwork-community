@@ -9,7 +9,7 @@
     "protocol": "http",
     "packageName": "sdkwork-community-backend-sdk-generated-typescript"
   },
-  "changeFingerprint": "c0782ca604a3563a8253f03a6698556bcbd5e116ea89e1a17359cbf850fec2c0",
+  "changeFingerprint": "b8ff0a61ae8b01e595f4458750435a329124d4bb3313773bf4a8e99a7c8c4c6d",
   "changes": {
     "createdGeneratedFiles": [],
     "updatedGeneratedFiles": [],
@@ -44,6 +44,7 @@
       "src/types/community-entry-command.ts",
       "src/types/community-entry-kind.ts",
       "src/types/community-entry.ts",
+      "src/types/community-feature-command.ts",
       "src/types/community-group-command.ts",
       "src/types/community-group-qr.ts",
       "src/types/community-group-response.ts",
@@ -51,6 +52,7 @@
       "src/types/community-member-response.ts",
       "src/types/community-membership-tier.ts",
       "src/types/community-moderation-command.ts",
+      "src/types/community-pin-command.ts",
       "src/types/community-publication-readiness.ts",
       "src/types/community-reaction-command.ts",
       "src/types/community-reaction-set-accepted.ts",

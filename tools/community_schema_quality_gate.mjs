@@ -32,7 +32,7 @@ function operations(document) {
   );
 }
 
-function checkDocument(filePath, authority, prefix, expectedSecurity) {
+function checkDocument(filePath, authority, prefix, expectedProtectedSecurity) {
   const document = readJson(filePath);
   const permissionMappings = new Map(
     (iamModuleManifest.permissions?.openapiAuthorities ?? [])
@@ -53,7 +53,7 @@ function checkDocument(filePath, authority, prefix, expectedSecurity) {
   if (document["x-sdkwork-domain"] !== "community") {
     fail(`${filePath} domain drift`);
   }
-  if (expectedSecurity.length === 0) {
+  if (expectedProtectedSecurity.length === 0) {
     const apiKey = document.components?.securitySchemes?.ApiKey;
     if (apiKey?.type !== "apiKey" || apiKey.in !== "header" || apiKey.name !== "X-API-Key") {
       fail(`${filePath} must declare the standard optional open-api ApiKey scheme`);
@@ -78,15 +78,20 @@ function checkDocument(filePath, authority, prefix, expectedSecurity) {
     if (!/^[a-z][A-Za-z0-9]*(\.[a-z][A-Za-z0-9]*)+$/u.test(operation.operationId ?? "")) {
       fail(`${filePath} invalid operationId ${operation.operationId}`);
     }
+    // Public operations are declared via `x-sdkwork-public: true` and must be
+    // anonymous on every surface; protected operations use the document-level
+    // security profile passed by the caller.
+    const isPublic = operation["x-sdkwork-public"] === true;
+    const expectedSecurity = isPublic ? [] : expectedProtectedSecurity;
     if (JSON.stringify(operation.security) !== JSON.stringify(expectedSecurity)) {
       fail(`${filePath} invalid security ${pathKey}`);
     }
-    const expectedAuthMode = expectedSecurity.length === 0 ? "anonymous" : "dual-token";
+    const expectedAuthMode = isPublic ? "anonymous" : "dual-token";
     if (operation["x-sdkwork-auth-mode"] !== expectedAuthMode) {
       fail(`${filePath} invalid auth mode ${pathKey}`);
     }
     const permission = operation["x-sdkwork-permission"];
-    if (expectedSecurity.length === 0) {
+    if (isPublic) {
       if (permission !== undefined) {
         fail(`${filePath} anonymous operation must not declare permission ${pathKey}`);
       }
@@ -146,7 +151,7 @@ const counts = {
   open: checkDocument(open, "sdkwork-community-open-api", "/community/v3/api", []),
 };
 
-if (counts.app !== 31 || counts.backend !== 11 || counts.open !== 4) {
+if (counts.app !== 31 || counts.backend !== 25 || counts.open !== 4) {
   fail(`unexpected route counts ${JSON.stringify(counts)}`);
 }
 

@@ -15,5 +15,5 @@ test("community schema quality gate uses generated OpenAPI defaults", () => {
 
   const gateResult = runNode(["tools/community_schema_quality_gate.mjs"]);
   assert.equal(gateResult.status, 0, gateResult.stderr);
-  assert.match(gateResult.stdout, /ok app=31 backend=11 open=4/u);
+  assert.match(gateResult.stdout, /ok app=31 backend=25 open=4/u);
 });

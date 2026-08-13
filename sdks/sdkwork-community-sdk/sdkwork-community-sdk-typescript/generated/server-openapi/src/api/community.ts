@@ -63,7 +63,7 @@ export class CommunityFeedPublicApi {
   }
 
 
-/** Community feed.public.list */
+/** Community feed.public.list (deprecated: use the standard feeds stream system) */
   async list(params?: CommunityFeedPublicListParams, requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
     const query = buildQueryString([
       { name: 'categoryId', value: params?.categoryId, style: 'form', explode: true, allowReserved: false },

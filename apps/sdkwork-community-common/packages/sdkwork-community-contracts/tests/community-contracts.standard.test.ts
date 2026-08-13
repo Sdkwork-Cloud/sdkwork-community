@@ -79,7 +79,7 @@ const entries: SdkworkCommunityEntry[] = [
 describe("@sdkwork/community-contracts", () => {
   it("declares owner-only community route contracts", () => {
     expect(COMMUNITY_APP_API_ROUTES).toHaveLength(29);
-    expect(COMMUNITY_BACKEND_API_ROUTES).toHaveLength(11);
+    expect(COMMUNITY_BACKEND_API_ROUTES).toHaveLength(25);
     expect(COMMUNITY_OPEN_API_ROUTES).toHaveLength(4);
     expect(COMMUNITY_APP_API_ROUTES.every((route) => route.path.startsWith("/app/v3/api/community"))).toBe(true);
     expect(COMMUNITY_BACKEND_API_ROUTES.every((route) => route.path.startsWith("/backend/v3/api/community"))).toBe(true);
