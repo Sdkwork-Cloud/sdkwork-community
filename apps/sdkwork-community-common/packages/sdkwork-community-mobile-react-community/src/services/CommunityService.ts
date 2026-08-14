@@ -373,13 +373,13 @@ export const CommunityService = {
         }),
       );
     }
-    // Migration fallback: legacy community feed surface.
-    const entries = await port().community.feed.list({
-      categoryId: communityId,
-      kinds: ["announcement", "discussion", "question", "service"],
-    });
+    // Migration fallback: legacy community feed surface. The generated feed
+    // SDK contract exposes a single `kind` filter, so the resource exclusion
+    // stays client-side and explicit (same as the feeds stream path above).
+    const entries = await port().community.feed.list({ categoryId: communityId });
+    const posts = entries.filter((entry) => entry.kind !== "resource");
     return Promise.all(
-      entries.map(async (entry) => {
+      posts.map(async (entry) => {
         const comments = await port().community.comments.list(entry.id);
         return mapEntryToPost(entry, comments.map(mapCommentToPostComment));
       }),
@@ -430,10 +430,11 @@ export const CommunityService = {
       );
       return items.map(mapFeedItemToResource);
     }
-    // Migration fallback: legacy community feed surface.
+    // Migration fallback: legacy community feed surface (single `kind` filter
+    // per the generated feed SDK contract).
     const entries = await port().community.feed.list({
       categoryId: communityId,
-      kinds: ["resource"],
+      kind: "resource",
     });
     return entries.map(mapEntryToResource);
   },

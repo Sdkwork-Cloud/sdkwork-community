@@ -22,6 +22,7 @@ struct OpenState {
 
 #[derive(Debug, Deserialize)]
 struct FeedQueryParams {
+    #[serde(rename = "categoryId")]
     category_id: Option<String>,
     kind: Option<String>,
     q: Option<String>,

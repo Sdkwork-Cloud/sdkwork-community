@@ -208,7 +208,7 @@ mod tests {
             .find("pub async fn assemble_app_api_contribution(")
             .expect("app contribution entrypoint");
         let body_end = source[assembly_index..]
-            .find("\npub fn assemble_api_router_with_host")
+            .find("\npub fn assemble_open_api_contribution_with_host")
             .map(|offset| assembly_index + offset)
             .unwrap_or(source.len());
         let assembled = &source[assembly_index..body_end];
