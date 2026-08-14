@@ -84,7 +84,16 @@ pub fn map_service_error(
         ),
     };
     let problem = SdkWorkProblemDetail::platform(result_code, error.message(), trace_id.clone());
-    attach_trace_header((status, Json(problem)).into_response(), &trace_id)
+    // Emit RFC 9457 `application/problem+json` so the host web framework
+    // preserves the real business error instead of normalizing an
+    // `application/json` 4xx into a generic 40002 "Malformed request".
+    let response = (
+        status,
+        [(axum::http::header::CONTENT_TYPE, "application/problem+json")],
+        Json(problem),
+    )
+        .into_response();
+    attach_trace_header(response, &trace_id)
 }
 
 pub fn validation(context: Option<&WebRequestContext>, detail: impl Into<String>) -> Response {

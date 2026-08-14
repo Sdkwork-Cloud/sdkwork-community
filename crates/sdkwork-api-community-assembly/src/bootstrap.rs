@@ -100,7 +100,11 @@ pub async fn assemble_app_api_contribution_with_pool(
     assemble_app_api_contribution_with_host(host)
 }
 
-fn assemble_app_api_contribution_with_host(
+/// Composes the App surface from an already-created host so the caller can
+/// reuse the same host (and pool) across surfaces — e.g. the IM standalone
+/// gateway mounts both the App API and the open surface (feeds source
+/// adapter data source) from one `CommunityServiceHost`.
+pub fn assemble_app_api_contribution_with_host(
     host: Arc<CommunityServiceHost>,
 ) -> Result<ApiAssembly, String> {
     let database_pool = host.database_pool().clone();
@@ -110,6 +114,24 @@ fn assemble_app_api_contribution_with_host(
         "SDKWork Community App API",
         router,
         sdkwork_routes_community_app_api::gateway_route_manifest(),
+        Vec::new(),
+        Arc::new(DatabasePoolReadinessCheck::new(database_pool)),
+    )
+}
+
+/// Composes the public open surface (`/community/v3/api/*`) from an
+/// already-created host. Anonymous read surfaces such as `feed.public.list`
+/// are the data source for the feeds community adapter.
+pub fn assemble_open_api_contribution_with_host(
+    host: Arc<CommunityServiceHost>,
+) -> Result<ApiAssembly, String> {
+    let database_pool = host.database_pool().clone();
+    let router = sdkwork_routes_community_open_api::build_open_router(host);
+    ApiAssemblyContribution::from_manifest(
+        "sdkwork-community-open",
+        "SDKWork Community Open API",
+        router,
+        sdkwork_routes_community_open_api::gateway_route_manifest(),
         Vec::new(),
         Arc::new(DatabasePoolReadinessCheck::new(database_pool)),
     )

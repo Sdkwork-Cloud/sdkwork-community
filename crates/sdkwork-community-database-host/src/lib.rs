@@ -24,6 +24,25 @@ impl CommunityDatabaseHost {
 pub async fn bootstrap_community_database(
     pool: DatabasePool,
 ) -> Result<CommunityDatabaseHost, String> {
+    bootstrap_community_database_with_options(pool, false).await
+}
+
+/// Bootstraps the community database and applies the official seed data
+/// (circles, tiers, welcome entries — all idempotent `ON CONFLICT` upserts).
+/// Host gateways that embed the community domain (e.g. the IM standalone
+/// gateway) use this so official circles are usable out of the box without
+/// relying on the global `SDKWORK_DATABASE_SEED_ON_BOOT` switch (which would
+/// also seed every other embedded dependency).
+pub async fn bootstrap_community_database_with_seed(
+    pool: DatabasePool,
+) -> Result<CommunityDatabaseHost, String> {
+    bootstrap_community_database_with_options(pool, true).await
+}
+
+async fn bootstrap_community_database_with_options(
+    pool: DatabasePool,
+    force_seed: bool,
+) -> Result<CommunityDatabaseHost, String> {
     if pool.as_postgres().is_none() {
         return Err(
             "community authoritative-server database requires PostgreSQL; SQLite is client-local only"
@@ -53,7 +72,7 @@ pub async fn bootstrap_community_database(
             .map_err(|error| format!("community database migrate failed: {error}"))?;
     }
 
-    if options.seed_on_boot {
+    if options.seed_on_boot || force_seed {
         orchestrator
             .seed(&options.seed_locale, &options.seed_profile)
             .await
@@ -69,13 +88,26 @@ pub async fn bootstrap_community_database(
 }
 
 pub async fn bootstrap_community_database_from_env() -> Result<CommunityDatabaseHost, String> {
+    bootstrap_community_database_from_env_with_options(false).await
+}
+
+/// Same as [`bootstrap_community_database_from_env`] but always applies the
+/// official seed data (idempotent).
+pub async fn bootstrap_community_database_with_seed_from_env(
+) -> Result<CommunityDatabaseHost, String> {
+    bootstrap_community_database_from_env_with_options(true).await
+}
+
+async fn bootstrap_community_database_from_env_with_options(
+    force_seed: bool,
+) -> Result<CommunityDatabaseHost, String> {
     let _ = dotenvy::dotenv();
     let config = DatabaseConfig::from_env("COMMUNITY")
         .map_err(|error| format!("read community database config failed: {error}"))?;
     let pool = create_pool_from_config(config)
         .await
         .map_err(|error| format!("create community database pool failed: {error}"))?;
-    bootstrap_community_database(pool).await
+    bootstrap_community_database_with_options(pool, force_seed).await
 }
 
 fn resolve_app_root() -> PathBuf {
