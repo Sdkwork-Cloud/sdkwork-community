@@ -120,8 +120,7 @@
           "enabled": true,
           "metadata": {
             "variant": "assembly",
-            "embeddedOnly": true,
-            "consumer": "sdkwork-api-cloud-gateway"
+            "embeddedOnly": true
           }
         }
       ]
