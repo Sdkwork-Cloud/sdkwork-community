@@ -154,6 +154,18 @@ pub async fn gateway_mount(
     build_backend_router_with_framework(host).await
 }
 
+/// Business-only assembly entrypoint: mounts the community backend router
+/// WITHOUT a Web Framework layer. Consuming gateways compose dependency
+/// surfaces in-process and install framework/security once on the combined
+/// router (API_ASSEMBLY_SPEC §4/§6.1); a nested layer would re-classify the
+/// request after the host injected trusted-subject context and reject it as
+/// client identity projection (40001).
+pub async fn gateway_mount_business(
+    host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
+) -> Router {
+    build_backend_router(host)
+}
+
 async fn list_categories(
     State(state): State<BackendState>,
     context: Option<Extension<WebRequestContext>>,

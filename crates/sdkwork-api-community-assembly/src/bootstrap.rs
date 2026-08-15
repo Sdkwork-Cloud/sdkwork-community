@@ -60,7 +60,7 @@ pub async fn assemble_backend_business_router(
     host: Arc<CommunityServiceHost>,
 ) -> BusinessRouterAssembly {
     BusinessRouterAssembly {
-        router: sdkwork_routes_community_backend_api::gateway_mount(host).await,
+        router: sdkwork_routes_community_backend_api::gateway_mount_business(host).await,
     }
 }
 
@@ -229,7 +229,7 @@ mod tests {
 
         assert!(source.contains("pub struct BusinessRouterAssembly"));
         assert!(source.contains("pub async fn assemble_backend_business_router("));
-        assert!(source.contains("sdkwork_routes_community_backend_api::gateway_mount("));
+        assert!(source.contains("sdkwork_routes_community_backend_api::gateway_mount_business("));
         assert!(source.contains("pub async fn assemble_backend_business_router_with_pool("));
         // The backend entrypoint must not mount the app/open surfaces (those
         // belong to the host-neutral all-surface assembly).
