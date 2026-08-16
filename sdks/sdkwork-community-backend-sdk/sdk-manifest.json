@@ -6,7 +6,7 @@
   "sdkFamily": "sdkwork-community-backend-sdk",
   "sdkType": "backend",
   "apiPrefix": "/backend/v3/api",
-  "generationInputSpec": "../../generated/openapi/community-backend-api.openapi.json",
+  "generationInputSpec": "openapi/community-backend-api.openapi.json",
   "sdkDependencies": [],
   "generatedPackages": {
     "typescript": {
@@ -158,9 +158,9 @@
     "transportEntry": "sdkwork-community-backend-sdk-typescript/generated/server-openapi/src/index.ts"
   },
   "workspace": "sdkwork-community-backend-sdk",
-  "authoritySpec": "../../generated/openapi/community-backend-api.openapi.json",
+  "authoritySpec": "openapi/community-backend-api.openapi.json",
   "derivedSpecs": {
-    "default": "../../generated/openapi/community-backend-api.openapi.json"
+    "default": "openapi/community-backend-api.openapi.json"
   },
   "discoverySurface": {
     "sdkTarget": "backend",

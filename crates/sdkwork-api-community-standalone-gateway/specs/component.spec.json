@@ -47,6 +47,13 @@
     "runtimeEntrypoints": [
       "cargo run -p sdkwork-api-community-standalone-gateway"
     ],
+    "requiredPorts": [
+      {
+        "name": "applicationApiAssembly",
+        "export": "sdkwork_api_community_assembly::assemble_api_router_runtime",
+        "provider": "sdkwork-api-community-assembly"
+      }
+    ],
     "routeManifest": null,
     "sdkClients": [],
     "events": [],
