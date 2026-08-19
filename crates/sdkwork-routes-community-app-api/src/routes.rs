@@ -15,7 +15,7 @@ use sdkwork_iam_context_service::IamAppContext;
 use sdkwork_routes_community_common::{
     api_response::{map_service_error, success_command, success_item, success_items},
     dto::{map_category, map_comment, map_entry, map_group, map_member, map_tier},
-    subject::{runtime_subject_from_extension_or_public, runtime_subject_from_extension},
+    subject::{runtime_subject_from_extension, runtime_subject_from_extension_or_public},
     web_bootstrap::wrap_router_with_web_framework_from_env,
 };
 use sdkwork_web_core::WebRequestContext;
@@ -47,7 +47,9 @@ pub fn build_app_router(host: Arc<sdkwork_community_service_host::CommunityServi
         )
         .route(
             "/app/v3/api/community/categories/{categoryId}",
-            get(retrieve_circle).patch(update_circle).delete(delete_circle),
+            get(retrieve_circle)
+                .patch(update_circle)
+                .delete(delete_circle),
         )
         .route(
             "/app/v3/api/community/categories/{categoryId}/join",
@@ -123,13 +125,17 @@ pub fn build_app_router(host: Arc<sdkwork_community_service_host::CommunityServi
 pub async fn build_app_router_with_framework(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
-    wrap_router_with_web_framework_from_env(build_app_router(host)).await
+    wrap_router_with_web_framework_from_env(
+        build_app_router(host),
+        crate::http_route_manifest::gateway_route_manifest(),
+    )
+    .await
 }
 
 pub async fn gateway_mount(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
-    build_app_router_with_framework(host).await
+    build_app_router(host)
 }
 
 async fn list_categories(
@@ -582,10 +588,7 @@ async fn delete_circle(
         .delete_circle(&subject.tenant_id, &subject.user_id, &category_id)
         .await
     {
-        Ok(item) => success_command(
-            context.as_ref().map(|Extension(ctx)| ctx),
-            item,
-        ),
+        Ok(item) => success_command(context.as_ref().map(|Extension(ctx)| ctx), item),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }

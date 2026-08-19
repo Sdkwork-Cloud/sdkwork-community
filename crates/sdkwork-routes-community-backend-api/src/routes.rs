@@ -105,10 +105,7 @@ pub fn build_backend_router(
             "/backend/v3/api/community/recommendations/rebuild",
             post(rebuild_recommendations),
         )
-        .route(
-            "/backend/v3/api/community/members",
-            get(list_members),
-        )
+        .route("/backend/v3/api/community/members", get(list_members))
         .route(
             "/backend/v3/api/community/members/{memberId}",
             patch(update_member).delete(remove_member),
@@ -145,13 +142,17 @@ pub fn build_backend_router(
 pub async fn build_backend_router_with_framework(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
-    wrap_router_with_web_framework_from_env(build_backend_router(host)).await
+    wrap_router_with_web_framework_from_env(
+        build_backend_router(host),
+        crate::http_route_manifest::gateway_route_manifest(),
+    )
+    .await
 }
 
 pub async fn gateway_mount(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
-    build_backend_router_with_framework(host).await
+    build_backend_router(host)
 }
 
 /// Business-only assembly entrypoint: mounts the community backend router
@@ -497,10 +498,7 @@ async fn update_member(
         )
         .await
     {
-        Ok(item) => success_item(
-            context.as_ref().map(|Extension(ctx)| ctx),
-            map_member(item),
-        ),
+        Ok(item) => success_item(context.as_ref().map(|Extension(ctx)| ctx), map_member(item)),
         Err(error) => map_service_error(context.as_ref().map(|Extension(ctx)| ctx), error),
     }
 }

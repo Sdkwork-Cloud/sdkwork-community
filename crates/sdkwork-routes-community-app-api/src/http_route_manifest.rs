@@ -222,3 +222,20 @@ const ROUTES: &[HttpRoute] = &[
 pub fn gateway_route_manifest() -> HttpRouteManifest {
     HttpRouteManifest::new(ROUTES)
 }
+
+#[cfg(test)]
+mod tests {
+    use sdkwork_web_core::RouteAuth;
+
+    use super::gateway_route_manifest;
+
+    #[test]
+    fn feed_list_is_public() {
+        let manifest = gateway_route_manifest();
+        let route = manifest
+            .match_route("GET", "/app/v3/api/community/feed")
+            .expect("community feed must be registered");
+        assert_eq!(RouteAuth::Public, route.auth);
+        assert_eq!("feed.list", route.operation_id);
+    }
+}

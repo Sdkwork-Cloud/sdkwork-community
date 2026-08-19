@@ -14,7 +14,7 @@ export class CommunityEntriesPublicBySlugApi {
 
 /** Community entries.publicBySlug.retrieve */
   async retrieve(slug: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
-    return this.client.request<Record<string, unknown>>(customApiPath(`/entries/by_slug/${serializePathParameter(slug, { name: 'slug', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'item' });
+    return this.client.request<Record<string, unknown>>(customApiPath(`/entries/by_slug/${serializePathParameter(slug, { name: 'slug', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'item' });
   }
 }
 
@@ -28,17 +28,15 @@ export class CommunityEntriesPublicApi {
 
 /** Community entries.public.retrieve */
   async retrieve(entryId: string, requestOptions?: ApiRequestOptions): Promise<Record<string, unknown>> {
-    return this.client.request<Record<string, unknown>>(customApiPath(`/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'item' });
+    return this.client.request<Record<string, unknown>>(customApiPath(`/entries/${serializePathParameter(entryId, { name: 'entryId', style: 'simple', explode: false })}`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'item' });
   }
 }
 
 export class CommunityEntriesApi {
-  private client: HttpClient;
   public readonly public: CommunityEntriesPublicApi;
   public readonly publicBySlug: CommunityEntriesPublicBySlugApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.public = new CommunityEntriesPublicApi(client);
     this.publicBySlug = new CommunityEntriesPublicBySlugApi(client);
   }
@@ -74,16 +72,14 @@ export class CommunityFeedPublicApi {
       { name: 'page', value: params?.page, style: 'form', explode: true, allowReserved: false },
       { name: 'page_size', value: params?.pageSize, style: 'form', explode: true, allowReserved: false },
     ]);
-    return this.client.request<SdkWorkPageData>(appendQueryString(customApiPath(`/feed`), query), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'page' });
+    return this.client.request<SdkWorkPageData>(appendQueryString(customApiPath(`/feed`), query), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'page' });
   }
 }
 
 export class CommunityFeedApi {
-  private client: HttpClient;
   public readonly public: CommunityFeedPublicApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.public = new CommunityFeedPublicApi(client);
   }
 
@@ -99,29 +95,25 @@ export class CommunityCategoriesPublicApi {
 
 /** Community categories.public.list */
   async list(requestOptions?: ApiRequestOptions): Promise<SdkWorkPageData> {
-    return this.client.request<SdkWorkPageData>(customApiPath(`/categories`), { signal: requestOptions?.signal, timeout: requestOptions?.timeout, method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'page' });
+    return this.client.request<SdkWorkPageData>(customApiPath(`/categories`), { ...(requestOptions?.signal !== undefined ? { signal: requestOptions.signal } : {}), ...(requestOptions?.timeout !== undefined ? { timeout: requestOptions.timeout } : {}), method: 'GET' as any, skipAuth: true, sdkworkUnwrapKind: 'page' });
   }
 }
 
 export class CommunityCategoriesApi {
-  private client: HttpClient;
   public readonly public: CommunityCategoriesPublicApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.public = new CommunityCategoriesPublicApi(client);
   }
 
 }
 
 export class CommunityApi {
-  private client: HttpClient;
   public readonly categories: CommunityCategoriesApi;
   public readonly feed: CommunityFeedApi;
   public readonly entries: CommunityEntriesApi;
 
   constructor(client: HttpClient) {
-    this.client = client;
     this.categories = new CommunityCategoriesApi(client);
     this.feed = new CommunityFeedApi(client);
     this.entries = new CommunityEntriesApi(client);

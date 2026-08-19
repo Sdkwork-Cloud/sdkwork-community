@@ -81,12 +81,13 @@ pub async fn runtime_subject_from_web_context(
 }
 
 pub fn default_runtime_subject() -> Result<RuntimeSubject, String> {
+    // Align with the platform catalog tenant used by recharge/promotion public
+    // surfaces (default `100001`). Operators may override with
+    // `COMMUNITY_DEFAULT_TENANT_ID` when the public feed lives on another tenant.
     let tenant_id = std::env::var("COMMUNITY_DEFAULT_TENANT_ID")
         .ok()
         .filter(|value| !value.trim().is_empty())
-        .ok_or_else(|| {
-            "COMMUNITY_DEFAULT_TENANT_ID is required for public community access".to_owned()
-        })?;
+        .unwrap_or_else(|| "100001".to_owned());
     Ok(RuntimeSubject {
         tenant_id,
         organization_id: None,

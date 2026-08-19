@@ -50,13 +50,17 @@ pub fn build_open_router(
 pub async fn build_open_router_with_framework(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
-    wrap_router_with_web_framework_from_env(build_open_router(host)).await
+    wrap_router_with_web_framework_from_env(
+        build_open_router(host),
+        crate::http_route_manifest::gateway_route_manifest(),
+    )
+    .await
 }
 
 pub async fn gateway_mount(
     host: Arc<sdkwork_community_service_host::CommunityServiceHost>,
 ) -> Router {
-    build_open_router_with_framework(host).await
+    build_open_router(host)
 }
 
 async fn list_categories(
