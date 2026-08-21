@@ -16,20 +16,26 @@
     "environment": {
       "allowed": [
         "development",
+        "test",
+        "staging",
         "production"
       ]
     }
   },
   "defaults": {
     "developmentProfileId": "standalone.development",
-    "productionProfileId": "standalone.production",
+    "productionProfileId": "cloud.production",
     "desktopBuildProfileId": "standalone.production"
   },
   "profileFiles": {
     "standalone.development": "etc/topology/standalone.development.env",
+    "standalone.test": "etc/topology/standalone.test.env",
+    "standalone.staging": "etc/topology/standalone.staging.env",
     "standalone.production": "etc/topology/standalone.production.env",
-    "cloud.production": "etc/topology/cloud.production.env",
-    "cloud.development": "etc/topology/cloud.development.env"
+    "cloud.development": "etc/topology/cloud.development.env",
+    "cloud.test": "etc/topology/cloud.test.env",
+    "cloud.staging": "etc/topology/cloud.staging.env",
+    "cloud.production": "etc/topology/cloud.production.env"
   },
   "envKeys": {
     "deploymentProfile": "SDKWORK_COMMUNITY_DEPLOYMENT_PROFILE",
@@ -64,38 +70,6 @@
       "binary": "sdkwork-api-community-standalone-gateway"
     }
   },
-  "deploymentProfiles": {
-    "standalone": {
-      "serviceLayout": "unified-process",
-      "runtimeTarget": "browser",
-      "connectivity": {
-        "communityApi": {
-          "env": "SDKWORK_COMMUNITY_SERVER_BIND"
-        }
-      },
-      "surfaces": {
-        "pc": {
-          "devPort": 3000,
-          "appApiBaseUrl": "http://localhost:18094/app/v3/api",
-          "openApiBaseUrl": "http://localhost:18094/community/v3/api"
-        },
-        "h5": {
-          "devPort": 3001,
-          "appApiBaseUrl": "http://localhost:18094/app/v3/api",
-          "openApiBaseUrl": "http://localhost:18094/community/v3/api"
-        }
-      }
-    },
-    "cloud": {
-      "serviceLayout": "split-services",
-      "runtimeTarget": "browser",
-      "connectivity": {
-        "communityApi": {
-          "gatewayPath": "/community"
-        }
-      }
-    }
-  },
   "cloudPublicHosts": {
     "platform.api-gateway": {
       "httpHost": "api.sdkwork.com"
@@ -112,10 +86,56 @@
             "bindEnv": "SDKWORK_COMMUNITY_SERVER_BIND",
             "required": true,
             "role": "api-standalone-gateway"
+          },
+          {
+            "id": "community-browser",
+            "role": "client",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "bindEnv": "SDKWORK_COMMUNITY_WEB_DEV_INGRESS_BIND",
+            "runtimeTargets": [
+              "browser"
+            ],
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "required": true
           }
         ],
         "healthSurfaces": [
           "application.public-ingress"
+        ],
+        "browserDeliveries": [
+          {
+            "id": "community-adaptive-web",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "originMode": "same-origin",
+            "deliveryMode": "dev-server-proxy",
+            "clientProcessId": "community-browser",
+            "apiSurfaceId": "application.public-ingress",
+            "preserveCanonicalPaths": true,
+            "tabletArchitecture": "pc-web",
+            "renderers": {
+              "pc-web": {
+                "applicationRoot": "apps/sdkwork-community-pc",
+                "script": "dev",
+                "defaultPort": 5131,
+                "portEnv": "SDKWORK_COMMUNITY_PC_INTERNAL_DEV_PORT",
+                "env": {}
+              },
+              "h5": {
+                "applicationRoot": "apps/sdkwork-community-h5",
+                "script": "dev",
+                "defaultPort": 5132,
+                "portEnv": "SDKWORK_COMMUNITY_H5_INTERNAL_DEV_PORT",
+                "env": {}
+              }
+            }
+          }
         ]
       },
       "standalone.production": {
@@ -134,10 +154,57 @@
         ]
       },
       "cloud.development": {
-        "processes": [],
+        "processes": [
+          {
+            "id": "community-browser",
+            "role": "client",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "bindEnv": "SDKWORK_COMMUNITY_WEB_DEV_INGRESS_BIND",
+            "runtimeTargets": [
+              "browser"
+            ],
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "required": true
+          }
+        ],
         "healthSurfaces": [
           "application.public-ingress",
           "platform.api-gateway"
+        ],
+        "browserDeliveries": [
+          {
+            "id": "community-adaptive-web",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "originMode": "same-origin",
+            "deliveryMode": "dev-server-proxy",
+            "clientProcessId": "community-browser",
+            "apiSurfaceId": "application.public-ingress",
+            "preserveCanonicalPaths": true,
+            "tabletArchitecture": "pc-web",
+            "renderers": {
+              "pc-web": {
+                "applicationRoot": "apps/sdkwork-community-pc",
+                "script": "dev",
+                "defaultPort": 5131,
+                "portEnv": "SDKWORK_COMMUNITY_PC_INTERNAL_DEV_PORT",
+                "env": {}
+              },
+              "h5": {
+                "applicationRoot": "apps/sdkwork-community-h5",
+                "script": "dev",
+                "defaultPort": 5132,
+                "portEnv": "SDKWORK_COMMUNITY_H5_INTERNAL_DEV_PORT",
+                "env": {}
+              }
+            }
+          }
         ]
       },
       "cloud.production": {
@@ -146,7 +213,147 @@
           "application.public-ingress",
           "platform.api-gateway"
         ]
+      },
+      "standalone.test": {
+        "processes": [
+          {
+            "id": "application.public-ingress",
+            "crate": "sdkwork-api-community-standalone-gateway",
+            "binary": "sdkwork-api-community-standalone-gateway",
+            "bindEnv": "SDKWORK_COMMUNITY_SERVER_BIND",
+            "required": true,
+            "role": "api-standalone-gateway"
+          },
+          {
+            "id": "community-browser",
+            "role": "client",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "bindEnv": "SDKWORK_COMMUNITY_WEB_DEV_INGRESS_BIND",
+            "runtimeTargets": [
+              "browser"
+            ],
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "required": true
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress"
+        ],
+        "browserDeliveries": [
+          {
+            "id": "community-adaptive-web",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "originMode": "same-origin",
+            "deliveryMode": "dev-server-proxy",
+            "clientProcessId": "community-browser",
+            "apiSurfaceId": "application.public-ingress",
+            "preserveCanonicalPaths": true,
+            "tabletArchitecture": "pc-web",
+            "renderers": {
+              "pc-web": {
+                "applicationRoot": "apps/sdkwork-community-pc",
+                "script": "dev",
+                "defaultPort": 5131,
+                "portEnv": "SDKWORK_COMMUNITY_PC_INTERNAL_DEV_PORT",
+                "env": {}
+              },
+              "h5": {
+                "applicationRoot": "apps/sdkwork-community-h5",
+                "script": "dev",
+                "defaultPort": 5132,
+                "portEnv": "SDKWORK_COMMUNITY_H5_INTERNAL_DEV_PORT",
+                "env": {}
+              }
+            }
+          }
+        ]
+      },
+      "standalone.staging": {
+        "processes": [
+          {
+            "id": "application.public-ingress",
+            "crate": "sdkwork-api-community-standalone-gateway",
+            "binary": "sdkwork-api-community-standalone-gateway",
+            "bindEnv": "SDKWORK_COMMUNITY_SERVER_BIND",
+            "required": true,
+            "role": "api-standalone-gateway"
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress"
+        ]
+      },
+      "cloud.test": {
+        "processes": [
+          {
+            "id": "community-browser",
+            "role": "client",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "bindEnv": "SDKWORK_COMMUNITY_WEB_DEV_INGRESS_BIND",
+            "runtimeTargets": [
+              "browser"
+            ],
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "required": true
+          }
+        ],
+        "healthSurfaces": [
+          "application.public-ingress",
+          "platform.api-gateway"
+        ],
+        "browserDeliveries": [
+          {
+            "id": "community-adaptive-web",
+            "applicationRoot": "apps/sdkwork-community-pc",
+            "clientArchitectures": [
+              "pc-web",
+              "h5"
+            ],
+            "originMode": "same-origin",
+            "deliveryMode": "dev-server-proxy",
+            "clientProcessId": "community-browser",
+            "apiSurfaceId": "application.public-ingress",
+            "preserveCanonicalPaths": true,
+            "tabletArchitecture": "pc-web",
+            "renderers": {
+              "pc-web": {
+                "applicationRoot": "apps/sdkwork-community-pc",
+                "script": "dev",
+                "defaultPort": 5131,
+                "portEnv": "SDKWORK_COMMUNITY_PC_INTERNAL_DEV_PORT",
+                "env": {}
+              },
+              "h5": {
+                "applicationRoot": "apps/sdkwork-community-h5",
+                "script": "dev",
+                "defaultPort": 5132,
+                "portEnv": "SDKWORK_COMMUNITY_H5_INTERNAL_DEV_PORT",
+                "env": {}
+              }
+            }
+          }
+        ]
+      },
+      "cloud.staging": {
+        "processes": [],
+        "healthSurfaces": [
+          "application.public-ingress",
+          "platform.api-gateway"
+        ]
       }
     }
+  },
+  "retired": {
+    "notes": "Legacy deploymentProfiles block (serviceLayout unified-process/split-services) removed in favor of schema v5 orchestration."
   }
 }
